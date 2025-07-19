@@ -1,0 +1,152 @@
+<!-- strawberry/templates/strawberry/graph-all2.html -->
+{% extends 'strawberry/base.html' %}
+{% load static %}
+
+{% block title %}All Sensors Graph Farm 2 - Harumiki Smart Farm{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'css/graph-all.css' %}">
+{% endblock %}
+
+{% block content %}
+<div class="graph-all-container">
+    <!-- Header -->
+    <!-- <div class="graph-header">
+        <h1><i class="bi bi-graph-up"></i> Harumiki Smart Farm - All Sensors Overview</h1>
+        <p class="subtitle">Farm 2 - Normalized Data Visualization (0-100 Scale)</p>
+    </div> -->
+
+    <!-- Date Filter Form -->
+    <div class="filter-section">
+        <form method="GET" action="{% url 'graph-all2' %}" class="date-filter-form">
+            <div class="row g-3 align-items-end">
+                <div class="col-md-4">
+                    <label for="start-date" class="form-label">
+                        <i class="bi bi-calendar-date"></i> Start Date
+                    </label>
+                    <input type="date" id="start-date" name="start_date" 
+                           class="form-control" value="{{ request.GET.start_date }}">
+                </div>
+                <div class="col-md-4">
+                    <label for="end-date" class="form-label">
+                        <i class="bi bi-calendar-date"></i> End Date
+                    </label>
+                    <input type="date" id="end-date" name="end_date" 
+                           class="form-control" value="{{ request.GET.end_date }}">
+                </div>
+                <div class="col-md-4">
+                    <button type="submit" class="btn btn-primary w-100">
+                        <i class="bi bi-funnel"></i> Apply Filter
+                    </button>
+                </div>
+            </div>
+        </form>
+    </div>
+
+    <!-- Legend Toggle Controls -->
+    <div class="legend-controls">
+        <h3>Toggle Sensor Groups</h3>
+        <div class="button-group">
+            <button class="btn btn-sm btn-outline-primary toggle-group" data-group="air">
+                <i class="bi bi-wind"></i> Air Quality
+            </button>
+            <button class="btn btn-sm btn-outline-primary toggle-group" data-group="light">
+                <i class="bi bi-brightness-high"></i> Light
+            </button>
+            <button class="btn btn-sm btn-outline-primary toggle-group" data-group="npk2">
+                <i class="bi bi-tree"></i> NPK Farm 2
+            </button>
+            <button class="btn btn-sm btn-outline-primary toggle-group" data-group="temp2">
+                <i class="bi bi-thermometer-half"></i> Temperature Farm 2
+            </button>
+            <button class="btn btn-sm btn-outline-primary toggle-group" data-group="humidity2">
+                <i class="bi bi-droplet"></i> Humidity Farm 2
+            </button>
+            <button class="btn btn-sm btn-outline-primary toggle-group" data-group="water">
+                <i class="bi bi-water"></i> Water
+            </button>
+        </div>
+        <div class="button-group mt-2">
+            <button class="btn btn-sm btn-success" id="show-all">Show All</button>
+            <button class="btn btn-sm btn-danger" id="hide-all">Hide All</button>
+        </div>
+    </div>
+
+    <!-- Main Chart -->
+    <div class="chart-section">
+        <div class="chart-card">
+            <div class="chart-header">
+                <h2>All Farm 2 Sensors - Normalized View</h2>
+                <span class="chart-unit">Normalized Scale (0-100)</span>
+            </div>
+            <div class="chart-body">
+                <canvas id="allSensorsChart"></canvas>
+            </div>
+        </div>
+    </div>
+
+    <!-- Data Info Table -->
+    <div class="data-info-section">
+        <h3>Normalization Reference</h3>
+        <div class="info-table">
+            <table class="table table-sm table-striped">
+                <thead>
+                    <tr>
+                        <th>Sensor</th>
+                        <th>Max Value</th>
+                        <th>Unit</th>
+                        <th>Group</th>
+                    </tr>
+                </thead>
+                <tbody id="normalization-info">
+                    <!-- Will be populated by JavaScript -->
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <!-- Hidden data container for Farm 2 sensors -->
+    <div id="chart-data" class="d-none"
+         data-pm-r2="{{ pm_R2.values }}"
+         data-pm-r2-times="{{ pm_R2.datetimes|safe }}"
+         data-pm-outside="{{ pm_outside.values }}"
+         data-uv-r24="{{ UV_R24.values }}"
+         data-lux-r24="{{ LUX_R24.values }}"
+         data-co2-r1="{{ CO2_R1.values }}"
+         data-co2-r2="{{ CO2_R2.values }}"
+         data-ppfd-r16="{{ ppfdR16.values }}"
+         data-ppfd-r24="{{ ppfdR24.values }}"
+         data-nitrogen-r8="{{ nitrogenR8.values }}"
+         data-nitrogen-r16="{{ nitrogenR16.values }}"
+         data-nitrogen-r24="{{ nitrogenR24.values }}"
+         data-phosphorus-r8="{{ phosphorusR8.values }}"
+         data-phosphorus-r16="{{ phosphorusR16.values }}"
+         data-phosphorus-r24="{{ phosphorusR24.values }}"
+         data-potassium-r8="{{ potassiumR8.values }}"
+         data-potassium-r16="{{ potassiumR16.values }}"
+         data-potassium-r24="{{ potassiumR24.values }}"
+         data-air-temp-r8="{{ airTempR8.values }}"
+         data-air-temp-r24="{{ airTempR24.values }}"
+         data-temp-npk-r8="{{ temp_npkR8.values }}"
+         data-temp-npk-r16="{{ temp_npkR16.values }}"
+         data-temp-npk-r24="{{ temp_npkR24.values }}"
+         data-temp-wm="{{ TempWM.values }}"
+         data-air-hum-r8="{{ airHumR8.values }}"
+         data-air-hum-r24="{{ airHumR24.values }}"
+         data-soil1="{{ soil1.values }}"
+         data-soil2="{{ soil2.values }}"
+         data-soil3="{{ soil3.values }}"
+         data-soil4="{{ soil4.values }}"
+         data-soil5="{{ soil5.values }}"
+         data-soil6="{{ soil6.values }}"
+         data-soil13="{{ soil13.values }}"
+         data-ecwm="{{ ECWM.values }}">
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script src="https://cdn.jsdelivr.net/npm/chart.js@3.9.1/dist/chart.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/chartjs-adapter-date-fns@2.0.0/dist/chartjs-adapter-date-fns.bundle.min.js"></script>
+<script src="{% static 'js/graph-all.js' %}"></script>
+{% endblock %}

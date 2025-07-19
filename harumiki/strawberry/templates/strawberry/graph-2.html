@@ -1,0 +1,240 @@
+<!-- strawberry/templates/strawberry/graph-2.html -->
+{% extends 'strawberry/base.html' %}
+{% load static %}
+{% load json_filters %}
+
+{% block title %}Data Visualization Farm 2 - Harumiki Smart Farm{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'css/graph.css' %}">
+{% endblock %}
+
+{% block content %}
+<div class="graph-dashboard-container">
+    <!-- Header -->
+    <!-- <div class="dashboard-header">
+        <h1><i class="bi bi-graph-up"></i> Harumiki Smart Farm - Data Visualization</h1>
+        <p class="subtitle">Farm 2 Environmental & Agricultural Monitoring</p>
+    </div> -->
+
+    <!-- Date Filter Form -->
+    <div class="filter-section">
+        <form method="GET" action="{% url 'graph-2' %}" class="date-filter-form">
+            <div class="row g-3 align-items-end">
+                <div class="col-md-4">
+                    <label for="start-date" class="form-label">
+                        <i class="bi bi-calendar-date"></i> Start Date
+                    </label>
+                    <input type="date" id="start-date" name="start_date" 
+                           class="form-control" value="{{ request.GET.start_date }}">
+                </div>
+                <div class="col-md-4">
+                    <label for="end-date" class="form-label">
+                        <i class="bi bi-calendar-date"></i> End Date
+                    </label>
+                    <input type="date" id="end-date" name="end_date" 
+                           class="form-control" value="{{ request.GET.end_date }}">
+                </div>
+                <div class="col-md-4">
+                    <button type="submit" class="btn btn-primary w-100">
+                        <i class="bi bi-funnel"></i> Apply Filter
+                    </button>
+                </div>
+            </div>
+        </form>
+    </div>
+
+    <!-- Air Quality Charts -->
+    <div class="chart-section">
+        <div class="section-header">
+            <h2><i class="bi bi-wind"></i> Air Quality Monitoring</h2>
+        </div>
+        
+        <div class="row">
+            <div class="col-lg-6 mb-4">
+                <div class="chart-card">
+                    <div class="chart-header">
+                        <h3>PM 2.5 Levels</h3>
+                        <span class="chart-unit">μg/m³</span>
+                    </div>
+                    <div class="chart-body">
+                        <canvas id="pmChart"></canvas>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="col-lg-6 mb-4">
+                <div class="chart-card">
+                    <div class="chart-header">
+                        <h3>Carbon Dioxide</h3>
+                        <span class="chart-unit">ppm</span>
+                    </div>
+                    <div class="chart-body">
+                        <canvas id="CO2_Chart"></canvas>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Light Monitoring Charts -->
+    <div class="chart-section">
+        <div class="section-header">
+            <h2><i class="bi bi-brightness-high"></i> Light Monitoring</h2>
+        </div>
+        
+        <div class="row">
+            <div class="col-lg-6 mb-4">
+                <div class="chart-card">
+                    <div class="chart-header">
+                        <h3>LUX & UV Radiation</h3>
+                        <span class="chart-unit">lux / nm</span>
+                    </div>
+                    <div class="chart-body">
+                        <canvas id="SunChart"></canvas>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="col-lg-6 mb-4">
+                <div class="chart-card">
+                    <div class="chart-header">
+                        <h3>PPFD Levels</h3>
+                        <span class="chart-unit">μmol/s.m²</span>
+                    </div>
+                    <div class="chart-body">
+                        <canvas id="ppfd_Chart"></canvas>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Soil Analysis Charts -->
+    <div class="chart-section">
+        <div class="section-header">
+            <h2><i class="bi bi-tree"></i> Soil Analysis</h2>
+        </div>
+        
+        <div class="row">
+            <div class="col-lg-12 mb-4">
+                <div class="chart-card">
+                    <div class="chart-header">
+                        <h3>NPK Nutrient Levels</h3>
+                        <span class="chart-unit">mg/kg</span>
+                    </div>
+                    <div class="chart-body">
+                        <canvas id="NPK_Chart"></canvas>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Environmental Conditions Charts -->
+    <div class="chart-section">
+        <div class="section-header">
+            <h2><i class="bi bi-thermometer-half"></i> Environmental Conditions</h2>
+        </div>
+        
+        <div class="row">
+            <div class="col-lg-6 mb-4">
+                <div class="chart-card">
+                    <div class="chart-header">
+                        <h3>Temperature Monitoring</h3>
+                        <span class="chart-unit">°C</span>
+                    </div>
+                    <div class="chart-body">
+                        <canvas id="Temp_env_Chart"></canvas>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="col-lg-6 mb-4">
+                <div class="chart-card">
+                    <div class="chart-header">
+                        <h3>Humidity & Moisture</h3>
+                        <span class="chart-unit">%</span>
+                    </div>
+                    <div class="chart-body">
+                        <canvas id="hum_mois_env_Chart"></canvas>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Water Quality Charts -->
+    <div class="chart-section">
+        <div class="section-header">
+            <h2><i class="bi bi-water"></i> Water Quality</h2>
+        </div>
+        
+        <div class="row">
+            <div class="col-lg-12 mb-4">
+                <div class="chart-card">
+                    <div class="chart-header">
+                        <h3>Electrical Conductivity</h3>
+                        <span class="chart-unit">μS/cm</span>
+                    </div>
+                    <div class="chart-body">
+                        <canvas id="EC_Chart"></canvas>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Hidden data containers for Farm 2 -->
+    <div id="chart-data" class="d-none"
+         data-pm-r2="{{ pm_R2.values }}"
+         data-pm-r2-times="{{ pm_R2.datetimes|safe }}"
+         data-pm-outside="{{ pm_outside.values }}"
+         data-co2-r1="{{ CO2_R1.values }}"
+         data-co2-r2="{{ CO2_R2.values }}"
+         data-co2-times="{{ CO2_R2.datetimes|safe }}"
+         data-uv-r24="{{ UV_R24.values }}"
+         data-uv-r24-times="{{ UV_R24.datetimes|safe }}"
+         data-lux-r24="{{ LUX_R24.values }}"
+         data-ppfd-r16="{{ ppfdR16.values }}"
+         data-ppfd-r16-times="{{ ppfdR16.datetimes|safe }}"
+         data-ppfd-r24="{{ ppfdR24.values }}"
+         data-nitrogen-r8="{{ nitrogenR8.values }}"
+         data-nitrogen-r8-times="{{ nitrogenR8.datetimes|safe }}"
+         data-nitrogen-r16="{{ nitrogenR16.values }}"
+         data-nitrogen-r24="{{ nitrogenR24.values }}"
+         data-phosphorus-r8="{{ phosphorusR8.values }}"
+         data-phosphorus-r16="{{ phosphorusR16.values }}"
+         data-phosphorus-r24="{{ phosphorusR24.values }}"
+         data-potassium-r8="{{ potassiumR8.values }}"
+         data-potassium-r16="{{ potassiumR16.values }}"
+         data-potassium-r24="{{ potassiumR24.values }}"
+         data-temp-npk-r8="{{ temp_npkR8.values }}"
+         data-temp-npk-r8-times="{{ temp_npkR8.datetimes|safe }}"
+         data-temp-npk-r16="{{ temp_npkR16.values }}"
+         data-temp-npk-r24="{{ temp_npkR24.values }}"
+         data-air-temp-r8="{{ airTempR8.values }}"
+         data-air-temp-r24="{{ airTempR24.values }}"
+         data-temp-wm="{{ TempWM.values }}"
+         data-air-hum-r8="{{ airHumR8.values }}"
+         data-air-hum-r8-times="{{ airHumR8.datetimes|safe }}"
+         data-air-hum-r24="{{ airHumR24.values }}"
+         data-soil1="{{ soil1.values }}"
+         data-soil2="{{ soil2.values }}"
+         data-soil3="{{ soil3.values }}"
+         data-soil4="{{ soil4.values }}"
+         data-soil5="{{ soil5.values }}"
+         data-soil6="{{ soil6.values }}"
+         data-soil13="{{ soil13.values }}"
+         data-ecwm="{{ ECWM.values }}"
+         data-ecwm-times="{{ ECWM.datetimes|safe }}">
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script src="https://cdn.jsdelivr.net/npm/chart.js@3.9.1/dist/chart.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/chartjs-adapter-date-fns@2.0.0/dist/chartjs-adapter-date-fns.bundle.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-annotation@1.4.0/dist/chartjs-plugin-annotation.min.js"></script>
+<script src="{% static 'js/graph-combined.js' %}"></script>
+{% endblock %}

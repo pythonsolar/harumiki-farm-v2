@@ -1,0 +1,373 @@
+/* static/css/farm.css */
+/* 
+ * Dashboard CSS for Harumiki Smart Farm
+ * Modern and responsive design
+ */
+
+/* ========== CSS Variables ========== */
+:root {
+    /* Colors */
+    --color-primary: #7380ec;
+    --color-danger: #ff4c61;
+    --color-success: #3cd278;
+    --color-warning: #ffb74c;
+    --color-info: #17a2b8;
+    --color-dark: #1e1e2f;
+    --color-light: #f4f4f8;
+    --color-white: #ffffff;
+    
+    /* Sensor Colors */
+    --color-ppfd: #ff9800;
+    --color-lux: #ffeb3b;
+    --color-uv: #9c27b0;
+    --color-dli: #009688;
+    --color-co2: #3f51b5;
+    --color-pm25: #f497be;
+    --color-temp: #4b1fc5;
+    --color-humidity: #1fc5b7;
+    --color-soil: #87aa44;
+    --color-water: #413790;
+    
+    /* Layout */
+    --card-radius: 1rem;
+    --card-padding: 1.5rem;
+    --section-spacing: 2rem;
+    
+    /* Shadows */
+    --shadow-sm: 0 0.125rem 0.25rem rgba(0,0,0,0.075);
+    --shadow-md: 0 0.5rem 1rem rgba(0,0,0,0.15);
+    --shadow-lg: 0 1rem 3rem rgba(0,0,0,0.175);
+    
+    /* Animations */
+    --transition-fast: 0.2s ease;
+    --transition-medium: 0.3s ease;
+    --transition-slow: 0.5s ease;
+}
+
+/* ========== Dashboard Container ========== */
+.dashboard-container {
+    padding: 1rem 0;
+    animation: fadeIn 0.5s ease-out;
+}
+
+/* ========== Section Headers ========== */
+.section-header {
+    margin: var(--section-spacing) 0 1rem;
+    padding-bottom: 0.5rem;
+    border-bottom: 2px solid var(--color-light);
+}
+
+.section-header h2 {
+    font-size: 1.5rem;
+    font-weight: 600;
+    color: var(--color-dark);
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.section-header i {
+    color: var(--color-primary);
+}
+
+/* ========== Sensor Cards ========== */
+.sensor-card {
+    background: var(--color-white);
+    border-radius: var(--card-radius);
+    padding: var(--card-padding);
+    box-shadow: var(--shadow-sm);
+    transition: all var(--transition-medium);
+    height: 100%;
+    position: relative;
+    overflow: hidden;
+}
+
+.sensor-card:hover {
+    transform: translateY(-3px);
+    box-shadow: var(--shadow-md);
+}
+
+.sensor-card::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 4px;
+    background: var(--color-primary);
+    transition: height var(--transition-fast);
+}
+
+.sensor-card:hover::before {
+    height: 6px;
+}
+
+/* Sensor Types */
+.sensor-card.ppfd::before { background: var(--color-ppfd); }
+.sensor-card.lux::before { background: var(--color-lux); }
+.sensor-card.uv::before { background: var(--color-uv); }
+.sensor-card.dli::before { background: var(--color-dli); }
+.sensor-card.co2::before { background: var(--color-co2); }
+.sensor-card.pm25::before { background: var(--color-pm25); }
+.sensor-card.temperature::before { background: var(--color-temp); }
+.sensor-card.humidity::before { background: var(--color-humidity); }
+.sensor-card.soil::before { background: var(--color-soil); }
+.sensor-card.water::before { background: var(--color-water); }
+
+/* Sensor Header */
+.sensor-header {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    margin-bottom: 1rem;
+}
+
+.sensor-header i {
+    font-size: 1.5rem;
+    width: 3rem;
+    height: 3rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 50%;
+    background: var(--color-light);
+    color: var(--color-primary);
+}
+
+.sensor-card.ppfd .sensor-header i { background: rgba(255, 152, 0, 0.1); color: var(--color-ppfd); }
+.sensor-card.lux .sensor-header i { background: rgba(255, 235, 59, 0.1); color: var(--color-lux); }
+.sensor-card.uv .sensor-header i { background: rgba(156, 39, 176, 0.1); color: var(--color-uv); }
+.sensor-card.dli .sensor-header i { background: rgba(0, 150, 136, 0.1); color: var(--color-dli); }
+.sensor-card.co2 .sensor-header i { background: rgba(63, 81, 181, 0.1); color: var(--color-co2); }
+.sensor-card.pm25 .sensor-header i { background: rgba(244, 151, 190, 0.1); color: var(--color-pm25); }
+.sensor-card.temperature .sensor-header i { background: rgba(75, 31, 197, 0.1); color: var(--color-temp); }
+.sensor-card.humidity .sensor-header i { background: rgba(31, 197, 183, 0.1); color: var(--color-humidity); }
+.sensor-card.soil .sensor-header i { background: rgba(135, 170, 68, 0.1); color: var(--color-soil); }
+.sensor-card.water .sensor-header i { background: rgba(65, 55, 144, 0.1); color: var(--color-water); }
+
+.sensor-header h5 {
+    margin: 0;
+    font-size: 1.1rem;
+    font-weight: 600;
+    color: var(--color-dark);
+}
+
+/* Sensor Value */
+.sensor-value {
+    display: flex;
+    align-items: baseline;
+    justify-content: center;
+    margin: 1.5rem 0;
+    gap: 0.5rem;
+}
+
+.sensor-value .value {
+    font-size: 3rem;
+    font-weight: 700;
+    color: var(--color-dark);
+    line-height: 1;
+}
+
+.sensor-value .unit {
+    font-size: 1rem;
+    color: #666;
+    font-weight: 500;
+}
+
+/* Sensor Status */
+.sensor-status {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-top: 1rem;
+    padding-top: 1rem;
+    border-top: 1px solid var(--color-light);
+}
+
+.status-indicator {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background: var(--color-success);
+    animation: pulse 2s infinite;
+}
+
+.status-indicator.warning {
+    background: var(--color-warning);
+}
+
+.status-indicator.danger {
+    background: var(--color-danger);
+}
+
+.sensor-status small {
+    color: #999;
+    font-size: 0.85rem;
+}
+
+/* ========== NPK Boxes ========== */
+.npk-box {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    padding: 1rem;
+    background: var(--color-light);
+    border-radius: 0.75rem;
+    transition: all var(--transition-fast);
+}
+
+.npk-box:hover {
+    transform: translateY(-2px);
+    box-shadow: var(--shadow-sm);
+}
+
+.npk-icon {
+    width: 3rem;
+    height: 3rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 50%;
+    font-weight: 700;
+    font-size: 1.25rem;
+    color: var(--color-white);
+}
+
+.npk-box.nitrogen .npk-icon { background: #ff9800; }
+.npk-box.phosphorus .npk-icon { background: #4caf50; }
+.npk-box.potassium .npk-icon { background: #2196f3; }
+.npk-box.temperature .npk-icon { background: #9c27b0; }
+
+.npk-info {
+    display: flex;
+    flex-direction: column;
+}
+
+.npk-name {
+    font-size: 0.85rem;
+    color: #666;
+    margin-bottom: 0.25rem;
+}
+
+.npk-value {
+    font-size: 1.5rem;
+    font-weight: 700;
+    color: var(--color-dark);
+}
+
+/* ========== Gauge Containers ========== */
+.gauge-container {
+    position: relative;
+    text-align: center;
+    padding: 1rem;
+}
+
+.gauge-container canvas {
+    max-width: 200px;
+    height: auto;
+}
+
+.gauge-info {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    margin-top: 1rem;
+}
+
+.gauge-title {
+    font-size: 0.9rem;
+    color: #666;
+    margin-bottom: 0.25rem;
+}
+
+.gauge-value {
+    font-size: 1.25rem;
+    font-weight: 700;
+    color: var(--color-dark);
+}
+
+/* ========== Responsive Design ========== */
+@media (max-width: 768px) {
+    .sensor-value .value {
+        font-size: 2.5rem;
+    }
+    
+    .npk-box {
+        flex-direction: column;
+        text-align: center;
+    }
+    
+    .gauge-container canvas {
+        max-width: 150px;
+    }
+}
+
+@media (max-width: 576px) {
+    .dashboard-container {
+        padding: 0.5rem;
+    }
+    
+    .sensor-card {
+        padding: 1rem;
+    }
+    
+    .sensor-value .value {
+        font-size: 2rem;
+    }
+}
+
+/* ========== Animations ========== */
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(20px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+@keyframes pulse {
+    0% {
+        box-shadow: 0 0 0 0 rgba(60, 210, 120, 0.7);
+    }
+    70% {
+        box-shadow: 0 0 0 10px rgba(60, 210, 120, 0);
+    }
+    100% {
+        box-shadow: 0 0 0 0 rgba(60, 210, 120, 0);
+    }
+}
+
+/* ========== Utility Classes ========== */
+.text-success { color: var(--color-success); }
+.text-warning { color: var(--color-warning); }
+.text-danger { color: var(--color-danger); }
+
+.bg-success { background-color: var(--color-success); }
+.bg-warning { background-color: var(--color-warning); }
+.bg-danger { background-color: var(--color-danger); }
+
+/* ========== Loading States ========== */
+.sensor-card.loading {
+    position: relative;
+    overflow: hidden;
+}
+
+.sensor-card.loading::after {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: -100%;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(90deg, transparent, rgba(255,255,255,0.5), transparent);
+    animation: loading 1.5s infinite;
+}
+
+@keyframes loading {
+    to {
+        left: 100%;
+    }
+}

@@ -1,0 +1,191 @@
+<!-- strawberry/templates/strawberry/export.html -->
+{% extends 'strawberry/base.html' %}
+{% load static %}
+
+{% block title %}Data Export - Harumiki Smart Farm{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'css/export.css' %}">
+{% endblock %}
+
+{% block content %}
+<div class="export-container">
+    <!-- Header -->
+    <!-- <div class="export-header">
+        <h1><i class="bi bi-cloud-download"></i> Harumiki Data Export</h1>
+        <p>Export sensor data from your smart farm</p>
+    </div> -->
+
+    <!-- Messages -->
+    {% if messages %}
+        {% for message in messages %}
+            <div class="alert alert-{{ message.tags }} alert-dismissible fade show" role="alert">
+                <i class="bi bi-info-circle"></i> {{ message }}
+                <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+            </div>
+        {% endfor %}
+    {% endif %}
+
+    <!-- Date Range Selection -->
+    <div class="date-range-card">
+        <h4><i class="bi bi-calendar-range"></i> Select Date Range</h4>
+        <div class="row">
+            <div class="col-md-6">
+                <label class="form-label text-white">Start Date:</label>
+                <input type="date" id="global-start-date" class="form-control" 
+                       value="{{ request.GET.start_date }}">
+            </div>
+            <div class="col-md-6">
+                <label class="form-label text-white">End Date:</label>
+                <input type="date" id="global-end-date" class="form-control" 
+                       value="{{ request.GET.end_date }}">
+            </div>
+        </div>
+    </div>
+
+    <!-- Export Options Tabs -->
+    <div class="tabs-container">
+        <ul class="nav nav-tabs" role="tablist">
+            <li class="nav-item">
+                <a class="nav-link active" data-bs-toggle="tab" href="#single-sensor">
+                    <i class="bi bi-file-earmark-text"></i> Single Sensor
+                </a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link" data-bs-toggle="tab" href="#multiple-sensors">
+                    <i class="bi bi-files"></i> Multiple Sensors
+                </a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link" data-bs-toggle="tab" href="#by-farm">
+                    <i class="bi bi-building"></i> By Farm
+                </a>
+            </li>
+        </ul>
+    </div>
+
+    <!-- Tab Content -->
+    <div class="tab-content">
+        <!-- Single Sensor Export -->
+        <div class="tab-pane fade show active" id="single-sensor">
+            <div class="export-card">
+                <h3><i class="bi bi-download"></i> Export Single Sensor</h3>
+                <form method="GET" action="{% url 'export_process' %}">
+                    <input type="hidden" name="start_date" class="sync-start-date">
+                    <input type="hidden" name="end_date" class="sync-end-date">
+                    
+                    <div class="row">
+                        <div class="col-md-6">
+                            <label class="form-label">Choose Farm:</label>
+                            <select id="farm-select" class="form-select" onchange="updateSensors()">
+                                <option value="farm1">🌱 Farm 1</option>
+                                <option value="farm2">🌿 Farm 2</option>
+                            </select>
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label">Choose Sensor:</label>
+                            <select name="Sensor_id" id="sensors" class="form-select">
+                                <!-- Options populated by JavaScript -->
+                            </select>
+                        </div>
+                    </div>
+                    <div class="text-center mt-4">
+                        <button type="submit" class="btn btn-export">
+                            <i class="bi bi-download"></i> Download CSV
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+
+        <!-- Multiple Sensors Export -->
+        <div class="tab-pane fade" id="multiple-sensors">
+            <div class="export-card">
+                <h3><i class="bi bi-file-zip"></i> Export Multiple Sensors</h3>
+                <form method="POST" action="{% url 'export_multiple' %}">
+                    {% csrf_token %}
+                    <input type="hidden" name="start_date" class="sync-start-date">
+                    <input type="hidden" name="end_date" class="sync-end-date">
+                    
+                    <div class="mb-4">
+                        <label class="form-label">Select Farm:</label>
+                        <select id="farm-select-multiple" class="form-select" onchange="updateMultipleSensors()">
+                            <option value="farm1">🌱 Farm 1</option>
+                            <option value="farm2">🌿 Farm 2</option>
+                        </select>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label class="form-label">Select Sensors:</label>
+                        <div class="d-flex gap-2 mb-3">
+                            <button type="button" class="btn btn-sm btn-outline-primary" onclick="selectAll()">
+                                Select All
+                            </button>
+                            <button type="button" class="btn btn-sm btn-outline-secondary" onclick="deselectAll()">
+                                Deselect All
+                            </button>
+                        </div>
+                        <div id="sensor-checkboxes" class="sensor-grid">
+                            <!-- Checkboxes populated by JavaScript -->
+                        </div>
+                    </div>
+                    
+                    <div class="text-center mt-4">
+                        <button type="submit" class="btn btn-export">
+                            <i class="bi bi-file-zip"></i> Download as ZIP
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+
+        <!-- By Farm Export -->
+        <div class="tab-pane fade" id="by-farm">
+            <div class="row">
+                <div class="col-md-6">
+                    <div class="export-card text-center">
+                        <div class="icon-farm">🌱</div>
+                        <h3>Farm 1</h3>
+                        <p>Export all sensors from Farm 1</p>
+                        <div class="stats-card mb-3">
+                            <h4>21</h4>
+                            <p>Sensors</p>
+                        </div>
+                        <form method="GET" action="{% url 'export_by_farm' %}">
+                            <input type="hidden" name="farm" value="farm1">
+                            <input type="hidden" name="start_date" class="sync-start-date">
+                            <input type="hidden" name="end_date" class="sync-end-date">
+                            <button type="submit" class="btn btn-farm btn-farm1">
+                                <i class="bi bi-download"></i> Download Farm 1 Data
+                            </button>
+                        </form>
+                    </div>
+                </div>
+                <div class="col-md-6">
+                    <div class="export-card text-center">
+                        <div class="icon-farm">🌿</div>
+                        <h3>Farm 2</h3>
+                        <p>Export all sensors from Farm 2</p>
+                        <div class="stats-card mb-3">
+                            <h4>22</h4>
+                            <p>Sensors</p>
+                        </div>
+                        <form method="GET" action="{% url 'export_by_farm' %}">
+                            <input type="hidden" name="farm" value="farm2">
+                            <input type="hidden" name="start_date" class="sync-start-date">
+                            <input type="hidden" name="end_date" class="sync-end-date">
+                            <button type="submit" class="btn btn-farm btn-farm2">
+                                <i class="bi bi-download"></i> Download Farm 2 Data
+                            </button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script src="{% static 'js/export.js' %}"></script>
+{% endblock %}

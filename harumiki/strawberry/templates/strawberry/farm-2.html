@@ -1,0 +1,584 @@
+<!-- strawberry/templates/strawberry/farm-2.html -->
+{% extends 'strawberry/base.html' %}
+{% load static %}
+
+{% block title %}Dashboard Farm 2 - Harumiki Smart Farm{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'css/farm.css' %}">
+{% endblock %}
+
+{% block content %}
+<div class="dashboard-container">
+    <!-- Section 1: Light Sensors -->
+    <div class="section-header">
+        <h2><i class="bi bi-brightness-high"></i> Light Sensors</h2>
+    </div>
+    
+    <div class="row g-3 mb-4">
+        <!-- PPFD Sensors -->
+        <div class="col-md-6 col-lg-3">
+            <div class="sensor-card ppfd" data-sensor="ppfd">
+                <div class="sensor-header">
+                    <i class="bi bi-sun"></i>
+                    <h5>PPFD R16</h5>
+                </div>
+                <div class="sensor-value">
+                    <span id="ppfd1" class="value">{{ ppfd_R16_P }}</span>
+                    <span class="unit">μmol/s.m²</span>
+                </div>
+                <div class="sensor-status">
+                    <span class="status-indicator"></span>
+                    <small>Updated: Just now</small>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-6 col-lg-3">
+            <div class="sensor-card ppfd" data-sensor="ppfd">
+                <div class="sensor-header">
+                    <i class="bi bi-sun"></i>
+                    <h5>PPFD R24</h5>
+                </div>
+                <div class="sensor-value">
+                    <span id="ppfd2" class="value">{{ ppfd_R24_P }}</span>
+                    <span class="unit">μmol/s.m²</span>
+                </div>
+                <div class="sensor-status">
+                    <span class="status-indicator"></span>
+                    <small>Updated: Just now</small>
+                </div>
+            </div>
+        </div>
+
+        <!-- LUX and UV -->
+        <div class="col-md-6 col-lg-3">
+            <div class="sensor-card lux" data-sensor="lux">
+                <div class="sensor-header">
+                    <i class="bi bi-lightbulb"></i>
+                    <h5>LUX R24</h5>
+                </div>
+                <div class="sensor-value">
+                    <span id="luxR24" class="value">{{ LUX_R24_P }}</span>
+                    <span class="unit">lux</span>
+                </div>
+                <div class="sensor-status">
+                    <span class="status-indicator"></span>
+                    <small>Updated: Just now</small>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-6 col-lg-3">
+            <div class="sensor-card uv" data-sensor="uv">
+                <div class="sensor-header">
+                    <i class="bi bi-brightness-alt-high"></i>
+                    <h5>UV R24</h5>
+                </div>
+                <div class="sensor-value">
+                    <span id="uvR24" class="value">{{ UV_R24_P }}</span>
+                    <span class="unit">nm</span>
+                </div>
+                <div class="sensor-status">
+                    <span class="status-indicator"></span>
+                    <small>Updated: Just now</small>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- DLI and CO2 -->
+    <div class="row g-3 mb-4">
+        <div class="col-md-4">
+            <div class="sensor-card dli" data-sensor="dli">
+                <div class="sensor-header">
+                    <i class="bi bi-graph-up"></i>
+                    <h5>DLI R16</h5>
+                </div>
+                <div class="sensor-value">
+                    <span id="dli1" class="value">{{ DLI_R16_P }}</span>
+                    <span class="unit">mol/m²/day</span>
+                </div>
+                <div class="sensor-status">
+                    <span class="status-indicator"></span>
+                    <small>Daily accumulation</small>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-4">
+            <div class="sensor-card dli" data-sensor="dli">
+                <div class="sensor-header">
+                    <i class="bi bi-graph-up"></i>
+                    <h5>DLI R24</h5>
+                </div>
+                <div class="sensor-value">
+                    <span id="dli2" class="value">{{ DLI_R24_P }}</span>
+                    <span class="unit">mol/m²/day</span>
+                </div>
+                <div class="sensor-status">
+                    <span class="status-indicator"></span>
+                    <small>Daily accumulation</small>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-4">
+            <div class="sensor-card co2" data-sensor="co2">
+                <div class="sensor-header">
+                    <i class="bi bi-cloud"></i>
+                    <h5>CO2 Inside Farm2</h5>
+                </div>
+                <div class="sensor-value">
+                    <span id="co2" class="value">{{ CO2_R2 }}</span>
+                    <span class="unit">ppm</span>
+                </div>
+                <div class="sensor-status">
+                    <span class="status-indicator"></span>
+                    <small>Updated: Just now</small>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Section 2: Environmental Sensors -->
+    <div class="section-header">
+        <h2><i class="bi bi-thermometer-half"></i> Environmental Conditions</h2>
+    </div>
+
+    <!-- Temperature -->
+    <div class="row g-3 mb-4">
+        <div class="col-md-4">
+            <div class="sensor-card temperature" data-sensor="temperature">
+                <div class="sensor-header">
+                    <i class="bi bi-thermometer"></i>
+                    <h5>Temperature R8</h5>
+                </div>
+                <div class="sensor-value">
+                    <span id="temp-value1" class="value">{{ airTempR8_P }}</span>
+                    <span class="unit">°C</span>
+                </div>
+                <div class="sensor-status">
+                    <span class="status-indicator"></span>
+                    <small>Updated: Just now</small>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-4">
+            <div class="sensor-card temperature" data-sensor="temperature">
+                <div class="sensor-header">
+                    <i class="bi bi-thermometer"></i>
+                    <h5>Temperature R16</h5>
+                </div>
+                <div class="sensor-value">
+                    <span id="temp-value2" class="value">{{ airTempR16_P }}</span>
+                    <span class="unit">°C</span>
+                </div>
+                <div class="sensor-status">
+                    <span class="status-indicator"></span>
+                    <small>Updated: Just now</small>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-4">
+            <div class="sensor-card temperature" data-sensor="temperature">
+                <div class="sensor-header">
+                    <i class="bi bi-thermometer"></i>
+                    <h5>Temperature R24</h5>
+                </div>
+                <div class="sensor-value">
+                    <span id="temp-value3" class="value">{{ airTempR24_P }}</span>
+                    <span class="unit">°C</span>
+                </div>
+                <div class="sensor-status">
+                    <span class="status-indicator"></span>
+                    <small>Updated: Just now</small>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Humidity -->
+    <div class="row g-3 mb-4">
+        <div class="col-md-4">
+            <div class="sensor-card humidity" data-sensor="humidity">
+                <div class="sensor-header">
+                    <i class="bi bi-droplet"></i>
+                    <h5>Humidity R8</h5>
+                </div>
+                <div class="sensor-value">
+                    <span id="hum-value1" class="value">{{ airHumR8_P }}</span>
+                    <span class="unit">%</span>
+                </div>
+                <div class="sensor-status">
+                    <span class="status-indicator"></span>
+                    <small>Updated: Just now</small>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-4">
+            <div class="sensor-card humidity" data-sensor="humidity">
+                <div class="sensor-header">
+                    <i class="bi bi-droplet"></i>
+                    <h5>Humidity R16</h5>
+                </div>
+                <div class="sensor-value">
+                    <span id="hum-value2" class="value">{{ airHumR16_P }}</span>
+                    <span class="unit">%</span>
+                </div>
+                <div class="sensor-status">
+                    <span class="status-indicator"></span>
+                    <small>Updated: Just now</small>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-4">
+            <div class="sensor-card humidity" data-sensor="humidity">
+                <div class="sensor-header">
+                    <i class="bi bi-droplet"></i>
+                    <h5>Humidity R24</h5>
+                </div>
+                <div class="sensor-value">
+                    <span id="hum-value3" class="value">{{ airHumR24_P }}</span>
+                    <span class="unit">%</span>
+                </div>
+                <div class="sensor-status">
+                    <span class="status-indicator"></span>
+                    <small>Updated: Just now</small>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- PM2.5 -->
+    <div class="row g-3 mb-4">
+        <div class="col-md-6">
+            <div class="sensor-card pm25" data-sensor="pm25">
+                <div class="sensor-header">
+                    <i class="bi bi-wind"></i>
+                    <h5>PM 2.5 Inside Farm2</h5>
+                </div>
+                <div class="sensor-value">
+                    <span id="pm-value1" class="value">{{ pm_R2 }}</span>
+                    <span class="unit">μg/m³</span>
+                </div>
+                <div class="sensor-status">
+                    <span class="status-indicator"></span>
+                    <small>Air Quality</small>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-6">
+            <div class="sensor-card pm25" data-sensor="pm25">
+                <div class="sensor-header">
+                    <i class="bi bi-wind"></i>
+                    <h5>PM 2.5 Outside Building</h5>
+                </div>
+                <div class="sensor-value">
+                    <span id="pm-value2" class="value">{{ pm_outside }}</span>
+                    <span class="unit">μg/m³</span>
+                </div>
+                <div class="sensor-status">
+                    <span class="status-indicator"></span>
+                    <small>Air Quality</small>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Section 3: Water Sensors -->
+    <div class="section-header">
+        <h2><i class="bi bi-water"></i> Water Quality</h2>
+    </div>
+
+    <div class="row g-3 mb-4">
+        <div class="col-md-12">
+            <div class="sensor-card water">
+                <div class="sensor-header">
+                    <i class="bi bi-moisture"></i>
+                    <h5>Water Mixed Measured Sensor</h5>
+                </div>
+                <div class="row mt-3">
+                    <div class="col-md-6">
+                        <div class="gauge-container" data-gauge="ECWM">
+                            <canvas id="gaugeECWM"></canvas>
+                            <div class="gauge-info">
+                                <span class="gauge-title">EC WM</span>
+                                <span class="gauge-value">{{ ECWM }} μS/cm</span>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="gauge-container" data-gauge="TEMPWM">
+                            <canvas id="gaugeTEMPWM"></canvas>
+                            <div class="gauge-info">
+                                <span class="gauge-title">TEMP WM</span>
+                                <span class="gauge-value">{{ TempWM }} °C</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Section 4: Soil Sensors -->
+    <div class="section-header">
+        <h2><i class="bi bi-tree"></i> Soil Conditions</h2>
+    </div>
+
+    <!-- Soil R8 -->
+    <div class="row g-3 mb-4">
+        <div class="col-md-12">
+            <div class="sensor-card soil">
+                <div class="sensor-header">
+                    <i class="bi bi-flower1"></i>
+                    <h5>Soil Measure R8</h5>
+                </div>
+                
+                <!-- NPK Values -->
+                <div class="row mt-3">
+                    <div class="col-md-3">
+                        <div class="npk-box nitrogen">
+                            <div class="npk-icon">N</div>
+                            <div class="npk-info">
+                                <span class="npk-name">Nitrogen</span>
+                                <span class="npk-value">{{ nitrogenR8_P }}</span>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-3">
+                        <div class="npk-box phosphorus">
+                            <div class="npk-icon">P</div>
+                            <div class="npk-info">
+                                <span class="npk-name">Phosphorus</span>
+                                <span class="npk-value">{{ phosphorusR8_P }}</span>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-3">
+                        <div class="npk-box potassium">
+                            <div class="npk-icon">K</div>
+                            <div class="npk-info">
+                                <span class="npk-name">Potassium</span>
+                                <span class="npk-value">{{ potassiumR8_P }}</span>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-3">
+                        <div class="npk-box temperature">
+                            <div class="npk-icon">T</div>
+                            <div class="npk-info">
+                                <span class="npk-name">Temperature</span>
+                                <span class="npk-value">{{ temp_npkR8_P }}</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Soil Moisture Gauges -->
+                <div class="row mt-3">
+                    <div class="col-md-4">
+                        <div class="gauge-container" data-gauge="R8G1">
+                            <canvas id="gaugeR8G1"></canvas>
+                            <div class="gauge-info">
+                                <span class="gauge-title">Soil R8-1</span>
+                                <span class="gauge-value">{{ soil3 }}%</span>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="gauge-container" data-gauge="R8G2">
+                            <canvas id="gaugeR8G2"></canvas>
+                            <div class="gauge-info">
+                                <span class="gauge-title">Soil R8-2</span>
+                                <span class="gauge-value">{{ soil2 }}%</span>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="gauge-container" data-gauge="R8G3">
+                            <canvas id="gaugeR8G3"></canvas>
+                            <div class="gauge-info">
+                                <span class="gauge-title">Soil R8-3</span>
+                                <span class="gauge-value">{{ soil1 }}%</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Soil R16 -->
+    <div class="row g-3 mb-4">
+        <div class="col-md-12">
+            <div class="sensor-card soil">
+                <div class="sensor-header">
+                    <i class="bi bi-flower1"></i>
+                    <h5>Soil Measure R16</h5>
+                </div>
+                
+                <!-- NPK Values -->
+                <div class="row mt-3">
+                    <div class="col-md-3">
+                        <div class="npk-box nitrogen">
+                            <div class="npk-icon">N</div>
+                            <div class="npk-info">
+                                <span class="npk-name">Nitrogen</span>
+                                <span class="npk-value">{{ nitrogenR16_P }}</span>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-3">
+                        <div class="npk-box phosphorus">
+                            <div class="npk-icon">P</div>
+                            <div class="npk-info">
+                                <span class="npk-name">Phosphorus</span>
+                                <span class="npk-value">{{ phosphorusR16_P }}</span>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-3">
+                        <div class="npk-box potassium">
+                            <div class="npk-icon">K</div>
+                            <div class="npk-info">
+                                <span class="npk-name">Potassium</span>
+                                <span class="npk-value">{{ potassiumR16_P }}</span>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-3">
+                        <div class="npk-box temperature">
+                            <div class="npk-icon">T</div>
+                            <div class="npk-info">
+                                <span class="npk-name">Temperature</span>
+                                <span class="npk-value">{{ temp_npkR16_P }}</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Soil Moisture Gauge -->
+                <div class="row mt-3 justify-content-center">
+                    <div class="col-md-4">
+                        <div class="gauge-container" data-gauge="R16G1">
+                            <canvas id="gaugeR16G1"></canvas>
+                            <div class="gauge-info">
+                                <span class="gauge-title">Soil R16-1</span>
+                                <span class="gauge-value">{{ soil13 }}%</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Soil R24 -->
+    <div class="row g-3 mb-4">
+        <div class="col-md-12">
+            <div class="sensor-card soil">
+                <div class="sensor-header">
+                    <i class="bi bi-flower1"></i>
+                    <h5>Soil Measure R24</h5>
+                </div>
+                
+                <!-- NPK Values -->
+                <div class="row mt-3">
+                    <div class="col-md-3">
+                        <div class="npk-box nitrogen">
+                            <div class="npk-icon">N</div>
+                            <div class="npk-info">
+                                <span class="npk-name">Nitrogen</span>
+                                <span class="npk-value">{{ nitrogenR24_P }}</span>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-3">
+                        <div class="npk-box phosphorus">
+                            <div class="npk-icon">P</div>
+                            <div class="npk-info">
+                                <span class="npk-name">Phosphorus</span>
+                                <span class="npk-value">{{ phosphorusR24_P }}</span>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-3">
+                        <div class="npk-box potassium">
+                            <div class="npk-icon">K</div>
+                            <div class="npk-info">
+                                <span class="npk-name">Potassium</span>
+                                <span class="npk-value">{{ potassiumR24_P }}</span>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-3">
+                        <div class="npk-box temperature">
+                            <div class="npk-icon">T</div>
+                            <div class="npk-info">
+                                <span class="npk-name">Temperature</span>
+                                <span class="npk-value">{{ temp_npkR24_P }}</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Soil Moisture Gauges -->
+                <div class="row mt-3">
+                    <div class="col-md-4">
+                        <div class="gauge-container" data-gauge="R24G1">
+                            <canvas id="gaugeR24G1"></canvas>
+                            <div class="gauge-info">
+                                <span class="gauge-title">Soil R24-1</span>
+                                <span class="gauge-value">{{ soil6 }}%</span>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="gauge-container" data-gauge="R24G2">
+                            <canvas id="gaugeR24G2"></canvas>
+                            <div class="gauge-info">
+                                <span class="gauge-title">Soil R24-2</span>
+                                <span class="gauge-value">{{ soil5 }}%</span>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="gauge-container" data-gauge="R24G3">
+                            <canvas id="gaugeR24G3"></canvas>
+                            <div class="gauge-info">
+                                <span class="gauge-title">Soil R24-3</span>
+                                <span class="gauge-value">{{ soil4 }}%</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Hidden values for JavaScript -->
+    <div class="d-none">
+        <span id="VECWM">{{ ECWM }}</span>
+        <span id="VTEMPWM">{{ TempWM }}</span>
+        <span id="VR8G1">{{ soil3 }}</span>
+        <span id="VR8G2">{{ soil2 }}</span>
+        <span id="VR8G3">{{ soil1 }}</span>
+        <span id="VR16G1">{{ soil13 }}</span>
+        <span id="VR24G1">{{ soil6 }}</span>
+        <span id="VR24G2">{{ soil5 }}</span>
+        <span id="VR24G3">{{ soil4 }}</span>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script src="{% static 'js/farm.js' %}"></script>
+<script src="{% static 'js/gauge-chart.js' %}"></script>
+{% endblock %}

@@ -1,0 +1,317 @@
+<!-- strawberry/templates/strawberry/compare.html -->
+{% extends 'strawberry/base.html' %}
+{% load static %}
+
+{% block title %}Compare GH1 & GH2 - Harumiki Smart Farm{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'css/compare.css' %}">
+{% endblock %}
+
+{% block page_title %}
+<div class="title-with-icon">
+    <div class="title-icon compare">
+        <i class="bi bi-bar-chart-line"></i>
+    </div>
+    <div>
+        <h1 class="page-title">
+            <span class="title-prefix">Data Analysis</span>
+            <span class="title-main gradient-text">Compare GH1 & GH2</span>
+        </h1>
+        <p class="page-subtitle">Side-by-side Performance Comparison</p>
+    </div>
+</div>
+{% endblock %}
+
+{% block page_controls %}
+<div class="btn-group" role="group">
+    <a href="{% url 'farm-1' %}" class="btn btn-outline-primary">
+        <i class="bi bi-building me-1"></i>
+        GH1 Dashboard
+    </a>
+    <a href="{% url 'farm-2' %}" class="btn btn-outline-primary">
+        <i class="bi bi-building me-1"></i>
+        GH2 Dashboard
+    </a>
+</div>
+{% endblock %}
+
+{% block content %}
+<div class="compare-container">
+    <!-- Date Selection -->
+    <div class="filter-card">
+        <h2 class="filter-title">
+            <i class="bi bi-calendar3"></i>
+            COMPARE Data GH1&GH2
+        </h2>
+        
+        <form method="GET" action="{% url 'GH1and2' %}" class="filter-form">
+            <div class="row align-items-end">
+                <div class="col-md-5">
+                    <label class="form-label">Month:</label>
+                    <select name="month" class="form-select" id="monthSelect">
+                        <option value="0" {% if current_month == 0 %}selected{% endif %}>January</option>
+                        <option value="1" {% if current_month == 1 %}selected{% endif %}>February</option>
+                        <option value="2" {% if current_month == 2 %}selected{% endif %}>March</option>
+                        <option value="3" {% if current_month == 3 %}selected{% endif %}>April</option>
+                        <option value="4" {% if current_month == 4 %}selected{% endif %}>May</option>
+                        <option value="5" {% if current_month == 5 %}selected{% endif %}>June</option>
+                        <option value="6" {% if current_month == 6 %}selected{% endif %}>July</option>
+                        <option value="7" {% if current_month == 7 %}selected{% endif %}>August</option>
+                        <option value="8" {% if current_month == 8 %}selected{% endif %}>September</option>
+                        <option value="9" {% if current_month == 9 %}selected{% endif %}>October</option>
+                        <option value="10" {% if current_month == 10 %}selected{% endif %}>November</option>
+                        <option value="11" {% if current_month == 11 %}selected{% endif %}>December</option>
+                    </select>
+                </div>
+                <div class="col-md-5">
+                    <label class="form-label">Year:</label>
+                    <input type="number" name="year" class="form-control" 
+                           value="{{ year }}" min="2020" max="2030">
+                </div>
+                <div class="col-md-2">
+                    <button type="submit" class="btn btn-primary w-100">
+                        submit
+                    </button>
+                </div>
+            </div>
+        </form>
+        
+        <!-- Date Range Display -->
+        <div class="date-range-display">
+            <div class="date-info">
+                <strong>First Day:</strong> 
+                <span class="date-value">{{ first_date }}T00:00:00</span>
+            </div>
+            <div class="date-info">
+                <strong>Last Day:</strong> 
+                <span class="date-value">{{ last_date }}T23:59:59</span>
+            </div>
+        </div>
+    </div>
+
+    <!-- Charts Section -->
+    <div class="charts-grid">
+        <!-- PM2.5 Chart -->
+        <div class="chart-container">
+            <div class="chart-header">
+                <h3>PM 2.5 (μg/m³)</h3>
+            </div>
+            <div class="chart-body">
+                <canvas id="pmChart"></canvas>
+            </div>
+        </div>
+
+        <!-- CO2 Chart -->
+        <div class="chart-container">
+            <div class="chart-header">
+                <h3>Carbon dioxide (ppm)</h3>
+            </div>
+            <div class="chart-body">
+                <canvas id="co2Chart"></canvas>
+            </div>
+        </div>
+
+        <!-- LUX & UV Chart -->
+        <div class="chart-container">
+            <div class="chart-header">
+                <h3>LUX (lux) & UV (nm)</h3>
+            </div>
+            <div class="chart-body">
+                <canvas id="luxUvChart"></canvas>
+            </div>
+        </div>
+
+        <!-- PPFD Chart -->
+        <div class="chart-container">
+            <div class="chart-header">
+                <h3>PPFD (μmol/s.m²)</h3>
+            </div>
+            <div class="chart-body">
+                <canvas id="ppfdChart"></canvas>
+            </div>
+        </div>
+
+        <!-- Nitrogen Chart -->
+        <div class="chart-container">
+            <div class="chart-header">
+                <h3>Nitrogen in soil</h3>
+            </div>
+            <div class="chart-body">
+                <canvas id="nitrogenChart"></canvas>
+            </div>
+        </div>
+
+        <!-- Phosphorus Chart -->
+        <div class="chart-container">
+            <div class="chart-header">
+                <h3>Phosphorus in soil</h3>
+            </div>
+            <div class="chart-body">
+                <canvas id="phosphorusChart"></canvas>
+            </div>
+        </div>
+
+        <!-- Potassium Chart -->
+        <div class="chart-container">
+            <div class="chart-header">
+                <h3>Potassium in soil</h3>
+            </div>
+            <div class="chart-body">
+                <canvas id="potassiumChart"></canvas>
+            </div>
+        </div>
+
+        <!-- Temperature Soil Chart -->
+        <div class="chart-container">
+            <div class="chart-header">
+                <h3>Temperature (°C) [Soil]</h3>
+            </div>
+            <div class="chart-body">
+                <canvas id="tempSoilChart"></canvas>
+            </div>
+        </div>
+
+        <!-- Temperature Air & Water Chart -->
+        <div class="chart-container">
+            <div class="chart-header">
+                <h3>Temperature (°C) [Air & Water]</h3>
+            </div>
+            <div class="chart-body">
+                <canvas id="tempAirWaterChart"></canvas>
+            </div>
+        </div>
+
+        <!-- Humidity Chart -->
+        <div class="chart-container">
+            <div class="chart-header">
+                <h3>Humidity (%) [Air]</h3>
+            </div>
+            <div class="chart-body">
+                <canvas id="humidityChart"></canvas>
+            </div>
+        </div>
+
+        <!-- Moisture Chart -->
+        <div class="chart-container">
+            <div class="chart-header">
+                <h3>Moisture (%) [Soil]</h3>
+            </div>
+            <div class="chart-body">
+                <canvas id="moistureChart"></canvas>
+            </div>
+        </div>
+
+        <!-- EC Chart -->
+        <div class="chart-container">
+            <div class="chart-header">
+                <h3>Electrical Conductivity (µS/cm)</h3>
+            </div>
+            <div class="chart-body">
+                <canvas id="ecChart"></canvas>
+            </div>
+        </div>
+    </div>
+
+    <!-- Hidden data for JavaScript -->
+    <div id="chart-data" class="d-none"
+         data-pm-gh1="{{ pm_GH1.values }}"
+         data-pm-gh1-times="{{ pm_GH1.datetimes|safe }}"
+         data-pm-gh2="{{ pm_GH2.values }}"
+         data-pm-outside="{{ pm_outside.values }}"
+         
+         data-co2-farm1="{{ CO2_Farm1.values }}"
+         data-co2-farm1-times="{{ CO2_Farm1.datetimes|safe }}"
+         data-co2-farm2="{{ CO2_Farm2.values }}"
+         
+         data-uv-farm1="{{ UV_FARM1.values }}"
+         data-uv-farm1-times="{{ UV_FARM1.datetimes|safe }}"
+         data-lux-farm1="{{ LUX_FARM1.values }}"
+         data-uv-farm2="{{ UV_FARM2.values }}"
+         data-lux-farm2="{{ LUX_FARM2.values }}"
+         
+         data-ppfd-gh1-r8="{{ ppfd_GH1_R8.values }}"
+         data-ppfd-gh1-r8-times="{{ ppfd_GH1_R8.datetimes|safe }}"
+         data-ppfd-gh1-r24="{{ ppfd_GH1_R24.values }}"
+         data-ppfd-gh2-r16="{{ ppfd_GH2_R16.values }}"
+         data-ppfd-gh2-r24="{{ ppfd_GH2_R24.values }}"
+         
+         data-nitrogen-gh1-r8="{{ nitrogen_GH1_R8.values }}"
+         data-nitrogen-gh1-r8-times="{{ nitrogen_GH1_R8.datetimes|safe }}"
+         data-nitrogen-gh1-r16="{{ nitrogen_GH1_R16.values }}"
+         data-nitrogen-gh1-r24="{{ nitrogen_GH1_R24.values }}"
+         data-nitrogen-gh2-r8="{{ nitrogen_GH2_R8.values }}"
+         data-nitrogen-gh2-r16="{{ nitrogen_GH2_R16.values }}"
+         data-nitrogen-gh2-r24="{{ nitrogen_GH2_R24.values }}"
+         
+         data-phosphorus-gh1-r8="{{ phosphorus_GH1_R8.values }}"
+         data-phosphorus-gh1-r16="{{ phosphorus_GH1_R16.values }}"
+         data-phosphorus-gh1-r24="{{ phosphorus_GH1_R24.values }}"
+         data-phosphorus-gh2-r8="{{ phosphorus_GH2_R8.values }}"
+         data-phosphorus-gh2-r16="{{ phosphorus_GH2_R16.values }}"
+         data-phosphorus-gh2-r24="{{ phosphorus_GH2_R24.values }}"
+         
+         data-potassium-gh1-r8="{{ potassium_GH1_R8.values }}"
+         data-potassium-gh1-r16="{{ potassium_GH1_R16.values }}"
+         data-potassium-gh1-r24="{{ potassium_GH1_R24.values }}"
+         data-potassium-gh2-r8="{{ potassium_GH2_R8.values }}"
+         data-potassium-gh2-r16="{{ potassium_GH2_R16.values }}"
+         data-potassium-gh2-r24="{{ potassium_GH2_R24.values }}"
+         
+         data-temp-npk-gh1-r8="{{ temp_npk_GH1_R8.values }}"
+         data-temp-npk-gh1-r8-times="{{ temp_npk_GH1_R8.datetimes|safe }}"
+         data-temp-npk-gh1-r16="{{ temp_npk_GH1_R16.values }}"
+         data-temp-npk-gh1-r24="{{ temp_npk_GH1_R24.values }}"
+         data-temp-npk-gh2-r8="{{ temp_npk_GH2_R8.values }}"
+         data-temp-npk-gh2-r16="{{ temp_npk_GH2_R16.values }}"
+         data-temp-npk-gh2-r24="{{ temp_npk_GH2_R24.values }}"
+         
+         data-air-temp-gh1-r8="{{ airTemp_GH1_R8.values }}"
+         data-air-temp-gh1-r8-times="{{ airTemp_GH1_R8.datetimes|safe }}"
+         data-air-temp-gh1-r16="{{ airTemp_GH1_R16.values }}"
+         data-air-temp-gh1-r24="{{ airTemp_GH1_R24.values }}"
+         data-air-temp-gh2-r8="{{ airTemp_GH2_R8.values }}"
+         data-air-temp-gh2-r16="{{ airTemp_GH2_R16.values }}"
+         data-air-temp-gh2-r24="{{ airTemp_GH2_R24.values }}"
+         data-temp-wm="{{ TempWM.values }}"
+         data-temp-wp="{{ TempWP.values }}"
+         
+         data-air-hum-gh1-r8="{{ airHum_GH1_R8.values }}"
+         data-air-hum-gh1-r8-times="{{ airHum_GH1_R8.datetimes|safe }}"
+         data-air-hum-gh1-r16="{{ airHum_GH1_R16.values }}"
+         data-air-hum-gh1-r24="{{ airHum_GH1_R24.values }}"
+         data-air-hum-gh2-r8="{{ airHum_GH2_R8.values }}"
+         data-air-hum-gh2-r16="{{ airHum_GH2_R16.values }}"
+         data-air-hum-gh2-r24="{{ airHum_GH2_R24.values }}"
+         
+         data-soil-gh1-r8q1="{{ soil_GH1_R8_Q1.values }}"
+         data-soil-gh1-r8q1-times="{{ soil_GH1_R8_Q1.datetimes|safe }}"
+         data-soil-gh1-r8q2="{{ soil_GH1_R8_Q2.values }}"
+         data-soil-gh1-r16q3="{{ soil_GH1_R16_Q3.values }}"
+         data-soil-gh1-r16q4="{{ soil_GH1_R16_Q4.values }}"
+         data-soil-gh1-r24q5="{{ soil_GH1_R24_Q5.values }}"
+         data-soil-gh1-r24q6="{{ soil_GH1_R24_Q6.values }}"
+         data-soil-gh2-r8p1="{{ soil_GH2_R8_P1.values }}"
+         data-soil-gh2-r8p2="{{ soil_GH2_R8_P2.values }}"
+         data-soil-gh2-r8p3="{{ soil_GH2_R8_P3.values }}"
+         data-soil-gh2-r24p4="{{ soil_GH2_R24_P4.values }}"
+         data-soil-gh2-r24p5="{{ soil_GH2_R24_P5.values }}"
+         data-soil-gh2-r24p6="{{ soil_GH2_R24_P6.values }}"
+         data-soil-gh2-r16p8="{{ soil_GH2_R16_P8.values }}"
+         
+         data-ecwm="{{ ECWM.values }}"
+         data-ecwm-times="{{ ECWM.datetimes|safe }}"
+         data-ecwp="{{ ECWP.values }}">
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<!-- เพิ่ม Chart.js และ dependencies ที่จำเป็น -->
+<script src="https://cdn.jsdelivr.net/npm/chart.js@3.9.1/dist/chart.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/chartjs-adapter-date-fns@2.0.0/dist/chartjs-adapter-date-fns.bundle.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-annotation@1.4.0/dist/chartjs-plugin-annotation.min.js"></script>
+
+<!-- Load compare.js หลังจาก Chart.js libraries -->
+<script src="{% static 'js/compare.js' %}"></script>
+{% endblock %}

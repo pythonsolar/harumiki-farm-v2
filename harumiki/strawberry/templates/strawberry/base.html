@@ -1,0 +1,359 @@
+<!doctype html>
+<html lang="th" class="h-100">
+<head>
+    {% load static %}
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="description" content="Harumiki Smart Farm - ระบบจัดการฟาร์มอัจฉริยะ">
+    <meta name="author" content="INI PTT">
+    <title>{% block title %}Harumiki Smart Farm{% endblock %}</title>
+
+    <!-- Favicon -->
+    <link rel="icon" href="{% static 'images/icon_harumiki.png' %}" type="image/png">
+    
+    <!-- Bootstrap CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+
+    <!-- Bootstrap 5 -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css">
+
+    <!-- Chart.js -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@3.9.1/dist/chart.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chartjs-adapter-date-fns@2.0.0/dist/chartjs-adapter-date-fns.bundle.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-annotation@1.4.0/dist/chartjs-plugin-annotation.min.js"></script>
+    
+    <!-- Bootstrap Icons -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
+    
+    <!-- Custom CSS -->
+    <link rel="stylesheet" href="{% static 'css/base.css' %}">
+
+    <!-- Font Awesome  -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <!-- Viewport Meta -->
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    
+    {% block extra_css %}{% endblock %}
+</head>
+
+<body class="d-flex flex-column h-100">
+    <!-- Mobile Navigation Toggle -->
+    <button class="mobile-nav-toggle" type="button" onclick="toggleSidebar()">
+        <i class="bi bi-list fs-4"></i>
+    </button>
+
+    <!-- Loading Overlay -->
+    <div class="loading-overlay" id="loadingOverlay">
+    <!-- <div class="loading-overlay" id="loadingOverlay" style="display: none;"> -->
+        <div class="text-center">
+            <div class="spinner-border text-primary mb-3" role="status">
+                <span class="visually-hidden">Loading...</span>
+            </div>
+            <div>กำลังโหลด...</div>
+        </div>
+    </div>
+
+    <!-- Sidebar -->
+    <nav class="sidebar" id="sidebar">
+        <div class="sidebar-logo">
+            <img src="{% static 'images/harumiki-logo.png' %}" alt="Harumiki Logo" class="img-fluid">
+        </div>
+
+        <div class="sidebar-nav">
+            <ul class="nav flex-column">
+                <li class="nav-item">
+                    <a class="nav-link {% if request.resolver_match.url_name in 'farm-1,farm-2' %}active{% endif %}" 
+                       href="{% url 'farm-1' %}">
+                        <i class="bi bi-speedometer2"></i>
+                        <span>Dashboard</span>
+                    </a>
+                </li>
+
+                <li class="nav-item">
+                    <a class="nav-link {% if 'graph-1' in request.resolver_match.url_name %}active{% endif %}" 
+                       href="{% url 'graph-1' %}">
+                        <i class="bi bi-bar-chart-line"></i>
+                        <span>Visualization</span>
+                    </a>
+                </li>
+
+                <li class="nav-item">
+                    <a class="nav-link {% if 'graph-all1' in request.resolver_match.url_name %}active{% endif %}" 
+                       href="{% url 'graph-all1' %}">
+                        <i class="bi bi-graph-up"></i>
+                        <span>Graph</span>
+                    </a>
+                </li>
+
+                <li class="nav-item">
+                    <a class="nav-link {% if 'export' in request.resolver_match.url_name %}active{% endif %}" 
+                       href="{% url 'export' %}">
+                        <i class="bi bi-download"></i>
+                        <span>Export Data</span>
+                    </a>
+                </li>
+
+                <li class="nav-item">
+                    <a class="nav-link {% if 'compare' in request.resolver_match.url_name %}active{% endif %}" 
+                    href="{% url 'GH1and2' %}">
+                        <i class="bi bi-arrows-angle-expand"></i>
+                        <span>Compare GH1&2</span>
+                    </a>
+                </li>
+
+            </ul>
+        </div>
+    </nav>
+
+    <!-- Main Content -->
+    <main class="main-content">
+        <!-- Page Header -->
+        <div class="page-header">
+            <div class="container-fluid">
+                <div class="row align-items-center">
+                    <div class="col-12 col-md-6">
+                        {% block page_title %}
+                            <div class="page-title-wrapper">
+                                {% if request.resolver_match.url_name == 'farm-1' %}
+                                    <div class="title-with-icon">
+                                        <div class="title-icon farm1">
+                                            <i class="bi bi-droplet-fill"></i>
+                                        </div>
+                                        <div>
+                                            <h1 class="page-title">
+                                                <span class="title-prefix">Smart Farm</span>
+                                                <span class="title-main gradient-text">Zone 1</span>
+                                            </h1>
+                                            <p class="page-subtitle">Automated Hydroponic System • Real-time Monitoring</p>
+                                        </div>
+                                    </div>
+                                    
+                                {% elif request.resolver_match.url_name == 'farm-2' %}
+                                    <div class="title-with-icon">
+                                        <div class="title-icon farm2">
+                                            <i class="bi bi-flower1"></i>
+                                        </div>
+                                        <div>
+                                            <h1 class="page-title">
+                                                <span class="title-prefix">Smart Farm</span>
+                                                <span class="title-main gradient-text">Zone 2</span>
+                                            </h1>
+                                            <p class="page-subtitle">Advanced Growing Technology • Climate Control</p>
+                                        </div>
+                                    </div>
+                                    
+                                {% elif request.resolver_match.url_name == 'graph-1' or request.resolver_match.url_name == 'graph-2' %}
+                                    <div class="title-with-icon">
+                                        <div class="title-icon visualization">
+                                            <i class="bi bi-bar-chart-line-fill"></i>
+                                        </div>
+                                        <div>
+                                            <h1 class="page-title">
+                                                <span class="title-prefix">Analytics</span>
+                                                <span class="title-main gradient-text">
+                                                    Data Visualization
+                                                    {% if request.resolver_match.url_name == 'graph-1' %}
+                                                        Farm 1
+                                                    {% else %}
+                                                        Farm 2
+                                                    {% endif %}
+                                                </span>
+                                            </h1>
+                                            <p class="page-subtitle">Advanced visualization all sensors</p>
+                                        </div>
+                                    </div>
+                                    
+                                {% elif 'export' in request.resolver_match.url_name %}
+                                    <div class="title-with-icon">
+                                        <div class="title-icon export">
+                                            <i class="bi bi-cloud-arrow-down-fill"></i>
+                                        </div>
+                                        <div>
+                                            <h1 class="page-title">
+                                                <span class="title-prefix">Data Management</span>
+                                                <span class="title-main gradient-text">Export Center</span>
+                                            </h1>
+                                            <p class="page-subtitle">Download Historical Data • CSV & ZIP Formats</p>
+                                        </div>
+                                    </div>
+                                    
+                                {% elif request.resolver_match.url_name == 'graph-all1' or request.resolver_match.url_name == 'graph-all2' %}
+                                    <div class="title-with-icon">
+                                        <div class="title-icon analysis">
+                                            <i class="bi bi-graph-up-arrow"></i>
+                                        </div>
+                                        <div>
+                                            <h1 class="page-title">
+                                                <span class="title-prefix">Advanced Analytics</span>
+                                                <span class="title-main gradient-text">
+                                                    {% if request.resolver_match.url_name == 'graph-all1' %}
+                                                        Farm 1
+                                                    {% else %}
+                                                        Farm 2
+                                                    {% endif %}
+                                                </span>
+                                            </h1>
+                                            <p class="page-subtitle">Comprehensive Performance Metrics • Trend Analysis</p>
+                                        </div>
+                                    </div>
+
+                                {% elif 'smartfarm' in request.resolver_match.url_name %}
+                                    <div class="title-with-icon">
+                                        <div class="title-icon visualization">
+                                            <i class="bi bi-diagram-3-fill"></i>
+                                        </div>
+                                        <div>
+                                            <h1 class="page-title">
+                                                <span class="title-prefix">Visual Dashboard</span>
+                                                <span class="title-main gradient-text">
+                                                    {% if request.resolver_match.url_name == 'smartfarm-1' %}
+                                                        Farm 1 Layout
+                                                    {% else %}
+                                                        Farm 2 Layout
+                                                    {% endif %}
+                                                </span>
+                                            </h1>
+                                            <p class="page-subtitle">Real-time Sensor Visualization</p>
+                                        </div>
+                                    </div>
+                                    
+                                {% else %}
+                                    <div class="title-with-icon">
+                                        <div class="title-icon main">
+                                            <i class="bi bi-cpu-fill"></i>
+                                        </div>
+                                        <div>
+                                            <h1 class="page-title">
+                                                <span class="title-main gradient-text">Harumiki Smart Farm</span>
+                                            </h1>
+                                            <p class="page-subtitle">Next Generation Agricultural Technology</p>
+                                        </div>
+                                    </div>
+                                {% endif %}
+                                
+                                <!-- Live Status Indicator -->
+                                <div class="live-status">
+                                    <span class="pulse"></span>
+                                    <span class="status-text">Live</span>
+                                </div>
+                            </div>
+                        {% endblock %}
+                    </div>
+                    
+                    <div class="col-12 col-md-6">
+                        <div class="page-controls">
+                            {% block page_controls %}
+                                {% if request.resolver_match.url_name == 'farm-1' or request.resolver_match.url_name == 'farm-2' %}
+                                    <!-- Dashboard Controls -->
+                                    <a href="{% url 'graph-1' %}" class="btn btn-success">
+                                        <i class="bi bi-graph-up me-1"></i>
+                                        View Graphs
+                                    </a>
+                                    
+                                    <!-- Visual Dashboard Button -->
+                                    {% if request.resolver_match.url_name == 'farm-1' %}
+                                        <a href="{% url 'smartfarm-1' %}" class="btn btn-outline-info">
+                                            <i class="bi bi-diagram-3 me-1"></i>
+                                            Visual Dashboard
+                                        </a>
+                                    {% elif request.resolver_match.url_name == 'farm-2' %}
+                                        <a href="{% url 'smartfarm-2' %}" class="btn btn-outline-info">
+                                            <i class="bi bi-diagram-3 me-1"></i>
+                                            Visual Dashboard
+                                        </a>
+                                    {% endif %}
+                                    
+                                    <div class="btn-group" role="group">
+                                        <a href="{% url 'farm-1' %}" 
+                                        class="btn btn-farm {% if request.resolver_match.url_name == 'farm-1' %}btn-primary{% else %}btn-outline-primary{% endif %}">
+                                            Farm 1
+                                        </a>
+                                        <a href="{% url 'farm-2' %}" 
+                                        class="btn btn-farm {% if request.resolver_match.url_name == 'farm-2' %}btn-primary{% else %}btn-outline-primary{% endif %}">
+                                            Farm 2
+                                        </a>
+                                    </div>
+                                    
+                                {% elif request.resolver_match.url_name == 'graph-1' or request.resolver_match.url_name == 'graph-2' %}
+                                    <!-- Graph Page Controls -->
+                                    <a href="{% if request.resolver_match.url_name == 'graph-1' %}{% url 'graph-2' %}{% else %}{% url 'graph-1' %}{% endif %}" 
+                                    class="btn btn-primary">
+                                        <i class="bi bi-arrow-left-right me-1"></i>
+                                        Switch to Farm {% if request.resolver_match.url_name == 'graph-1' %}2{% else %}1{% endif %}
+                                    </a>
+                                    
+                                    <!-- Back to Dashboard Button -->
+                                    <a href="{% if request.resolver_match.url_name == 'graph-1' %}{% url 'farm-1' %}{% else %}{% url 'farm-2' %}{% endif %}" 
+                                    class="btn btn-outline-secondary">
+                                        <i class="bi bi-speedometer2 me-1"></i>
+                                        Back to Dashboard
+                                    </a>
+                                    
+                                {% elif request.resolver_match.url_name == 'graph-all1' or request.resolver_match.url_name == 'graph-all2' %}
+                                    <!-- Graph All Controls -->
+                                    <a href="{% if request.resolver_match.url_name == 'graph-all1' %}{% url 'graph-all2' %}{% else %}{% url 'graph-all1' %}{% endif %}" 
+                                    class="btn btn-primary">
+                                        <i class="bi bi-arrow-left-right me-1"></i>
+                                        Switch to Farm {% if request.resolver_match.url_name == 'graph-all1' %}2{% else %}1{% endif %}
+                                    </a>
+                                    
+                                    <!-- Back to Graph Button -->
+                                    <a href="{% if request.resolver_match.url_name == 'graph-all1' %}{% url 'graph-1' %}{% else %}{% url 'graph-2' %}{% endif %}" 
+                                    class="btn btn-outline-secondary">
+                                        <i class="bi bi-bar-chart-line me-1"></i>
+                                        Back to Visualization
+                                    </a>
+                                {% endif %}
+                            {% endblock %}
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Messages/Alerts -->
+        {% if messages %}
+            <div class="container-fluid px-3">
+                {% for message in messages %}
+                    <div class="alert alert-{{ message.tags }} alert-dismissible fade show" role="alert">
+                        {{ message }}
+                        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                    </div>
+                {% endfor %}
+            </div>
+        {% endif %}
+
+        <!-- Main Content Area -->
+        <div class="content-container">
+            {% block content %}
+            <!-- Page content goes here -->
+            {% endblock %}
+        </div>
+    </main>
+
+    <!-- Footer -->
+    <!-- <footer class="footer mt-auto">
+        <div class="container-fluid text-center">
+            <p class="mb-0">Powered by INI © {% now "Y" %} | Harumiki Smart Farm System</p>
+        </div>
+    </footer> -->
+
+    <!-- Scripts -->
+    <!-- jQuery -->
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    
+    <!-- Bootstrap Bundle with Popper -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    
+    <!-- Chart.js -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    
+    <!-- Gauge.js -->
+    <script src="https://cdn.jsdelivr.net/npm/gaugeJS/dist/gauge.min.js"></script>
+
+    <!-- Custom Scripts -->
+    <script src="{% static 'js/base.js' %}"></script>
+    
+    {% block extra_js %}{% endblock %}
+</body>
+</html>

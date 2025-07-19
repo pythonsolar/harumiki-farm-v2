@@ -1,0 +1,55 @@
+version: '3.8'
+
+services:
+  web:
+    build: 
+      context: .
+      dockerfile: Dockerfile
+    image: harumiki:latest
+    container_name: harumiki_farm_web
+    ports:
+      - "8000:8000"
+    env_file:
+      - .env.production
+    environment:
+      - DJANGO_SETTINGS_MODULE=harumiki.settings
+    volumes:
+      - static_volume:/code/staticfiles
+      - media_volume:/code/media
+      - logs_volume:/code/logs
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8000/"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+    networks:
+      - django-network
+
+  # nginx:
+  #   image: nginx:1.21-alpine
+  #   container_name: harumiki_nginx
+  #   ports:
+  #     - "80:80"
+  #     - "443:443"
+  #   volumes:
+  #     - ./nginx.conf:/etc/nginx/conf.d/default.conf:ro
+  #     - static_volume:/static:ro
+  #     - media_volume:/media:ro
+  #     # - ./ssl:/etc/nginx/ssl:ro
+  #   depends_on:
+  #     web:
+  #       condition: service_healthy
+  #   restart: unless-stopped
+  #   networks:
+  #     - django-network
+
+volumes:
+  static_volume:
+  media_volume:
+  logs_volume:
+
+networks:
+  django-network:
+    driver: bridge
