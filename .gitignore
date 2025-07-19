@@ -1,0 +1,42 @@
+# .gitignore
+
+# Environment
+.env
+.env.*
+!.env.example
+
+# Python
+*.pyc
+__pycache__/
+*.pyo
+*.pyd
+.Python
+venv/
+env/
+
+# Django
+db.sqlite3
+*.sqlite3
+/media/
+/staticfiles/
+/logs/
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Security
+*.pem
+*.key
+*.crt
+/ssl/
+
+# Backup
+*.bak
+*.backup
