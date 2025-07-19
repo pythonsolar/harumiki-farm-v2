@@ -6,8 +6,10 @@ Optimized and refactored for better maintainability and performance
 import csv
 import io
 import json
+import logging
 import os
 import zipfile
+from concurrent.futures import ThreadPoolExecutor, as_completed
 from datetime import datetime, timedelta
 from decimal import Decimal
 from io import StringIO
@@ -15,15 +17,20 @@ from io import StringIO
 import requests
 from django.conf import settings
 from django.contrib import messages
+from django.core.cache import cache
 from django.core.paginator import Paginator
 from django.db.models import Q
 from django.http import HttpResponse, JsonResponse
 from django.shortcuts import redirect, render
 from django.utils.dateparse import parse_date
 from django.utils.html import mark_safe
+from django.views.decorators.cache import cache_page
 import calendar
 
 from .models import *
+
+# Configure secure logging
+logger = logging.getLogger(__name__)
 
 # ========== API Configuration ==========
 # Use settings from Django configuration (loaded from .env)
@@ -74,6 +81,7 @@ SENSOR_MAPPINGS = {
 }
 
 # ========== Main View Functions ==========
+@cache_page(60)  # Cache for 1 minute
 def Farm1(request):
     """
     Dashboard view for Farm 1
@@ -86,6 +94,7 @@ def Farm1(request):
         messages.error(request, f'เกิดข้อผิดพลาดในการโหลดข้อมูล Farm 1: {str(e)}')
         return render(request, 'strawberry/farm-1.html', {})
 
+@cache_page(60)  # Cache for 1 minute
 def Farm2(request):
     """
     Dashboard view for Farm 2
@@ -101,7 +110,7 @@ def Farm2(request):
 # ========== Context Building Functions ==========
 def get_farm_context(farm_key):
     """
-    Build context data for specified farm
+    Build context data for specified farm using concurrent API calls
     
     Args:
         farm_key (str): 'farm1' or 'farm2'
@@ -115,29 +124,29 @@ def get_farm_context(farm_key):
     sensors = SENSOR_MAPPINGS[farm_key]
     context = {}
     
-    # Get PM2.5 data
-    context.update(get_pm_data(sensors['pm']))
-    
-    # Get water quality data
-    context.update(get_water_data(sensors['water']))
-    
-    # Get CO2 data
-    context.update(get_co2_data(sensors['co2']))
-    
-    # Get NPK data
-    context.update(get_npk_data(sensors['npk'], farm_key))
-    
-    # Get soil moisture data
-    context.update(get_soil_data(sensors['soil']))
-    
-    # Get PPFD and calculate DLI
-    context.update(get_light_data(sensors['ppfd'], farm_key))
-    
-    # Get air temperature and humidity
-    context.update(get_air_data(sensors['air_sensors'], farm_key))
-    
-    # Get additional light sensors (LUX, UV)
-    context.update(get_additional_light_data(sensors['light'], farm_key))
+    # Use ThreadPoolExecutor for concurrent API calls
+    with ThreadPoolExecutor(max_workers=8) as executor:
+        # Submit all data gathering tasks concurrently
+        futures = {
+            'pm': executor.submit(get_pm_data, sensors['pm']),
+            'water': executor.submit(get_water_data, sensors['water']),
+            'co2': executor.submit(get_co2_data, sensors['co2']),
+            'npk': executor.submit(get_npk_data, sensors['npk'], farm_key),
+            'soil': executor.submit(get_soil_data, sensors['soil']),
+            'light': executor.submit(get_light_data, sensors['ppfd'], farm_key),
+            'air': executor.submit(get_air_data, sensors['air_sensors'], farm_key),
+            'additional_light': executor.submit(get_additional_light_data, sensors['light'], farm_key),
+        }
+        
+        # Collect results as they complete
+        for key, future in futures.items():
+            try:
+                result = future.result(timeout=10)  # 10 second timeout per task
+                context.update(result)
+            except Exception as e:
+                logger.error("Error getting %s data: %s", key, str(e))
+                # Continue with other data even if one fails
+                continue
     
     return context
 
@@ -302,7 +311,7 @@ def get_additional_light_data(light_sensors, farm_key):
 # ========== API Communication Functions ==========
 def get_latest_sensor_value(sensor_id, value_key):
     """
-    Get latest value from specific sensor
+    Get latest value from specific sensor with Redis caching
     
     Args:
         sensor_id (str): Sensor identifier
@@ -311,6 +320,15 @@ def get_latest_sensor_value(sensor_id, value_key):
     Returns:
         float/int/None: Sensor value or None if error
     """
+    # Create cache key
+    cache_key = f"sensor_latest_{sensor_id}_{value_key}"
+    
+    # Try to get from cache first
+    cached_value = cache.get(cache_key)
+    if cached_value is not None:
+        return cached_value
+    
+    # If not in cache, fetch from API
     url = f"{API_CONFIG['base_url']}/get-latest-data"
     headers = {"x-api-key": API_CONFIG['api_key']}
     params = {"sensor_id": sensor_id}
@@ -327,16 +345,22 @@ def get_latest_sensor_value(sensor_id, value_key):
         data = response.json()
         if data.get("status") == "ok" and data.get("result"):
             sensor_data = data["result"][0]
-            return sensor_data.get(value_key)
+            value = sensor_data.get(value_key)
+            
+            # Cache the result for 60 seconds
+            if value is not None:
+                cache.set(cache_key, value, 60)
+            
+            return value
         else:
-            print(f"No data found for sensor {sensor_id}")
+            logger.warning("No data found for sensor %s", sensor_id[:8] + '***')
             return None
             
     except requests.RequestException as e:
-        print(f"API request failed for sensor {sensor_id}: {str(e)}")
+        logger.error("API request failed: %s", str(e))
         return None
     except (KeyError, IndexError, ValueError) as e:
-        print(f"Data parsing error for sensor {sensor_id}: {str(e)}")
+        logger.error("Data parsing error: %s", str(e))
         return None
 
 def get_historical_sensor_data(sensor_id, value_key, start_datetime, end_datetime):
@@ -391,10 +415,10 @@ def get_historical_sensor_data(sensor_id, value_key, start_datetime, end_datetim
         return {"datetimes": datetimes, "values": values}
         
     except requests.RequestException as e:
-        print(f"Historical data request failed for sensor {sensor_id}: {str(e)}")
+        logger.error("Historical data request failed: %s", str(e))
         return {"error": f"Request failed: {str(e)}"}
     except (KeyError, ValueError) as e:
-        print(f"Historical data parsing error for sensor {sensor_id}: {str(e)}")
+        logger.error("Historical data parsing error: %s", str(e))
         return {"error": f"Data parsing failed: {str(e)}"}
 
 def get_history_val(sensor_id, name_value, start_datetime, end_datetime):
@@ -467,10 +491,10 @@ def get_history_val(sensor_id, name_value, start_datetime, end_datetime):
         return {"datetimes": datetimes, "values": values}
 
     except requests.RequestException as e:
-        print(f"Failed to retrieve data for sensor {sensor_id}: {str(e)}")
+        logger.error("Failed to retrieve sensor data: %s", str(e))
         return {"error": f"Failed to retrieve data: {str(e)}"}
     except Exception as e:
-        print(f"Unexpected error for sensor {sensor_id}: {str(e)}")
+        logger.error("Unexpected error in sensor data retrieval: %s", str(e))
         return {"error": f"Unexpected error: {str(e)}"}
 
 # ========== Calculation Functions ==========
@@ -499,7 +523,7 @@ def calculate_daily_light_integral(ppfd_sensors):
             )
             
             if "error" in historical_data:
-                print(f"Error getting historical data for {sensor_id}: {historical_data['error']}")
+                logger.error("Error getting historical data: %s", historical_data['error'])
                 dli_results[f'dli_{i}'] = 0
                 continue
             
@@ -521,7 +545,7 @@ def calculate_daily_light_integral(ppfd_sensors):
             dli_results[f'dli_{i}'] = dli
             
         except Exception as e:
-            print(f"Error calculating DLI for sensor {sensor_id}: {str(e)}")
+            logger.error("Error calculating DLI: %s", str(e))
             dli_results[f'dli_{i}'] = 0
     
     return dli_results
@@ -563,11 +587,8 @@ def validate_sensor_data(data, expected_keys):
 # ========== Error Handling Functions ==========
 def handle_api_error(error, sensor_id=None):
     """Centralized error handling for API calls"""
-    error_msg = f"API Error"
-    if sensor_id:
-        error_msg += f" for sensor {sensor_id}"
-    error_msg += f": {str(error)}"
-    print(error_msg)
+    # Don't expose sensor_id or detailed error info
+    logger.error("API Error: %s", str(error))
     return None
 
 # ========== Graph Views ==========
@@ -1012,7 +1033,7 @@ def export(request):
             response['Content-Disposition'] = f'attachment; filename="{filename}"'
             
             # Log success
-            print(f"Successfully exported {sensor_id} data from {start_date} to {end_date}")
+            logger.info("Successfully exported sensor data for date range %s to %s", start_date, end_date)
             
             return response
         else:
@@ -1085,7 +1106,7 @@ def export_multiple(request):
                                 valid_records.append(record)
                         
                         if not valid_records:
-                            print(f"No valid data found for sensor {sensor_id}")
+                            logger.warning("No valid data found for sensor export")
                             continue
                         
                         fieldnames = sorted(list(all_keys))
@@ -1102,7 +1123,7 @@ def export_multiple(request):
                         success_count += 1
                         
                 except Exception as e:
-                    print(f"Error exporting {sensor_id}: {str(e)}")
+                    logger.error("Error during sensor data export: %s", str(e))
                     continue
             
             if success_count == 0:
@@ -1195,7 +1216,7 @@ def export_by_farm(request):
                             valid_records.append(record)
                     
                     if not valid_records:
-                        print(f"No valid data found for sensor {sensor_id}")
+                        logger.warning("No valid data found for farm sensor export")
                         continue
                     
                     # Sort keys for consistent output
@@ -1214,7 +1235,7 @@ def export_by_farm(request):
                     success_count += 1
                     
             except Exception as e:
-                print(f"Error exporting {sensor_id}: {str(e)}")
+                logger.error("Error during farm sensor export: %s", str(e))
                 continue
         
         if success_count == 0:
@@ -1243,6 +1264,7 @@ def SmartFarmR2(request):
 def CompareGH1and2(request):
     """
     Compare sensor data between GH1 and GH2 for a selected month
+    แสดงข้อมูลตั้งแต่วันที่ 1 ของเดือนถึงเวลาปัจจุบัน
     """
     # Get month and year from request
     month = request.GET.get('month')
@@ -1262,22 +1284,34 @@ def CompareGH1and2(request):
     else:
         year = int(year)
     
-    # Calculate date range
+    # Calculate date range - ตั้งแต่วันที่ 1 ของเดือนถึงปัจจุบัน
     first_date = datetime(year, month + 1, 1)
-    last_day = calendar.monthrange(year, month + 1)[1]
-    last_date = datetime(year, month + 1, last_day)
     
-    # Don't query future dates
-    if last_date > today:
+    # ถ้าเป็นเดือนปัจจุบัน ให้แสดงถึงเวลาปัจจุบัน
+    # ถ้าเป็นเดือนในอดีต ให้แสดงทั้งเดือน
+    if year == today.year and (month + 1) == today.month:
+        # เดือนปัจจุบัน - แสดงถึงเวลาปัจจุบัน
         last_date = today
+    else:
+        # เดือนในอดีต - แสดงทั้งเดือน
+        last_day = calendar.monthrange(year, month + 1)[1]
+        last_date = datetime(year, month + 1, last_day, 23, 59, 59)
+        
+        # ไม่ให้ query ข้อมูลในอนาคต
+        if last_date > today:
+            last_date = today
+    
+    # ตรวจสอบว่าไม่ query ข้อมูลในอนาคต
     if first_date > today:
-        first_date = today
+        first_date = today.replace(day=1)  # วันที่ 1 ของเดือนปัจจุบัน
     
     # Format datetime strings
     first_date_str = first_date.strftime("%Y-%m-%d")
     last_date_str = last_date.strftime("%Y-%m-%d")
     start = f"{first_date_str}T00:00:00"
     end = f"{last_date_str}T23:59:59"
+    
+    logger.info(f"CompareGH1and2: Fetching data from {start} to {end}")
     
     # Get sensor data
     context_history = update_compare_data(start, end)
@@ -1291,6 +1325,20 @@ def CompareGH1and2(request):
         'current_month': current_month,
         'month_name': calendar.month_name[month + 1],
     }
+    
+    # Log context for debugging
+    logger.info(f"CompareGH1and2: Context built with {len(context_history)} datasets")
+    logger.info(f"CompareGH1and2: Date range {first_date_str} to {last_date_str}")
+    
+    # Debug: Check if context_history has data
+    data_summary = {}
+    for key, value in context_history.items():
+        if isinstance(value, dict) and 'values' in value:
+            data_summary[key] = len(value['values']) if value['values'] else 0
+        else:
+            data_summary[key] = 'invalid_format'
+    
+    logger.info(f"CompareGH1and2: Data summary: {data_summary}")
     
     # Merge contexts
     context.update(context_history)
@@ -1384,67 +1432,99 @@ def update_compare_data(start_datetime, end_datetime):
     
     context_history = {}
     
-    # Fetch PM data
-    context_history['pm_GH1'] = get_history_val(SENSOR_GROUPS['pm']['GH1'][0], 
-                                                SENSOR_GROUPS['pm']['GH1'][1], 
-                                                start_datetime, end_datetime)
-    context_history['pm_GH2'] = get_history_val(SENSOR_GROUPS['pm']['GH2'][0], 
-                                                SENSOR_GROUPS['pm']['GH2'][1], 
-                                                start_datetime, end_datetime)
-    context_history['pm_outside'] = get_history_val(SENSOR_GROUPS['pm']['outside'][0], 
-                                                    SENSOR_GROUPS['pm']['outside'][1], 
-                                                    start_datetime, end_datetime)
+    # Fetch all required sensor data for compare page
+    logger.info(f"update_compare_data: Fetching data from {start_datetime} to {end_datetime}")
     
-    # Fetch CO2 data
-    context_history['CO2_Farm1'] = get_history_val(SENSOR_GROUPS['co2']['Farm1'][0], 
-                                                   SENSOR_GROUPS['co2']['Farm1'][1], 
-                                                   start_datetime, end_datetime)
-    context_history['CO2_Farm2'] = get_history_val(SENSOR_GROUPS['co2']['Farm2'][0], 
-                                                   SENSOR_GROUPS['co2']['Farm2'][1], 
-                                                   start_datetime, end_datetime)
+    # PM Data
+    context_history['pm_GH1'] = get_history_val('PM25_R1', 'atmos', start_datetime, end_datetime)
+    context_history['pm_GH2'] = get_history_val('PM25_R2', 'atmos', start_datetime, end_datetime) 
+    context_history['pm_outside'] = get_history_val('PM25_OUTSIDE', 'atmos', start_datetime, end_datetime)
     
-    # Fetch water data
-    context_history['ECWM'] = get_history_val('EC', 'conduct', start_datetime, end_datetime)
+    # CO2 Data
+    context_history['CO2_Farm1'] = get_history_val('CO2_R1', 'val', start_datetime, end_datetime)
+    context_history['CO2_Farm2'] = get_history_val('CO2_R2', 'val', start_datetime, end_datetime)
+    
+    # Light Data - UV & LUX
+    context_history['UV_FARM1'] = get_history_val('UV1', 'uv_value', start_datetime, end_datetime)
+    context_history['LUX_FARM1'] = get_history_val('LUX1', 'lux', start_datetime, end_datetime)
+    context_history['UV_FARM2'] = get_history_val('UV2', 'uv_value', start_datetime, end_datetime)
+    context_history['LUX_FARM2'] = get_history_val('LUX2', 'lux', start_datetime, end_datetime)
+    
+    # PPFD Data
+    context_history['ppfd_GH1_R8'] = get_history_val('ppfd3', 'ppfd', start_datetime, end_datetime)
+    context_history['ppfd_GH1_R24'] = get_history_val('ppfd4', 'ppfd', start_datetime, end_datetime)
+    context_history['ppfd_GH2_R16'] = get_history_val('ppfd1', 'ppfd', start_datetime, end_datetime)
+    context_history['ppfd_GH2_R24'] = get_history_val('ppfd2', 'ppfd', start_datetime, end_datetime)
+    
+    # NPK Data - Nitrogen
+    context_history['nitrogen_GH1_R8'] = get_history_val('NPK4', 'nitrogen', start_datetime, end_datetime)
+    context_history['nitrogen_GH1_R16'] = get_history_val('NPK5', 'nitrogen', start_datetime, end_datetime)
+    context_history['nitrogen_GH1_R24'] = get_history_val('NPK6', 'nitrogen', start_datetime, end_datetime)
+    context_history['nitrogen_GH2_R8'] = get_history_val('NPK1', 'nitrogen', start_datetime, end_datetime)
+    context_history['nitrogen_GH2_R16'] = get_history_val('NPK2', 'nitrogen', start_datetime, end_datetime)
+    context_history['nitrogen_GH2_R24'] = get_history_val('NPK3', 'nitrogen', start_datetime, end_datetime)
+    
+    # NPK Data - Phosphorus
+    context_history['phosphorus_GH1_R8'] = get_history_val('NPK4', 'phosphorus', start_datetime, end_datetime)
+    context_history['phosphorus_GH1_R16'] = get_history_val('NPK5', 'phosphorus', start_datetime, end_datetime)
+    context_history['phosphorus_GH1_R24'] = get_history_val('NPK6', 'phosphorus', start_datetime, end_datetime)
+    context_history['phosphorus_GH2_R8'] = get_history_val('NPK1', 'phosphorus', start_datetime, end_datetime)
+    context_history['phosphorus_GH2_R16'] = get_history_val('NPK2', 'phosphorus', start_datetime, end_datetime)
+    context_history['phosphorus_GH2_R24'] = get_history_val('NPK3', 'phosphorus', start_datetime, end_datetime)
+    
+    # NPK Data - Potassium  
+    context_history['potassium_GH1_R8'] = get_history_val('NPK4', 'potassium', start_datetime, end_datetime)
+    context_history['potassium_GH1_R16'] = get_history_val('NPK5', 'potassium', start_datetime, end_datetime)
+    context_history['potassium_GH1_R24'] = get_history_val('NPK6', 'potassium', start_datetime, end_datetime)
+    context_history['potassium_GH2_R8'] = get_history_val('NPK1', 'potassium', start_datetime, end_datetime)
+    context_history['potassium_GH2_R16'] = get_history_val('NPK2', 'potassium', start_datetime, end_datetime)
+    context_history['potassium_GH2_R24'] = get_history_val('NPK3', 'potassium', start_datetime, end_datetime)
+    
+    # Soil Temperature (NPK sensors)
+    context_history['temp_npk_GH1_R8'] = get_history_val('NPK4', 'temperature', start_datetime, end_datetime)
+    context_history['temp_npk_GH1_R16'] = get_history_val('NPK5', 'temperature', start_datetime, end_datetime)
+    context_history['temp_npk_GH1_R24'] = get_history_val('NPK6', 'temperature', start_datetime, end_datetime)
+    context_history['temp_npk_GH2_R8'] = get_history_val('NPK1', 'temperature', start_datetime, end_datetime)
+    context_history['temp_npk_GH2_R16'] = get_history_val('NPK2', 'temperature', start_datetime, end_datetime)
+    context_history['temp_npk_GH2_R24'] = get_history_val('NPK3', 'temperature', start_datetime, end_datetime)
+    
+    # Air Temperature & Humidity
+    context_history['airTemp_GH1_R8'] = get_history_val('SHT45T3', 'Temp', start_datetime, end_datetime)
+    context_history['airTemp_GH1_R16'] = get_history_val('SHT45T4', 'Temp', start_datetime, end_datetime)
+    context_history['airTemp_GH1_R24'] = get_history_val('SHT45T5', 'Temp', start_datetime, end_datetime)
+    context_history['airTemp_GH2_R8'] = get_history_val('SHT45T1', 'Temp', start_datetime, end_datetime)
+    context_history['airTemp_GH2_R16'] = get_history_val('SHT45T6', 'Temp', start_datetime, end_datetime)
+    context_history['airTemp_GH2_R24'] = get_history_val('SHT45T2', 'Temp', start_datetime, end_datetime)
+    
+    context_history['airHum_GH1_R8'] = get_history_val('SHT45T3', 'Hum', start_datetime, end_datetime)
+    context_history['airHum_GH1_R16'] = get_history_val('SHT45T4', 'Hum', start_datetime, end_datetime)
+    context_history['airHum_GH1_R24'] = get_history_val('SHT45T5', 'Hum', start_datetime, end_datetime)
+    context_history['airHum_GH2_R8'] = get_history_val('SHT45T1', 'Hum', start_datetime, end_datetime)
+    context_history['airHum_GH2_R16'] = get_history_val('SHT45T6', 'Hum', start_datetime, end_datetime)
+    context_history['airHum_GH2_R24'] = get_history_val('SHT45T2', 'Hum', start_datetime, end_datetime)
+    
+    # Water Temperature and EC
     context_history['TempWM'] = get_history_val('EC', 'temp', start_datetime, end_datetime)
-    context_history['ECWP'] = get_history_val('EC2', 'conduct', start_datetime, end_datetime)
     context_history['TempWP'] = get_history_val('EC2', 'temp', start_datetime, end_datetime)
+    context_history['ECWM'] = get_history_val('EC', 'conduct', start_datetime, end_datetime)
+    context_history['ECWP'] = get_history_val('EC2', 'conduct', start_datetime, end_datetime)
     
-    # Fetch light sensor data
-    for location, sensors in SENSOR_GROUPS['light'].items():
-        for sensor_type, (sensor_id, value_key) in sensors.items():
-            key = f'{sensor_type}_{location}'
-            context_history[key] = get_history_val(sensor_id, value_key, start_datetime, end_datetime)
+    # Soil Moisture Data
+    context_history['soil_GH1_R8_Q1'] = get_history_val('soil8', 'soil', start_datetime, end_datetime)
+    context_history['soil_GH1_R8_Q2'] = get_history_val('soil7', 'soil', start_datetime, end_datetime)
+    context_history['soil_GH1_R16_Q3'] = get_history_val('soil10', 'soil', start_datetime, end_datetime)
+    context_history['soil_GH1_R16_Q4'] = get_history_val('soil9', 'soil', start_datetime, end_datetime)
+    context_history['soil_GH1_R24_Q5'] = get_history_val('soil12', 'soil', start_datetime, end_datetime)
+    context_history['soil_GH1_R24_Q6'] = get_history_val('soil11', 'soil', start_datetime, end_datetime)
     
-    # Fetch PPFD data
-    for gh in ['GH1', 'GH2']:
-        for zone, (sensor_id, value_key) in SENSOR_GROUPS['ppfd'][gh].items():
-            key = f'ppfd_{gh}_{zone}'
-            context_history[key] = get_history_val(sensor_id, value_key, start_datetime, end_datetime)
+    context_history['soil_GH2_R8_P1'] = get_history_val('soil1', 'soil', start_datetime, end_datetime)
+    context_history['soil_GH2_R8_P2'] = get_history_val('soil2', 'soil', start_datetime, end_datetime)
+    context_history['soil_GH2_R8_P3'] = get_history_val('soil3', 'soil', start_datetime, end_datetime)
+    context_history['soil_GH2_R24_P4'] = get_history_val('soil4', 'soil', start_datetime, end_datetime)
+    context_history['soil_GH2_R24_P5'] = get_history_val('soil5', 'soil', start_datetime, end_datetime)
+    context_history['soil_GH2_R24_P6'] = get_history_val('soil6', 'soil', start_datetime, end_datetime)
+    context_history['soil_GH2_R16_P8'] = get_history_val('soil13', 'soil', start_datetime, end_datetime)
     
-    # Fetch NPK data for both greenhouses
-    for gh in ['GH1', 'GH2']:
-        for zone, (sensor_id, nutrients) in SENSOR_GROUPS['npk'][gh].items():
-            for nutrient in nutrients:
-                if nutrient == 'temperature':
-                    key = f'temp_npk_{gh}_{zone}'
-                else:
-                    key = f'{nutrient}_{gh}_{zone}'
-                context_history[key] = get_history_val(sensor_id, nutrient, start_datetime, end_datetime)
-    
-    # Fetch air temperature and humidity
-    for gh in ['GH1', 'GH2']:
-        for zone, (sensor_id, measurements) in SENSOR_GROUPS['air'][gh].items():
-            for measurement in measurements:
-                if measurement == 'Temp':
-                    key = f'airTemp_{gh}_{zone}'
-                else:  # Hum
-                    key = f'airHum_{gh}_{zone}'
-                context_history[key] = get_history_val(sensor_id, measurement, start_datetime, end_datetime)
-    
-    # Fetch soil moisture data
-    for gh in ['GH1', 'GH2']:
-        for location, (sensor_id, value_key) in SENSOR_GROUPS['soil'][gh].items():
-            key = f'soil_{gh}_{location}'
-            context_history[key] = get_history_val(sensor_id, value_key, start_datetime, end_datetime)
+    logger.info(f"update_compare_data: Successfully fetched {len(context_history)} sensor datasets")
     
     return context_history

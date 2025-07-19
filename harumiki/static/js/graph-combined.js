@@ -122,15 +122,20 @@ function getChartData(dataKey) {
         let cleanData = data.replace(/'/g, '"');
         return JSON.parse(cleanData);
     } catch (e) {
-        console.error(`Error parsing ${dataKey}:`, e);
-        console.log(`Raw data for ${dataKey}:`, data);
+        if (window.harumikiUtils && window.harumikiUtils.logger) {
+            window.harumikiUtils.logger.error(`Error parsing ${dataKey}:`, e);
+            window.harumikiUtils.logger.log(`Raw data for ${dataKey}:`, data);
+        }
         return [];
     }
 }
 
+
 // Initialize all charts when DOM is ready
 document.addEventListener('DOMContentLoaded', function() {
-    console.log(`Initializing charts for Farm ${currentFarm}`);
+    if (window.harumikiUtils && window.harumikiUtils.logger) {
+        window.harumikiUtils.logger.log(`Initializing charts for Farm ${currentFarm}`);
+    }
     
     initializePMChart();
     initializeCO2Chart();

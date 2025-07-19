@@ -800,7 +800,9 @@ function initBoundaryProtection() {
         if (newLeft !== left || newTop !== top) {
             sensor.style.left = newLeft + 'px';
             sensor.style.top = newTop + 'px';
-            console.warn(`Sensor ${sensor.id} adjusted from (${left}, ${top}) to (${newLeft}, ${newTop})`);
+            if (window.harumikiUtils && window.harumikiUtils.logger) {
+                window.harumikiUtils.logger.warn(`Sensor ${sensor.id} adjusted from (${left}, ${top}) to (${newLeft}, ${newTop})`);
+            }
         }
         
         // Add visual indicator for edge sensors
@@ -1004,9 +1006,13 @@ window.smartfarm = {
         });
         
         if (violations.length > 0) {
-            console.warn('⚠️ Boundary violations found:', violations);
+            if (window.harumikiUtils && window.harumikiUtils.logger) {
+                window.harumikiUtils.logger.warn('⚠️ Boundary violations found:', violations);
+            }
         } else {
-            console.log('✅ All sensors within boundaries');
+            if (window.harumikiUtils && window.harumikiUtils.logger) {
+                window.harumikiUtils.logger.log('✅ All sensors within boundaries');
+            }
         }
         
         return violations;

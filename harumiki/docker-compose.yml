@@ -1,6 +1,18 @@
 version: '3.8'
 
 services:
+  redis:
+    image: redis:7-alpine
+    container_name: harumiki_redis
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis_data:/data
+    command: redis-server --appendonly yes
+    restart: unless-stopped
+    networks:
+      - django-network
+
   web:
     build: 
       context: .
@@ -13,11 +25,14 @@ services:
       - .env.production
     environment:
       - DJANGO_SETTINGS_MODULE=harumiki.settings
+      - REDIS_URL=redis://redis:6379/1
     volumes:
       - static_volume:/code/staticfiles
       - media_volume:/code/media
       - logs_volume:/code/logs
     restart: unless-stopped
+    depends_on:
+      - redis
     healthcheck:
       test: ["CMD", "curl", "-f", "http://localhost:8000/"]
       interval: 30s
@@ -49,6 +64,7 @@ volumes:
   static_volume:
   media_volume:
   logs_volume:
+  redis_data:
 
 networks:
   django-network:

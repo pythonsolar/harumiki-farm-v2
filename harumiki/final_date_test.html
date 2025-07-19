@@ -1,0 +1,250 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Final Date Display Test</title>
+    <script defer src="https://cdn.jsdelivr.net/npm/chart.js@3.9.1/dist/chart.min.js"></script>
+    <style>
+        body { font-family: Arial, sans-serif; margin: 20px; }
+        .container { max-width: 1000px; margin: 0 auto; }
+        .chart-container { width: 100%; height: 400px; margin: 20px 0; }
+        .info { background: #f0f8ff; padding: 15px; border-radius: 8px; margin: 20px 0; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>✅ Final Date Display Test - Compare Page Style</h1>
+        
+        <div class="info">
+            <h3>📊 Features Implemented:</h3>
+            <ul>
+                <li><strong>X-Axis:</strong> Shows day/month format (e.g., 17/7, 18/7, 19/7)</li>
+                <li><strong>Smart Spacing:</strong> Automatically adjusts based on data density</li>
+                <li><strong>Tooltips:</strong> Show full datetime on hover (day/month/year time)</li>
+                <li><strong>Always Show:</strong> First and last dates for reference</li>
+            </ul>
+        </div>
+
+        <div class="chart-container">
+            <canvas id="testChart"></canvas>
+        </div>
+        
+        <!-- Test data simulating real compare page data -->
+        <div id="chart-data" class="d-none"
+             data-pm-values="[2, 3, 2, 4, 3, 5, 4, 6, 5, 7, 6, 5, 4, 3, 5, 6, 7, 8, 6, 4, 3, 2, 4, 5, 6, 7, 5, 3, 2, 4]"
+             data-pm-times="[
+                 '2025-07-17 08:00:00', '2025-07-17 12:00:00', '2025-07-17 16:00:00', '2025-07-17 20:00:00',
+                 '2025-07-18 02:00:00', '2025-07-18 06:00:00', '2025-07-18 10:00:00', '2025-07-18 14:00:00', '2025-07-18 18:00:00', '2025-07-18 22:00:00',
+                 '2025-07-19 03:00:00', '2025-07-19 07:00:00', '2025-07-19 11:00:00', '2025-07-19 15:00:00', '2025-07-19 19:00:00', '2025-07-19 23:00:00',
+                 '2025-07-20 04:00:00', '2025-07-20 08:00:00', '2025-07-20 12:00:00', '2025-07-20 16:00:00', '2025-07-20 20:00:00',
+                 '2025-07-21 01:00:00', '2025-07-21 05:00:00', '2025-07-21 09:00:00', '2025-07-21 13:00:00', '2025-07-21 17:00:00', '2025-07-21 21:00:00',
+                 '2025-07-22 02:00:00', '2025-07-22 06:00:00', '2025-07-22 10:00:00'
+             ]">
+        </div>
+
+        <div id="results"></div>
+    </div>
+
+    <script>
+        function waitForChart() {
+            if (typeof Chart !== 'undefined') {
+                console.log('Chart.js loaded successfully');
+                createFinalTestChart();
+            } else {
+                setTimeout(waitForChart, 100);
+            }
+        }
+        
+        function getChartData(dataKey) {
+            const element = document.getElementById('chart-data');
+            const data = element.getAttribute(`data-${dataKey}`);
+            
+            if (!data || data === 'None' || data === '') return [];
+            
+            try {
+                let cleanedData = data;
+                cleanedData = cleanedData.replace(/\\u0027/g, "'");
+                cleanedData = cleanedData.replace(/\\u002D/g, "-");
+                cleanedData = cleanedData.replace(/'/g, '"');
+                
+                return JSON.parse(cleanedData);
+            } catch (e) {
+                console.error(`Error parsing ${dataKey}:`, e);
+                return [];
+            }
+        }
+        
+        function createFinalTestChart() {
+            const values = getChartData('pm-values');
+            const times = getChartData('pm-times');
+            
+            if (values.length === 0 || times.length === 0) {
+                document.getElementById('results').innerHTML = '<p style="color: red;">❌ No data available</p>';
+                return;
+            }
+            
+            try {
+                const ctx = document.getElementById('testChart').getContext('2d');
+                
+                // Color palette (same as compare.js)
+                const colors = {
+                    gh1: '#00BCD4',
+                    gh2: '#FFC107',
+                    outside: '#E91E63',
+                    grid: 'rgba(0,0,0,0.05)',
+                    text: '#333'
+                };
+                
+                const chart = new Chart(ctx, {
+                    type: 'line',
+                    data: {
+                        labels: times,
+                        datasets: [{
+                            label: 'PM2.5 Test Data',
+                            data: values,
+                            borderColor: colors.gh1,
+                            backgroundColor: colors.gh1 + '20',
+                            borderWidth: 2,
+                            tension: 0.1,
+                            pointRadius: 2,
+                            pointHoverRadius: 4
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        interaction: {
+                            mode: 'index',
+                            intersect: false,
+                        },
+                        plugins: {
+                            title: {
+                                display: true,
+                                text: '📈 Compare Page Date Display Test (17/7 - 22/7)',
+                                font: { size: 16, weight: 'bold' }
+                            },
+                            legend: {
+                                display: true,
+                                position: 'top'
+                            },
+                            tooltip: {
+                                backgroundColor: 'rgba(0,0,0,0.8)',
+                                padding: 12,
+                                cornerRadius: 8,
+                                titleFont: { size: 13, weight: 'bold' },
+                                bodyFont: { size: 12 },
+                                callbacks: {
+                                    title: function(context) {
+                                        // Show full datetime in tooltip
+                                        const label = context[0].label;
+                                        if (label && label.includes(' ')) {
+                                            try {
+                                                const [datePart, timePart] = label.split(' ');
+                                                const dateObj = new Date(datePart);
+                                                const day = dateObj.getDate();
+                                                const month = dateObj.getMonth() + 1;
+                                                const year = dateObj.getFullYear();
+                                                return `${day}/${month}/${year} ${timePart}`;
+                                            } catch (e) {
+                                                return label;
+                                            }
+                                        }
+                                        return label;
+                                    }
+                                }
+                            }
+                        },
+                        scales: {
+                            x: {
+                                type: 'category',
+                                grid: {
+                                    display: true,
+                                    color: colors.grid
+                                },
+                                ticks: {
+                                    color: colors.text,
+                                    maxTicksLimit: 15,
+                                    callback: function(value, index, values) {
+                                        const label = this.getLabelForValue(value);
+                                        
+                                        if (!label || !label.includes(' ')) return '';
+                                        
+                                        const datePart = label.split(' ')[0];
+                                        if (!datePart) return '';
+                                        
+                                        try {
+                                            const dateObj = new Date(datePart);
+                                            const day = dateObj.getDate();
+                                            const month = dateObj.getMonth() + 1;
+                                            
+                                            const totalPoints = values.length;
+                                            let showInterval = 1;
+                                            
+                                            if (totalPoints > 100) {
+                                                showInterval = Math.floor(totalPoints / 10);
+                                            } else if (totalPoints > 50) {
+                                                showInterval = Math.floor(totalPoints / 8);
+                                            } else {
+                                                showInterval = Math.floor(totalPoints / 6);
+                                            }
+                                            
+                                            if (index === 0 || index === totalPoints - 1) {
+                                                return `${day}/${month}`;
+                                            }
+                                            
+                                            const prevLabel = index > 0 ? this.getLabelForValue(index - 1) : '';
+                                            if (prevLabel && prevLabel.includes(' ')) {
+                                                const prevDatePart = prevLabel.split(' ')[0];
+                                                if (prevDatePart !== datePart) {
+                                                    if (index % showInterval === 0) {
+                                                        return `${day}/${month}`;
+                                                    }
+                                                }
+                                            }
+                                            
+                                            return '';
+                                        } catch (e) {
+                                            return '';
+                                        }
+                                    }
+                                }
+                            },
+                            y: {
+                                beginAtZero: true,
+                                grid: {
+                                    display: true,
+                                    color: colors.grid
+                                },
+                                ticks: {
+                                    color: colors.text
+                                }
+                            }
+                        }
+                    }
+                });
+                
+                // Success message
+                document.getElementById('results').innerHTML = `
+                    <div style="background: #e8f5e8; padding: 15px; border-radius: 8px; margin-top: 20px;">
+                        <h3 style="color: #2e7d2e; margin: 0 0 10px 0;">✅ Success!</h3>
+                        <p><strong>Data points:</strong> ${values.length} measurements</p>
+                        <p><strong>Date range:</strong> 17/7 - 22/7 (6 days)</p>
+                        <p><strong>X-axis format:</strong> Day/Month (e.g., 17/7, 18/7, 19/7)</p>
+                        <p><strong>Tooltip format:</strong> Day/Month/Year Time (hover to see)</p>
+                        <p style="margin: 0;"><em>📝 This format is now applied to all compare page charts!</em></p>
+                    </div>
+                `;
+                
+                console.log('Final test chart created successfully!');
+                
+            } catch (error) {
+                console.error('Error creating final test chart:', error);
+                document.getElementById('results').innerHTML = `<p style="color: red;">❌ Error: ${error.message}</p>`;
+            }
+        }
+
+        document.addEventListener('DOMContentLoaded', waitForChart);
+    </script>
+</body>
+</html>

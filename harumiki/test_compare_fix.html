@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Test Compare Page Fix</title>
+    <script defer src="https://cdn.jsdelivr.net/npm/chart.js@3.9.1/dist/chart.min.js"></script>
+    <script defer src="https://cdn.jsdelivr.net/npm/chartjs-adapter-date-fns@2.0.0/dist/chartjs-adapter-date-fns.bundle.min.js"></script>
+</head>
+<body>
+    <h1>Testing Chart.js Loading with Defer</h1>
+    <div style="width: 600px; height: 400px;">
+        <canvas id="testChart"></canvas>
+    </div>
+    
+    <!-- Test data like in compare.html -->
+    <div id="chart-data" class="d-none"
+         data-pm-gh1="[1, 2, 3, 4, 5]"
+         data-pm-gh1-times="['2025-07-19 10:00:00', '2025-07-19 11:00:00', '2025-07-19 12:00:00', '2025-07-19 13:00:00', '2025-07-19 14:00:00']">
+    </div>
+
+    <script>
+        // Wait for Chart.js to load before executing compare.js
+        function waitForChart() {
+            if (typeof Chart !== 'undefined') {
+                console.log('Chart.js is loaded, version:', Chart.version);
+                document.body.innerHTML += '<p style="color: green;">Chart.js loaded: ' + Chart.version + '</p>';
+                
+                // Test chart creation
+                createTestChart();
+            } else {
+                console.log('Chart.js not loaded yet, waiting...');
+                setTimeout(waitForChart, 100);
+            }
+        }
+        
+        function createTestChart() {
+            try {
+                const ctx = document.getElementById('testChart').getContext('2d');
+                const chart = new Chart(ctx, {
+                    type: 'line',
+                    data: {
+                        labels: ['Jan', 'Feb', 'Mar', 'Apr', 'May'],
+                        datasets: [{
+                            label: 'Test Data',
+                            data: [12, 19, 3, 5, 2],
+                            borderColor: 'rgb(75, 192, 192)',
+                            backgroundColor: 'rgba(75, 192, 192, 0.2)',
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        plugins: {
+                            title: {
+                                display: true,
+                                text: 'Test Chart with Defer Loading'
+                            }
+                        }
+                    }
+                });
+                
+                console.log('Chart created successfully!');
+                document.body.innerHTML += '<p style="color: green;">Chart created successfully!</p>';
+                
+            } catch (error) {
+                console.error('Error creating chart:', error);
+                document.body.innerHTML += '<p style="color: red;">Error creating chart: ' + error.message + '</p>';
+            }
+        }
+
+        // Start checking when DOM is ready
+        document.addEventListener('DOMContentLoaded', waitForChart);
+    </script>
+</body>
+</html>

@@ -4,3 +4,630 @@ INFO 2025-07-19 08:10:45,424 autoreload Watching for file changes with StatReloa
 INFO 2025-07-19 08:12:39,190 basehttp "GET / HTTP/1.1" 200 30976
 INFO 2025-07-19 08:15:24,816 basehttp "GET / HTTP/1.1" 200 30976
 INFO 2025-07-19 08:18:03,685 basehttp "GET / HTTP/1.1" 200 30978
+INFO 2025-07-19 09:18:23,881 autoreload Watching for file changes with StatReloader
+INFO 2025-07-19 09:21:09,880 autoreload Watching for file changes with StatReloader
+INFO 2025-07-19 15:30:10,024 autoreload Watching for file changes with StatReloader
+INFO 2025-07-19 15:31:22,338 autoreload Watching for file changes with StatReloader
+ERROR 2025-07-19 15:32:08,519 log Internal Server Error: /
+Traceback (most recent call last):
+  File "C:\WS\Project Smartfarm\Harumiki-App-v07\venv\Lib\site-packages\django_redis\cache.py", line 29, in _decorator
+    return method(self, *args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\WS\Project Smartfarm\Harumiki-App-v07\venv\Lib\site-packages\django_redis\cache.py", line 99, in _get
+    return self.client.get(key, default=default, version=version, client=client)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\WS\Project Smartfarm\Harumiki-App-v07\venv\Lib\site-packages\django_redis\client\default.py", line 300, in get
+    raise ConnectionInterrupted(connection=client) from e
+django_redis.exceptions.ConnectionInterrupted: Redis ConnectionError: Error 10061 connecting to 127.0.0.1:6379. No connection could be made because the target machine actively refused it.
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "C:\WS\Project Smartfarm\Harumiki-App-v07\venv\Lib\site-packages\django\core\handlers\exception.py", line 55, in inner
+    response = get_response(request)
+               ^^^^^^^^^^^^^^^^^^^^^
+  File "C:\WS\Project Smartfarm\Harumiki-App-v07\venv\Lib\site-packages\django\core\handlers\base.py", line 197, in _get_response
+    response = wrapped_callback(request, *callback_args, **callback_kwargs)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\WS\Project Smartfarm\Harumiki-App-v07\venv\Lib\site-packages\django\utils\decorators.py", line 185, in _view_wrapper
+    result = _pre_process_request(request, *args, **kwargs)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\WS\Project Smartfarm\Harumiki-App-v07\venv\Lib\site-packages\django\utils\decorators.py", line 131, in _pre_process_request
+    result = middleware.process_request(request)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\WS\Project Smartfarm\Harumiki-App-v07\venv\Lib\site-packages\django\middleware\cache.py", line 161, in process_request
+    cache_key = get_cache_key(request, self.key_prefix, "GET", cache=self.cache)
+                ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\WS\Project Smartfarm\Harumiki-App-v07\venv\Lib\site-packages\django\utils\cache.py", line 392, in get_cache_key
+    headerlist = cache.get(cache_key)
+                 ^^^^^^^^^^^^^^^^^^^^
+  File "C:\WS\Project Smartfarm\Harumiki-App-v07\venv\Lib\site-packages\django_redis\cache.py", line 92, in get
+    value = self._get(key, default, version, client)
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\WS\Project Smartfarm\Harumiki-App-v07\venv\Lib\site-packages\django_redis\cache.py", line 36, in _decorator
+    raise e.__cause__  # noqa: B904
+    ^^^^^^^^^^^^^^^^^
+  File "C:\WS\Project Smartfarm\Harumiki-App-v07\venv\Lib\site-packages\django_redis\client\default.py", line 298, in get
+    value = client.get(key)
+            ^^^^^^^^^^^^^^^
+  File "C:\WS\Project Smartfarm\Harumiki-App-v07\venv\Lib\site-packages\redis\commands\core.py", line 1829, in get
+    return self.execute_command("GET", name, keys=[name])
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\WS\Project Smartfarm\Harumiki-App-v07\venv\Lib\site-packages\redis\client.py", line 623, in execute_command
+    return self._execute_command(*args, **options)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\WS\Project Smartfarm\Harumiki-App-v07\venv\Lib\site-packages\redis\client.py", line 629, in _execute_command
+    conn = self.connection or pool.get_connection()
+                              ^^^^^^^^^^^^^^^^^^^^^
+  File "C:\WS\Project Smartfarm\Harumiki-App-v07\venv\Lib\site-packages\redis\utils.py", line 191, in wrapper
+    return func(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^
+  File "C:\WS\Project Smartfarm\Harumiki-App-v07\venv\Lib\site-packages\redis\connection.py", line 1530, in get_connection
+    connection.connect()
+  File "C:\WS\Project Smartfarm\Harumiki-App-v07\venv\Lib\site-packages\redis\connection.py", line 379, in connect
+    self.connect_check_health(check_health=True)
+  File "C:\WS\Project Smartfarm\Harumiki-App-v07\venv\Lib\site-packages\redis\connection.py", line 391, in connect_check_health
+    raise ConnectionError(self._error_message(e))
+redis.exceptions.ConnectionError: Error 10061 connecting to 127.0.0.1:6379. No connection could be made because the target machine actively refused it.
+ERROR 2025-07-19 15:32:08,523 basehttp "HEAD / HTTP/1.1" 500 0
+INFO 2025-07-19 15:32:34,637 autoreload C:\WS\Project Smartfarm\Harumiki-App-v07\harumiki\harumiki\settings.py changed, reloading.
+INFO 2025-07-19 15:32:34,780 autoreload C:\WS\Project Smartfarm\Harumiki-App-v07\harumiki\harumiki\settings.py changed, reloading.
+INFO 2025-07-19 15:32:36,280 autoreload Watching for file changes with StatReloader
+INFO 2025-07-19 15:32:36,456 autoreload Watching for file changes with StatReloader
+INFO 2025-07-19 15:33:40,365 basehttp "GET / HTTP/1.1" 200 30983
+INFO 2025-07-19 15:34:28,035 basehttp "GET / HTTP/1.1" 200 30983
+INFO 2025-07-19 15:34:43,806 basehttp "GET /farm-2/ HTTP/1.1" 200 31483
+INFO 2025-07-19 15:35:15,026 basehttp "GET /graph-1/ HTTP/1.1" 200 77526
+INFO 2025-07-19 15:35:42,006 basehttp "GET /graph-2/ HTTP/1.1" 200 54844
+INFO 2025-07-19 15:36:03,016 basehttp "GET /graph-1/ HTTP/1.1" 200 77526
+INFO 2025-07-19 15:36:26,762 basehttp "GET /graph-2/ HTTP/1.1" 200 54849
+INFO 2025-07-19 15:37:28,535 basehttp "GET /graph-all1/ HTTP/1.1" 200 47224
+INFO 2025-07-19 15:37:28,668 basehttp "GET /static/css/graph-all.css HTTP/1.1" 200 4934
+INFO 2025-07-19 15:37:28,669 basehttp "GET /static/js/graph-all.js HTTP/1.1" 200 21502
+INFO 2025-07-19 15:46:05,430 basehttp "GET /graph-all1/ HTTP/1.1" 200 47461
+INFO 2025-07-19 15:46:11,358 basehttp "GET / HTTP/1.1" 200 30982
+ERROR 2025-07-19 15:49:00,032 views Error getting npk data: 
+INFO 2025-07-19 15:49:22,037 basehttp "GET / HTTP/1.1" 200 30964
+ERROR 2025-07-19 15:49:46,973 views Error getting npk data: 
+ERROR 2025-07-19 15:49:56,985 views Error getting soil data: 
+INFO 2025-07-19 15:50:10,333 basehttp "GET /farm-2/ HTTP/1.1" 200 31434
+INFO 2025-07-19 15:51:41,569 basehttp - Broken pipe from ('127.0.0.1', 54127)
+INFO 2025-07-19 15:52:16,714 basehttp "GET / HTTP/1.1" 200 30983
+INFO 2025-07-19 15:54:41,059 basehttp "GET /farm-2/ HTTP/1.1" 200 31483
+INFO 2025-07-19 15:56:11,637 autoreload Watching for file changes with StatReloader
+ERROR 2025-07-19 15:56:38,221 log Internal Server Error: /
+Traceback (most recent call last):
+  File "C:\WS\Project Smartfarm\Harumiki-App-v07\harumiki\strawberry\views.py", line 92, in Farm1
+    return render(request, 'strawberry/farm-1.html', context)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\WS\Project Smartfarm\Harumiki-App-v07\venv\Lib\site-packages\django\shortcuts.py", line 25, in render
+    content = loader.render_to_string(template_name, context, request, using=using)
+              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\WS\Project Smartfarm\Harumiki-App-v07\venv\Lib\site-packages\django\template\loader.py", line 62, in render_to_string
+    return template.render(context, request)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\WS\Project Smartfarm\Harumiki-App-v07\venv\Lib\site-packages\django\template\backends\django.py", line 107, in render
+    return self.template.render(context)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\WS\Project Smartfarm\Harumiki-App-v07\venv\Lib\site-packages\django\template\base.py", line 171, in render
+    return self._render(context)
+           ^^^^^^^^^^^^^^^^^^^^^
+  File "C:\WS\Project Smartfarm\Harumiki-App-v07\venv\Lib\site-packages\django\template\base.py", line 163, in _render
+    return self.nodelist.render(context)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\WS\Project Smartfarm\Harumiki-App-v07\venv\Lib\site-packages\django\template\base.py", line 1016, in render
+    return SafeString("".join([node.render_annotated(context) for node in self]))
+                               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\WS\Project Smartfarm\Harumiki-App-v07\venv\Lib\site-packages\django\template\base.py", line 977, in render_annotated
+    return self.render(context)
+           ^^^^^^^^^^^^^^^^^^^^
+  File "C:\WS\Project Smartfarm\Harumiki-App-v07\venv\Lib\site-packages\django\template\loader_tags.py", line 159, in render
+    return compiled_parent._render(context)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\WS\Project Smartfarm\Harumiki-App-v07\venv\Lib\site-packages\django\template\base.py", line 163, in _render
+    return self.nodelist.render(context)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\WS\Project Smartfarm\Harumiki-App-v07\venv\Lib\site-packages\django\template\base.py", line 1016, in render
+    return SafeString("".join([node.render_annotated(context) for node in self]))
+                               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\WS\Project Smartfarm\Harumiki-App-v07\venv\Lib\site-packages\django\template\base.py", line 977, in render_annotated
+    return self.render(context)
+           ^^^^^^^^^^^^^^^^^^^^
+  File "C:\WS\Project Smartfarm\Harumiki-App-v07\venv\Lib\site-packages\django\template\defaulttags.py", line 480, in render
+    url = reverse(view_name, args=args, kwargs=kwargs, current_app=current_app)
+          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\WS\Project Smartfarm\Harumiki-App-v07\venv\Lib\site-packages\django\urls\base.py", line 98, in reverse
+    resolved_url = resolver._reverse_with_prefix(view, prefix, *args, **kwargs)
+                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\WS\Project Smartfarm\Harumiki-App-v07\venv\Lib\site-packages\django\urls\resolvers.py", line 831, in _reverse_with_prefix
+    raise NoReverseMatch(msg)
+django.urls.exceptions.NoReverseMatch: Reverse for 'farm-1' not found. 'farm-1' is not a valid view function or pattern name.
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "C:\WS\Project Smartfarm\Harumiki-App-v07\venv\Lib\site-packages\django\core\handlers\exception.py", line 55, in inner
+    response = get_response(request)
+               ^^^^^^^^^^^^^^^^^^^^^
+  File "C:\WS\Project Smartfarm\Harumiki-App-v07\venv\Lib\site-packages\django\core\handlers\base.py", line 197, in _get_response
+    response = wrapped_callback(request, *callback_args, **callback_kwargs)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\WS\Project Smartfarm\Harumiki-App-v07\venv\Lib\site-packages\django\utils\decorators.py", line 192, in _view_wrapper
+    result = _process_exception(request, e)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\WS\Project Smartfarm\Harumiki-App-v07\venv\Lib\site-packages\django\utils\decorators.py", line 190, in _view_wrapper
+    response = view_func(request, *args, **kwargs)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\WS\Project Smartfarm\Harumiki-App-v07\harumiki\strawberry\views.py", line 95, in Farm1
+    return render(request, 'strawberry/farm-1.html', {})
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\WS\Project Smartfarm\Harumiki-App-v07\venv\Lib\site-packages\django\shortcuts.py", line 25, in render
+    content = loader.render_to_string(template_name, context, request, using=using)
+              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\WS\Project Smartfarm\Harumiki-App-v07\venv\Lib\site-packages\django\template\loader.py", line 62, in render_to_string
+    return template.render(context, request)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\WS\Project Smartfarm\Harumiki-App-v07\venv\Lib\site-packages\django\template\backends\django.py", line 107, in render
+    return self.template.render(context)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\WS\Project Smartfarm\Harumiki-App-v07\venv\Lib\site-packages\django\template\base.py", line 171, in render
+    return self._render(context)
+           ^^^^^^^^^^^^^^^^^^^^^
+  File "C:\WS\Project Smartfarm\Harumiki-App-v07\venv\Lib\site-packages\django\template\base.py", line 163, in _render
+    return self.nodelist.render(context)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\WS\Project Smartfarm\Harumiki-App-v07\venv\Lib\site-packages\django\template\base.py", line 1016, in render
+    return SafeString("".join([node.render_annotated(context) for node in self]))
+                               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\WS\Project Smartfarm\Harumiki-App-v07\venv\Lib\site-packages\django\template\base.py", line 977, in render_annotated
+    return self.render(context)
+           ^^^^^^^^^^^^^^^^^^^^
+  File "C:\WS\Project Smartfarm\Harumiki-App-v07\venv\Lib\site-packages\django\template\loader_tags.py", line 159, in render
+    return compiled_parent._render(context)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\WS\Project Smartfarm\Harumiki-App-v07\venv\Lib\site-packages\django\template\base.py", line 163, in _render
+    return self.nodelist.render(context)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\WS\Project Smartfarm\Harumiki-App-v07\venv\Lib\site-packages\django\template\base.py", line 1016, in render
+    return SafeString("".join([node.render_annotated(context) for node in self]))
+                               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\WS\Project Smartfarm\Harumiki-App-v07\venv\Lib\site-packages\django\template\base.py", line 977, in render_annotated
+    return self.render(context)
+           ^^^^^^^^^^^^^^^^^^^^
+  File "C:\WS\Project Smartfarm\Harumiki-App-v07\venv\Lib\site-packages\django\template\defaulttags.py", line 480, in render
+    url = reverse(view_name, args=args, kwargs=kwargs, current_app=current_app)
+          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\WS\Project Smartfarm\Harumiki-App-v07\venv\Lib\site-packages\django\urls\base.py", line 98, in reverse
+    resolved_url = resolver._reverse_with_prefix(view, prefix, *args, **kwargs)
+                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\WS\Project Smartfarm\Harumiki-App-v07\venv\Lib\site-packages\django\urls\resolvers.py", line 831, in _reverse_with_prefix
+    raise NoReverseMatch(msg)
+django.urls.exceptions.NoReverseMatch: Reverse for 'farm-1' not found. 'farm-1' is not a valid view function or pattern name.
+ERROR 2025-07-19 15:56:38,233 basehttp "GET / HTTP/1.1" 500 260808
+INFO 2025-07-19 15:56:38,246 basehttp - Broken pipe from ('127.0.0.1', 63033)
+ERROR 2025-07-19 15:56:50,697 log Internal Server Error: /
+Traceback (most recent call last):
+  File "C:\WS\Project Smartfarm\Harumiki-App-v07\harumiki\strawberry\views.py", line 92, in Farm1
+    return render(request, 'strawberry/farm-1.html', context)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\WS\Project Smartfarm\Harumiki-App-v07\venv\Lib\site-packages\django\shortcuts.py", line 25, in render
+    content = loader.render_to_string(template_name, context, request, using=using)
+              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\WS\Project Smartfarm\Harumiki-App-v07\venv\Lib\site-packages\django\template\loader.py", line 62, in render_to_string
+    return template.render(context, request)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\WS\Project Smartfarm\Harumiki-App-v07\venv\Lib\site-packages\django\template\backends\django.py", line 107, in render
+    return self.template.render(context)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\WS\Project Smartfarm\Harumiki-App-v07\venv\Lib\site-packages\django\template\base.py", line 171, in render
+    return self._render(context)
+           ^^^^^^^^^^^^^^^^^^^^^
+  File "C:\WS\Project Smartfarm\Harumiki-App-v07\venv\Lib\site-packages\django\template\base.py", line 163, in _render
+    return self.nodelist.render(context)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\WS\Project Smartfarm\Harumiki-App-v07\venv\Lib\site-packages\django\template\base.py", line 1016, in render
+    return SafeString("".join([node.render_annotated(context) for node in self]))
+                               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\WS\Project Smartfarm\Harumiki-App-v07\venv\Lib\site-packages\django\template\base.py", line 977, in render_annotated
+    return self.render(context)
+           ^^^^^^^^^^^^^^^^^^^^
+  File "C:\WS\Project Smartfarm\Harumiki-App-v07\venv\Lib\site-packages\django\template\loader_tags.py", line 159, in render
+    return compiled_parent._render(context)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\WS\Project Smartfarm\Harumiki-App-v07\venv\Lib\site-packages\django\template\base.py", line 163, in _render
+    return self.nodelist.render(context)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\WS\Project Smartfarm\Harumiki-App-v07\venv\Lib\site-packages\django\template\base.py", line 1016, in render
+    return SafeString("".join([node.render_annotated(context) for node in self]))
+                               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\WS\Project Smartfarm\Harumiki-App-v07\venv\Lib\site-packages\django\template\base.py", line 977, in render_annotated
+    return self.render(context)
+           ^^^^^^^^^^^^^^^^^^^^
+  File "C:\WS\Project Smartfarm\Harumiki-App-v07\venv\Lib\site-packages\django\template\defaulttags.py", line 480, in render
+    url = reverse(view_name, args=args, kwargs=kwargs, current_app=current_app)
+          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\WS\Project Smartfarm\Harumiki-App-v07\venv\Lib\site-packages\django\urls\base.py", line 98, in reverse
+    resolved_url = resolver._reverse_with_prefix(view, prefix, *args, **kwargs)
+                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\WS\Project Smartfarm\Harumiki-App-v07\venv\Lib\site-packages\django\urls\resolvers.py", line 831, in _reverse_with_prefix
+    raise NoReverseMatch(msg)
+django.urls.exceptions.NoReverseMatch: Reverse for 'farm-1' not found. 'farm-1' is not a valid view function or pattern name.
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "C:\WS\Project Smartfarm\Harumiki-App-v07\venv\Lib\site-packages\django\core\handlers\exception.py", line 55, in inner
+    response = get_response(request)
+               ^^^^^^^^^^^^^^^^^^^^^
+  File "C:\WS\Project Smartfarm\Harumiki-App-v07\venv\Lib\site-packages\django\core\handlers\base.py", line 197, in _get_response
+    response = wrapped_callback(request, *callback_args, **callback_kwargs)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\WS\Project Smartfarm\Harumiki-App-v07\venv\Lib\site-packages\django\utils\decorators.py", line 192, in _view_wrapper
+    result = _process_exception(request, e)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\WS\Project Smartfarm\Harumiki-App-v07\venv\Lib\site-packages\django\utils\decorators.py", line 190, in _view_wrapper
+    response = view_func(request, *args, **kwargs)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\WS\Project Smartfarm\Harumiki-App-v07\harumiki\strawberry\views.py", line 95, in Farm1
+    return render(request, 'strawberry/farm-1.html', {})
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\WS\Project Smartfarm\Harumiki-App-v07\venv\Lib\site-packages\django\shortcuts.py", line 25, in render
+    content = loader.render_to_string(template_name, context, request, using=using)
+              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\WS\Project Smartfarm\Harumiki-App-v07\venv\Lib\site-packages\django\template\loader.py", line 62, in render_to_string
+    return template.render(context, request)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\WS\Project Smartfarm\Harumiki-App-v07\venv\Lib\site-packages\django\template\backends\django.py", line 107, in render
+    return self.template.render(context)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\WS\Project Smartfarm\Harumiki-App-v07\venv\Lib\site-packages\django\template\base.py", line 171, in render
+    return self._render(context)
+           ^^^^^^^^^^^^^^^^^^^^^
+  File "C:\WS\Project Smartfarm\Harumiki-App-v07\venv\Lib\site-packages\django\template\base.py", line 163, in _render
+    return self.nodelist.render(context)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\WS\Project Smartfarm\Harumiki-App-v07\venv\Lib\site-packages\django\template\base.py", line 1016, in render
+    return SafeString("".join([node.render_annotated(context) for node in self]))
+                               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\WS\Project Smartfarm\Harumiki-App-v07\venv\Lib\site-packages\django\template\base.py", line 977, in render_annotated
+    return self.render(context)
+           ^^^^^^^^^^^^^^^^^^^^
+  File "C:\WS\Project Smartfarm\Harumiki-App-v07\venv\Lib\site-packages\django\template\loader_tags.py", line 159, in render
+    return compiled_parent._render(context)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\WS\Project Smartfarm\Harumiki-App-v07\venv\Lib\site-packages\django\template\base.py", line 163, in _render
+    return self.nodelist.render(context)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\WS\Project Smartfarm\Harumiki-App-v07\venv\Lib\site-packages\django\template\base.py", line 1016, in render
+    return SafeString("".join([node.render_annotated(context) for node in self]))
+                               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\WS\Project Smartfarm\Harumiki-App-v07\venv\Lib\site-packages\django\template\base.py", line 977, in render_annotated
+    return self.render(context)
+           ^^^^^^^^^^^^^^^^^^^^
+  File "C:\WS\Project Smartfarm\Harumiki-App-v07\venv\Lib\site-packages\django\template\defaulttags.py", line 480, in render
+    url = reverse(view_name, args=args, kwargs=kwargs, current_app=current_app)
+          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\WS\Project Smartfarm\Harumiki-App-v07\venv\Lib\site-packages\django\urls\base.py", line 98, in reverse
+    resolved_url = resolver._reverse_with_prefix(view, prefix, *args, **kwargs)
+                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\WS\Project Smartfarm\Harumiki-App-v07\venv\Lib\site-packages\django\urls\resolvers.py", line 831, in _reverse_with_prefix
+    raise NoReverseMatch(msg)
+django.urls.exceptions.NoReverseMatch: Reverse for 'farm-1' not found. 'farm-1' is not a valid view function or pattern name.
+ERROR 2025-07-19 15:56:50,699 basehttp "GET / HTTP/1.1" 500 260808
+ERROR 2025-07-19 15:57:16,147 log Internal Server Error: /farm-2/
+Traceback (most recent call last):
+  File "C:\WS\Project Smartfarm\Harumiki-App-v07\harumiki\strawberry\views.py", line 105, in Farm2
+    return render(request, 'strawberry/farm-2.html', context)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\WS\Project Smartfarm\Harumiki-App-v07\venv\Lib\site-packages\django\shortcuts.py", line 25, in render
+    content = loader.render_to_string(template_name, context, request, using=using)
+              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\WS\Project Smartfarm\Harumiki-App-v07\venv\Lib\site-packages\django\template\loader.py", line 62, in render_to_string
+    return template.render(context, request)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\WS\Project Smartfarm\Harumiki-App-v07\venv\Lib\site-packages\django\template\backends\django.py", line 107, in render
+    return self.template.render(context)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\WS\Project Smartfarm\Harumiki-App-v07\venv\Lib\site-packages\django\template\base.py", line 171, in render
+    return self._render(context)
+           ^^^^^^^^^^^^^^^^^^^^^
+  File "C:\WS\Project Smartfarm\Harumiki-App-v07\venv\Lib\site-packages\django\template\base.py", line 163, in _render
+    return self.nodelist.render(context)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\WS\Project Smartfarm\Harumiki-App-v07\venv\Lib\site-packages\django\template\base.py", line 1016, in render
+    return SafeString("".join([node.render_annotated(context) for node in self]))
+                               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\WS\Project Smartfarm\Harumiki-App-v07\venv\Lib\site-packages\django\template\base.py", line 977, in render_annotated
+    return self.render(context)
+           ^^^^^^^^^^^^^^^^^^^^
+  File "C:\WS\Project Smartfarm\Harumiki-App-v07\venv\Lib\site-packages\django\template\loader_tags.py", line 159, in render
+    return compiled_parent._render(context)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\WS\Project Smartfarm\Harumiki-App-v07\venv\Lib\site-packages\django\template\base.py", line 163, in _render
+    return self.nodelist.render(context)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\WS\Project Smartfarm\Harumiki-App-v07\venv\Lib\site-packages\django\template\base.py", line 1016, in render
+    return SafeString("".join([node.render_annotated(context) for node in self]))
+                               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\WS\Project Smartfarm\Harumiki-App-v07\venv\Lib\site-packages\django\template\base.py", line 977, in render_annotated
+    return self.render(context)
+           ^^^^^^^^^^^^^^^^^^^^
+  File "C:\WS\Project Smartfarm\Harumiki-App-v07\venv\Lib\site-packages\django\template\defaulttags.py", line 480, in render
+    url = reverse(view_name, args=args, kwargs=kwargs, current_app=current_app)
+          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\WS\Project Smartfarm\Harumiki-App-v07\venv\Lib\site-packages\django\urls\base.py", line 98, in reverse
+    resolved_url = resolver._reverse_with_prefix(view, prefix, *args, **kwargs)
+                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\WS\Project Smartfarm\Harumiki-App-v07\venv\Lib\site-packages\django\urls\resolvers.py", line 831, in _reverse_with_prefix
+    raise NoReverseMatch(msg)
+django.urls.exceptions.NoReverseMatch: Reverse for 'farm-1' not found. 'farm-1' is not a valid view function or pattern name.
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "C:\WS\Project Smartfarm\Harumiki-App-v07\venv\Lib\site-packages\django\core\handlers\exception.py", line 55, in inner
+    response = get_response(request)
+               ^^^^^^^^^^^^^^^^^^^^^
+  File "C:\WS\Project Smartfarm\Harumiki-App-v07\venv\Lib\site-packages\django\core\handlers\base.py", line 197, in _get_response
+    response = wrapped_callback(request, *callback_args, **callback_kwargs)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\WS\Project Smartfarm\Harumiki-App-v07\venv\Lib\site-packages\django\utils\decorators.py", line 192, in _view_wrapper
+    result = _process_exception(request, e)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\WS\Project Smartfarm\Harumiki-App-v07\venv\Lib\site-packages\django\utils\decorators.py", line 190, in _view_wrapper
+    response = view_func(request, *args, **kwargs)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\WS\Project Smartfarm\Harumiki-App-v07\harumiki\strawberry\views.py", line 108, in Farm2
+    return render(request, 'strawberry/farm-2.html', {})
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\WS\Project Smartfarm\Harumiki-App-v07\venv\Lib\site-packages\django\shortcuts.py", line 25, in render
+    content = loader.render_to_string(template_name, context, request, using=using)
+              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\WS\Project Smartfarm\Harumiki-App-v07\venv\Lib\site-packages\django\template\loader.py", line 62, in render_to_string
+    return template.render(context, request)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\WS\Project Smartfarm\Harumiki-App-v07\venv\Lib\site-packages\django\template\backends\django.py", line 107, in render
+    return self.template.render(context)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\WS\Project Smartfarm\Harumiki-App-v07\venv\Lib\site-packages\django\template\base.py", line 171, in render
+    return self._render(context)
+           ^^^^^^^^^^^^^^^^^^^^^
+  File "C:\WS\Project Smartfarm\Harumiki-App-v07\venv\Lib\site-packages\django\template\base.py", line 163, in _render
+    return self.nodelist.render(context)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\WS\Project Smartfarm\Harumiki-App-v07\venv\Lib\site-packages\django\template\base.py", line 1016, in render
+    return SafeString("".join([node.render_annotated(context) for node in self]))
+                               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\WS\Project Smartfarm\Harumiki-App-v07\venv\Lib\site-packages\django\template\base.py", line 977, in render_annotated
+    return self.render(context)
+           ^^^^^^^^^^^^^^^^^^^^
+  File "C:\WS\Project Smartfarm\Harumiki-App-v07\venv\Lib\site-packages\django\template\loader_tags.py", line 159, in render
+    return compiled_parent._render(context)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\WS\Project Smartfarm\Harumiki-App-v07\venv\Lib\site-packages\django\template\base.py", line 163, in _render
+    return self.nodelist.render(context)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\WS\Project Smartfarm\Harumiki-App-v07\venv\Lib\site-packages\django\template\base.py", line 1016, in render
+    return SafeString("".join([node.render_annotated(context) for node in self]))
+                               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\WS\Project Smartfarm\Harumiki-App-v07\venv\Lib\site-packages\django\template\base.py", line 977, in render_annotated
+    return self.render(context)
+           ^^^^^^^^^^^^^^^^^^^^
+  File "C:\WS\Project Smartfarm\Harumiki-App-v07\venv\Lib\site-packages\django\template\defaulttags.py", line 480, in render
+    url = reverse(view_name, args=args, kwargs=kwargs, current_app=current_app)
+          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\WS\Project Smartfarm\Harumiki-App-v07\venv\Lib\site-packages\django\urls\base.py", line 98, in reverse
+    resolved_url = resolver._reverse_with_prefix(view, prefix, *args, **kwargs)
+                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\WS\Project Smartfarm\Harumiki-App-v07\venv\Lib\site-packages\django\urls\resolvers.py", line 831, in _reverse_with_prefix
+    raise NoReverseMatch(msg)
+django.urls.exceptions.NoReverseMatch: Reverse for 'farm-1' not found. 'farm-1' is not a valid view function or pattern name.
+ERROR 2025-07-19 15:57:16,151 basehttp "GET /farm-2/ HTTP/1.1" 500 265147
+INFO 2025-07-19 15:57:16,183 autoreload C:\WS\Project Smartfarm\Harumiki-App-v07\harumiki\strawberry\urls.py changed, reloading.
+INFO 2025-07-19 15:57:18,186 autoreload Watching for file changes with StatReloader
+WARNING 2025-07-19 15:57:18,871 log Not Found: /favicon.ico
+WARNING 2025-07-19 15:57:18,872 basehttp "GET /favicon.ico HTTP/1.1" 404 5610
+INFO 2025-07-19 15:57:41,030 basehttp "GET / HTTP/1.1" 200 31552
+INFO 2025-07-19 15:57:56,800 basehttp "GET / HTTP/1.1" 200 31552
+ERROR 2025-07-19 15:58:12,240 views Error getting npk data: 
+INFO 2025-07-19 15:58:14,482 basehttp "GET /farm-2/ HTTP/1.1" 200 32052
+INFO 2025-07-19 15:58:14,810 basehttp "GET /farm-2/ HTTP/1.1" 200 32587
+INFO 2025-07-19 15:58:15,081 basehttp "GET /static/js/utils.js HTTP/1.1" 200 1430
+INFO 2025-07-19 16:00:18,178 basehttp "GET / HTTP/1.1" 200 31553
+INFO 2025-07-19 16:00:18,766 basehttp "GET /static/js/utils.js HTTP/1.1" 304 0
+INFO 2025-07-19 16:00:24,757 basehttp "GET /farm-2/ HTTP/1.1" 200 32053
+INFO 2025-07-19 16:03:06,829 basehttp "GET / HTTP/1.1" 200 31553
+INFO 2025-07-19 16:03:07,222 basehttp "GET /static/js/utils.js HTTP/1.1" 304 0
+INFO 2025-07-19 16:05:47,569 basehttp "GET / HTTP/1.1" 200 31553
+INFO 2025-07-19 16:05:47,984 basehttp "GET /static/js/utils.js HTTP/1.1" 304 0
+INFO 2025-07-19 16:08:23,995 basehttp "GET / HTTP/1.1" 200 31551
+INFO 2025-07-19 16:08:25,065 basehttp "GET /static/js/utils.js HTTP/1.1" 304 0
+INFO 2025-07-19 16:10:46,541 autoreload Watching for file changes with StatReloader
+INFO 2025-07-19 16:11:02,915 basehttp "GET / HTTP/1.1" 200 31551
+INFO 2025-07-19 16:11:03,696 basehttp "GET /static/js/utils.js HTTP/1.1" 304 0
+INFO 2025-07-19 16:11:34,657 basehttp "GET /farm-2/ HTTP/1.1" 200 32054
+INFO 2025-07-19 16:11:50,582 basehttp "GET /graph-1/ HTTP/1.1" 200 80408
+INFO 2025-07-19 16:21:14,741 autoreload Watching for file changes with StatReloader
+INFO 2025-07-19 16:22:16,801 basehttp "GET /graph-all1/ HTTP/1.1" 200 49761
+INFO 2025-07-19 16:22:17,146 basehttp "GET /static/js/utils.js HTTP/1.1" 304 0
+INFO 2025-07-19 16:22:52,043 basehttp "GET /graph-all2/ HTTP/1.1" 200 48533
+INFO 2025-07-19 16:23:12,811 basehttp "GET /graph-1/ HTTP/1.1" 200 83322
+INFO 2025-07-19 16:27:39,855 autoreload Watching for file changes with StatReloader
+INFO 2025-07-19 16:30:19,756 autoreload Watching for file changes with StatReloader
+INFO 2025-07-19 16:30:53,516 basehttp "GET /graph-1/ HTTP/1.1" 200 81743
+INFO 2025-07-19 16:30:53,833 basehttp "GET /static/js/utils.js HTTP/1.1" 304 0
+INFO 2025-07-19 16:31:12,709 basehttp "GET /graph-2/ HTTP/1.1" 200 57705
+INFO 2025-07-19 16:31:32,164 basehttp "GET /graph-all1/ HTTP/1.1" 200 49523
+INFO 2025-07-19 16:31:32,185 basehttp "GET /static/js/graph-all.js HTTP/1.1" 200 22746
+INFO 2025-07-19 16:31:32,190 basehttp "GET /static/css/graph-all.css HTTP/1.1" 200 5237
+INFO 2025-07-19 16:31:46,623 basehttp "GET /graph-all2/ HTTP/1.1" 200 48284
+INFO 2025-07-19 21:22:44,071 autoreload Watching for file changes with StatReloader
+INFO 2025-07-19 21:26:45,243 basehttp "GET /export/ HTTP/1.1" 200 20927
+INFO 2025-07-19 21:26:45,277 basehttp "GET /static/css/export.css HTTP/1.1" 200 6777
+INFO 2025-07-19 21:26:45,811 basehttp "GET /static/js/utils.js HTTP/1.1" 304 0
+INFO 2025-07-19 21:26:45,834 basehttp "GET /static/js/export.js HTTP/1.1" 200 20649
+INFO 2025-07-19 21:28:22,623 views Successfully exported sensor data for date range 2024-07-20 to 2025-07-19
+INFO 2025-07-19 21:28:22,626 basehttp "GET /export/process/?start_date=2024-07-20&end_date=2025-07-19&Sensor_id=UV1 HTTP/1.1" 200 423667
+INFO 2025-07-19 21:38:56,263 autoreload Watching for file changes with StatReloader
+ERROR 2025-07-19 21:47:10,711 log Internal Server Error: /compare/
+Traceback (most recent call last):
+  File "C:\WS\Project Smartfarm\Harumiki-App-v07\venv\Lib\site-packages\django\core\handlers\exception.py", line 55, in inner
+    response = get_response(request)
+               ^^^^^^^^^^^^^^^^^^^^^
+  File "C:\WS\Project Smartfarm\Harumiki-App-v07\venv\Lib\site-packages\django\core\handlers\base.py", line 197, in _get_response
+    response = wrapped_callback(request, *callback_args, **callback_kwargs)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\WS\Project Smartfarm\Harumiki-App-v07\harumiki\strawberry\views.py", line 1319, in CompareGH1and2
+    return render(request, 'strawberry/compare.html', context)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\WS\Project Smartfarm\Harumiki-App-v07\venv\Lib\site-packages\django\shortcuts.py", line 25, in render
+    content = loader.render_to_string(template_name, context, request, using=using)
+              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\WS\Project Smartfarm\Harumiki-App-v07\venv\Lib\site-packages\django\template\loader.py", line 62, in render_to_string
+    return template.render(context, request)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\WS\Project Smartfarm\Harumiki-App-v07\venv\Lib\site-packages\django\template\backends\django.py", line 107, in render
+    return self.template.render(context)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\WS\Project Smartfarm\Harumiki-App-v07\venv\Lib\site-packages\django\template\base.py", line 171, in render
+    return self._render(context)
+           ^^^^^^^^^^^^^^^^^^^^^
+  File "C:\WS\Project Smartfarm\Harumiki-App-v07\venv\Lib\site-packages\django\template\base.py", line 163, in _render
+    return self.nodelist.render(context)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\WS\Project Smartfarm\Harumiki-App-v07\venv\Lib\site-packages\django\template\base.py", line 1016, in render
+    return SafeString("".join([node.render_annotated(context) for node in self]))
+                               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\WS\Project Smartfarm\Harumiki-App-v07\venv\Lib\site-packages\django\template\base.py", line 977, in render_annotated
+    return self.render(context)
+           ^^^^^^^^^^^^^^^^^^^^
+  File "C:\WS\Project Smartfarm\Harumiki-App-v07\venv\Lib\site-packages\django\template\loader_tags.py", line 159, in render
+    return compiled_parent._render(context)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\WS\Project Smartfarm\Harumiki-App-v07\venv\Lib\site-packages\django\template\base.py", line 163, in _render
+    return self.nodelist.render(context)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\WS\Project Smartfarm\Harumiki-App-v07\venv\Lib\site-packages\django\template\base.py", line 1016, in render
+    return SafeString("".join([node.render_annotated(context) for node in self]))
+                               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\WS\Project Smartfarm\Harumiki-App-v07\venv\Lib\site-packages\django\template\base.py", line 977, in render_annotated
+    return self.render(context)
+           ^^^^^^^^^^^^^^^^^^^^
+  File "C:\WS\Project Smartfarm\Harumiki-App-v07\venv\Lib\site-packages\django\template\loader_tags.py", line 65, in render
+    result = block.nodelist.render(context)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\WS\Project Smartfarm\Harumiki-App-v07\venv\Lib\site-packages\django\template\base.py", line 1016, in render
+    return SafeString("".join([node.render_annotated(context) for node in self]))
+                               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\WS\Project Smartfarm\Harumiki-App-v07\venv\Lib\site-packages\django\template\base.py", line 977, in render_annotated
+    return self.render(context)
+           ^^^^^^^^^^^^^^^^^^^^
+  File "C:\WS\Project Smartfarm\Harumiki-App-v07\venv\Lib\site-packages\django\template\defaulttags.py", line 480, in render
+    url = reverse(view_name, args=args, kwargs=kwargs, current_app=current_app)
+          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\WS\Project Smartfarm\Harumiki-App-v07\venv\Lib\site-packages\django\urls\base.py", line 98, in reverse
+    resolved_url = resolver._reverse_with_prefix(view, prefix, *args, **kwargs)
+                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\WS\Project Smartfarm\Harumiki-App-v07\venv\Lib\site-packages\django\urls\resolvers.py", line 831, in _reverse_with_prefix
+    raise NoReverseMatch(msg)
+django.urls.exceptions.NoReverseMatch: Reverse for 'GH1and2' not found. 'GH1and2' is not a valid view function or pattern name.
+ERROR 2025-07-19 21:47:10,724 basehttp "GET /compare/ HTTP/1.1" 500 286473
+INFO 2025-07-19 21:54:36,074 basehttp "GET /compare/ HTTP/1.1" 200 3234836
+INFO 2025-07-19 21:54:37,525 basehttp "GET /static/js/compare.js HTTP/1.1" 200 44989
+INFO 2025-07-19 21:59:01,507 autoreload C:\WS\Project Smartfarm\Harumiki-App-v07\harumiki\strawberry\views.py changed, reloading.
+INFO 2025-07-19 21:59:01,514 autoreload C:\WS\Project Smartfarm\Harumiki-App-v07\harumiki\strawberry\views.py changed, reloading.
+INFO 2025-07-19 21:59:01,515 autoreload C:\WS\Project Smartfarm\Harumiki-App-v07\harumiki\strawberry\views.py changed, reloading.
+INFO 2025-07-19 21:59:01,516 autoreload C:\WS\Project Smartfarm\Harumiki-App-v07\harumiki\strawberry\views.py changed, reloading.
+INFO 2025-07-19 21:59:01,944 autoreload C:\WS\Project Smartfarm\Harumiki-App-v07\harumiki\strawberry\views.py changed, reloading.
+INFO 2025-07-19 21:59:01,945 autoreload C:\WS\Project Smartfarm\Harumiki-App-v07\harumiki\strawberry\views.py changed, reloading.
+INFO 2025-07-19 21:59:01,951 autoreload C:\WS\Project Smartfarm\Harumiki-App-v07\harumiki\strawberry\views.py changed, reloading.
+INFO 2025-07-19 21:59:03,475 autoreload Watching for file changes with StatReloader
+INFO 2025-07-19 21:59:03,496 autoreload Watching for file changes with StatReloader
+INFO 2025-07-19 21:59:03,498 autoreload Watching for file changes with StatReloader
+INFO 2025-07-19 21:59:03,500 autoreload Watching for file changes with StatReloader
+INFO 2025-07-19 21:59:03,899 autoreload Watching for file changes with StatReloader
+INFO 2025-07-19 21:59:03,910 autoreload Watching for file changes with StatReloader
+INFO 2025-07-19 21:59:03,984 autoreload Watching for file changes with StatReloader
+INFO 2025-07-19 22:00:00,021 autoreload C:\WS\Project Smartfarm\Harumiki-App-v07\harumiki\strawberry\views.py changed, reloading.
+INFO 2025-07-19 22:00:00,026 autoreload C:\WS\Project Smartfarm\Harumiki-App-v07\harumiki\strawberry\views.py changed, reloading.
+INFO 2025-07-19 22:00:00,026 autoreload C:\WS\Project Smartfarm\Harumiki-App-v07\harumiki\strawberry\views.py changed, reloading.
+INFO 2025-07-19 22:00:00,548 autoreload C:\WS\Project Smartfarm\Harumiki-App-v07\harumiki\strawberry\views.py changed, reloading.
+INFO 2025-07-19 22:00:00,610 autoreload C:\WS\Project Smartfarm\Harumiki-App-v07\harumiki\strawberry\views.py changed, reloading.
+INFO 2025-07-19 22:00:00,646 autoreload C:\WS\Project Smartfarm\Harumiki-App-v07\harumiki\strawberry\views.py changed, reloading.
+INFO 2025-07-19 22:00:00,659 autoreload C:\WS\Project Smartfarm\Harumiki-App-v07\harumiki\strawberry\views.py changed, reloading.
+INFO 2025-07-19 22:00:01,967 autoreload Watching for file changes with StatReloader
+INFO 2025-07-19 22:00:01,968 autoreload Watching for file changes with StatReloader
+INFO 2025-07-19 22:00:01,973 autoreload Watching for file changes with StatReloader
+INFO 2025-07-19 22:00:02,868 autoreload Watching for file changes with StatReloader
+INFO 2025-07-19 22:00:02,975 autoreload Watching for file changes with StatReloader
+INFO 2025-07-19 22:00:03,016 autoreload Watching for file changes with StatReloader
+INFO 2025-07-19 22:00:03,073 autoreload Watching for file changes with StatReloader
+INFO 2025-07-19 22:05:06,116 autoreload C:\WS\Project Smartfarm\Harumiki-App-v07\harumiki\strawberry\views.py changed, reloading.
+INFO 2025-07-19 22:05:06,117 autoreload C:\WS\Project Smartfarm\Harumiki-App-v07\harumiki\strawberry\views.py changed, reloading.
+INFO 2025-07-19 22:05:06,123 autoreload C:\WS\Project Smartfarm\Harumiki-App-v07\harumiki\strawberry\views.py changed, reloading.
+INFO 2025-07-19 22:05:06,580 autoreload C:\WS\Project Smartfarm\Harumiki-App-v07\harumiki\strawberry\views.py changed, reloading.
+INFO 2025-07-19 22:05:06,591 autoreload C:\WS\Project Smartfarm\Harumiki-App-v07\harumiki\strawberry\views.py changed, reloading.
+INFO 2025-07-19 22:05:06,594 autoreload C:\WS\Project Smartfarm\Harumiki-App-v07\harumiki\strawberry\views.py changed, reloading.
+INFO 2025-07-19 22:05:06,602 autoreload C:\WS\Project Smartfarm\Harumiki-App-v07\harumiki\strawberry\views.py changed, reloading.
+INFO 2025-07-19 22:05:07,781 autoreload Watching for file changes with StatReloader
+INFO 2025-07-19 22:05:07,781 autoreload Watching for file changes with StatReloader
+INFO 2025-07-19 22:05:07,781 autoreload Watching for file changes with StatReloader
+INFO 2025-07-19 22:05:08,307 autoreload Watching for file changes with StatReloader
+INFO 2025-07-19 22:05:08,350 autoreload Watching for file changes with StatReloader
+INFO 2025-07-19 22:05:08,351 autoreload Watching for file changes with StatReloader
+INFO 2025-07-19 22:05:08,352 autoreload Watching for file changes with StatReloader
+INFO 2025-07-19 22:11:03,856 basehttp "GET /compare/ HTTP/1.1" 200 3237128
+INFO 2025-07-19 22:11:04,317 basehttp "GET /static/js/utils.js HTTP/1.1" 304 0
+INFO 2025-07-19 22:11:04,441 basehttp "GET /static/js/compare.js HTTP/1.1" 200 49942
+INFO 2025-07-19 22:24:59,838 views update_compare_data: Fetching data from 2025-07-18T22:24:59 to 2025-07-19T22:24:59
+INFO 2025-07-19 22:25:18,377 views update_compare_data: Successfully fetched 66 sensor datasets
+INFO 2025-07-19 22:25:18,378 views update_compare_data: Fetching data from 2025-07-18T22:25:18 to 2025-07-19T22:25:18
+INFO 2025-07-19 22:25:52,707 views update_compare_data: Successfully fetched 66 sensor datasets
+INFO 2025-07-19 22:28:42,823 autoreload Watching for file changes with StatReloader
+INFO 2025-07-19 22:35:46,508 views update_compare_data: Fetching data from 2025-07-18T22:35:46 to 2025-07-19T22:35:46
+INFO 2025-07-19 22:36:14,091 views update_compare_data: Successfully fetched 66 sensor datasets
+INFO 2025-07-19 22:36:14,092 views update_compare_data: Fetching data from 2025-07-18T22:36:14 to 2025-07-19T22:36:14
+INFO 2025-07-19 22:36:46,649 views update_compare_data: Successfully fetched 66 sensor datasets
+INFO 2025-07-19 22:37:50,340 autoreload Watching for file changes with StatReloader
+INFO 2025-07-19 22:44:50,630 basehttp "GET /compare/ HTTP/1.1" 200 3240763
+INFO 2025-07-19 22:44:51,341 basehttp "GET /static/js/compare.js HTTP/1.1" 200 50501
+INFO 2025-07-19 22:57:49,107 basehttp "GET /compare/?csrfmiddlewaretoken=K5K4XI0GB0gZ0EEDfxZBXZaGb4J0if2ZIvWRJzB9x5LNQf0Ibz5hnWR8vJ3UvmSD&month=5&year=2025 HTTP/1.1" 200 5254981
+INFO 2025-07-19 22:57:50,282 basehttp "GET /static/js/utils.js HTTP/1.1" 304 0
+INFO 2025-07-19 22:57:50,295 basehttp "GET /static/js/compare.js HTTP/1.1" 304 0
+INFO 2025-07-19 23:00:53,251 views update_compare_data: Fetching data from 2025-07-19T17:00:53 to 2025-07-19T23:00:53
+INFO 2025-07-19 23:01:15,239 views update_compare_data: Successfully fetched 66 sensor datasets
+INFO 2025-07-19 23:01:39,522 views update_compare_data: Fetching data from 2025-07-19T17:01:39 to 2025-07-19T23:01:39
+INFO 2025-07-19 23:01:54,232 views update_compare_data: Successfully fetched 66 sensor datasets
+INFO 2025-07-19 23:11:00,761 basehttp "GET /compare/ HTTP/1.1" 200 3243658
+INFO 2025-07-19 23:11:01,404 basehttp "GET /static/js/compare.js HTTP/1.1" 200 50997
+WARNING 2025-07-19 23:17:28,012 log Not Found: /.well-known/appspecific/com.chrome.devtools.json
+WARNING 2025-07-19 23:17:28,013 basehttp "GET /.well-known/appspecific/com.chrome.devtools.json HTTP/1.1" 404 5721
+INFO 2025-07-19 23:25:55,693 basehttp "GET /compare/ HTTP/1.1" 200 3245363
+INFO 2025-07-19 23:25:56,542 basehttp "GET /static/js/compare.js HTTP/1.1" 200 51404
+INFO 2025-07-19 23:39:46,884 basehttp "GET /compare/ HTTP/1.1" 200 3246819
+INFO 2025-07-19 23:39:47,885 basehttp "GET /static/js/compare.js HTTP/1.1" 200 54288
+INFO 2025-07-19 23:51:23,351 basehttp "GET /compare/ HTTP/1.1" 200 3248719
+INFO 2025-07-19 23:51:23,804 basehttp "GET /static/js/utils.js HTTP/1.1" 304 0
+INFO 2025-07-19 23:51:23,864 basehttp "GET /static/js/compare.js HTTP/1.1" 200 54541
+INFO 2025-07-20 00:01:06,937 basehttp "GET /compare/ HTTP/1.1" 200 3249494
+INFO 2025-07-20 00:01:09,086 basehttp "GET /static/js/compare.js HTTP/1.1" 200 54719
+INFO 2025-07-20 00:02:52,382 basehttp "GET / HTTP/1.1" 200 31539
+ERROR 2025-07-20 00:05:36,114 views Error getting pm data: 
+ERROR 2025-07-20 00:05:46,337 views Error getting npk data: 
+INFO 2025-07-20 00:05:59,743 basehttp "GET / HTTP/1.1" 200 31519
+INFO 2025-07-20 00:11:41,450 basehttp - Broken pipe from ('127.0.0.1', 56873)
+INFO 2025-07-20 00:15:13,429 basehttp - Broken pipe from ('127.0.0.1', 57206)
+INFO 2025-07-20 00:15:17,444 basehttp "GET /compare/ HTTP/1.1" 200 3250676
+INFO 2025-07-20 00:15:17,947 basehttp "GET /static/js/compare.js HTTP/1.1" 304 0
+ERROR 2025-07-20 00:44:13,189 views Error getting npk data: 
+INFO 2025-07-20 00:44:21,934 basehttp "GET / HTTP/1.1" 200 31528
+INFO 2025-07-20 00:44:26,721 basehttp - Broken pipe from ('127.0.0.1', 57974)
+INFO 2025-07-20 00:44:59,157 basehttp "GET /static/js/utils.js HTTP/1.1" 304 0
+ERROR 2025-07-20 00:46:13,687 views Error getting npk data: 
+ERROR 2025-07-20 00:46:23,572 views Error getting npk data: 
+INFO 2025-07-20 00:46:31,058 basehttp - Broken pipe from ('127.0.0.1', 57983)
+INFO 2025-07-20 00:46:38,332 basehttp - Broken pipe from ('127.0.0.1', 58090)
+INFO 2025-07-20 00:46:39,684 basehttp "GET /farm-2/ HTTP/1.1" 200 32045
+INFO 2025-07-20 00:53:50,440 autoreload Watching for file changes with StatReloader
+INFO 2025-07-20 00:54:15,910 basehttp "GET /farm-2/ HTTP/1.1" 200 32042
+INFO 2025-07-20 00:54:27,036 basehttp "GET / HTTP/1.1" 200 31541

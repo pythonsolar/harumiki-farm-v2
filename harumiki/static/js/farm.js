@@ -47,7 +47,10 @@ const FARM_CONFIGS = {
 
 // ========== Initialize Dashboard ==========
 document.addEventListener('DOMContentLoaded', function() {
-    console.log(`Dashboard initialized for ${currentFarm}`);
+    // Use secure logging from utils.js
+    if (window.harumikiUtils && window.harumikiUtils.logger) {
+        window.harumikiUtils.logger.log(`Dashboard initialized for ${currentFarm}`);
+    }
     
     // Initialize sensor data
     collectSensorData();
@@ -126,7 +129,10 @@ function collectSensorData() {
         }
     });
     
-    console.log(`Sensor data collected for ${currentFarm}:`, sensorData);
+    // Log only in development mode
+    if (window.harumikiUtils && window.harumikiUtils.logger) {
+        window.harumikiUtils.logger.log(`Sensor data collected for ${currentFarm}:`, sensorData);
+    }
 }
 
 // ========== Update Sensor Statuses ==========
@@ -191,7 +197,9 @@ function updateAllSensorStatuses() {
 function updateSensorStatus(elementId, value, thresholds, inverse = false) {
     const element = document.getElementById(elementId);
     if (!element) {
-        console.warn(`Element with ID '${elementId}' not found`);
+        if (window.harumikiUtils && window.harumikiUtils.logger) {
+            window.harumikiUtils.logger.warn(`Element with ID '${elementId}' not found`);
+        }
         return;
     }
     
@@ -200,7 +208,9 @@ function updateSensorStatus(elementId, value, thresholds, inverse = false) {
     const valueElement = card?.querySelector('.value');
     
     if (!statusIndicator || !valueElement) {
-        console.warn(`Required elements not found for sensor ${elementId}`);
+        if (window.harumikiUtils && window.harumikiUtils.logger) {
+            window.harumikiUtils.logger.warn(`Required elements not found for sensor ${elementId}`);
+        }
         return;
     }
     
@@ -261,7 +271,9 @@ function setupAutoRefresh() {
     
     // Set up new interval (every 2.5 minutes)
     refreshInterval = setInterval(() => {
-        console.log(`Auto-refreshing ${currentFarm} dashboard...`);
+        if (window.harumikiUtils && window.harumikiUtils.logger) {
+            window.harumikiUtils.logger.log(`Auto-refreshing ${currentFarm} dashboard...`);
+        }
         location.reload();
     }, 150000); // 2.5 minutes in milliseconds
 }
@@ -303,9 +315,12 @@ function getTimeBasedThresholds() {
 
 // ========== Debug Functions ==========
 function debugSensorData() {
-    console.log('Current Farm:', currentFarm);
-    console.log('Sensor Data:', sensorData);
-    console.log('Farm Config:', FARM_CONFIGS[currentFarm]);
+    // Debug info only in development
+    if (window.harumikiUtils && window.harumikiUtils.logger) {
+        window.harumikiUtils.logger.log('Current Farm:', currentFarm);
+        window.harumikiUtils.logger.log('Sensor Data:', sensorData);
+        window.harumikiUtils.logger.log('Farm Config:', FARM_CONFIGS[currentFarm]);
+    }
 }
 
 // ========== Export functions for external use ==========

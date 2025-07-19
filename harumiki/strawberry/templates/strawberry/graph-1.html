@@ -7,6 +7,8 @@
 
 {% block extra_css %}
 <link rel="stylesheet" href="{% static 'css/graph.css' %}">
+<link rel="dns-prefetch" href="https://cdn.jsdelivr.net">
+<link rel="preconnect" href="https://cdn.jsdelivr.net" crossorigin>
 {% endblock %}
 
 {% block content %}
@@ -234,6 +236,7 @@
 {% endblock %}
 
 {% block extra_js %}
+<script src="{% static 'js/utils.js' %}"></script>
 <script src="https://cdn.jsdelivr.net/npm/chart.js@3.9.1/dist/chart.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/chartjs-adapter-date-fns@2.0.0/dist/chartjs-adapter-date-fns.bundle.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-annotation@1.4.0/dist/chartjs-plugin-annotation.min.js"></script>

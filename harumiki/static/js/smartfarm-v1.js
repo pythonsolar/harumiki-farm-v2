@@ -1009,7 +1009,9 @@ window.smartfarm = {
             };
         });
         
-        console.log('Current positions:', positions);
+        if (window.harumikiUtils && window.harumikiUtils.logger) {
+            window.harumikiUtils.logger.log('Current positions:', positions);
+        }
         return positions;
     }
 };

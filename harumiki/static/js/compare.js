@@ -44,25 +44,97 @@ const commonOptions = {
             },
             bodyFont: {
                 size: 12
+            },
+            callbacks: {
+                title: function(context) {
+                    // Show full datetime in tooltip
+                    const label = context[0].label;
+                    if (label && label.includes(' ')) {
+                        try {
+                            const [datePart, timePart] = label.split(' ');
+                            const dateObj = new Date(datePart);
+                            const day = dateObj.getDate();
+                            const month = dateObj.getMonth() + 1;
+                            const year = dateObj.getFullYear();
+                            return `${day}/${month}/${year} ${timePart}`;
+                        } catch (e) {
+                            return label;
+                        }
+                    }
+                    return label;
+                }
             }
         }
     },
     scales: {
         x: {
-            type: 'time',
-            time: {
-                unit: 'day',
-                displayFormats: {
-                    day: 'dd'
-                }
-            },
+            type: 'category',
             grid: {
                 display: true,
                 color: colors.grid
             },
             ticks: {
                 color: colors.text,
-                maxTicksLimit: 15
+                maxTicksLimit: 15,
+                callback: function(value, index, values) {
+                    const label = this.getLabelForValue(value);
+                    
+                    if (!label || !label.includes(' ')) return '';
+                    
+                    // Extract date from datetime string (YYYY-MM-DD HH:MM:SS)
+                    const datePart = label.split(' ')[0]; // Get YYYY-MM-DD
+                    
+                    if (!datePart) return '';
+                    
+                    try {
+                        // Convert to readable date format
+                        const dateObj = new Date(datePart);
+                        const day = dateObj.getDate();
+                        const month = dateObj.getMonth() + 1; // Months are 0-indexed
+                        
+                        // Define target days to show (every 3 days: 1, 4, 7, 10, 13, 16, 19, 22, 25, 28, 31)
+                        const targetDays = [1, 4, 7, 10, 13, 16, 19, 22, 25, 28, 31];
+                        
+                        // Always show first data point
+                        if (index === 0) {
+                            return `${day}/${month}`;
+                        }
+                        
+                        // Always show last data point
+                        if (index === values.length - 1) {
+                            return `${day}/${month}`;
+                        }
+                        
+                        // Show only if the day matches our target days (1, 4, 7, 10, etc.)
+                        if (targetDays.includes(day)) {
+                            // Check if we haven't shown this date already
+                            let alreadyShown = false;
+                            for (let i = 0; i < index; i++) {
+                                const prevLabel = this.getLabelForValue(i);
+                                if (prevLabel && prevLabel.includes(' ')) {
+                                    const prevDatePart = prevLabel.split(' ')[0];
+                                    const prevDateObj = new Date(prevDatePart);
+                                    const prevDay = prevDateObj.getDate();
+                                    const prevMonth = prevDateObj.getMonth() + 1;
+                                    
+                                    // If we already showed this exact date, don't show again
+                                    if (prevDay === day && prevMonth === month) {
+                                        alreadyShown = true;
+                                        break;
+                                    }
+                                }
+                            }
+                            
+                            if (!alreadyShown) {
+                                return `${day}/${month}`;
+                            }
+                        }
+                        
+                        return '';
+                    } catch (e) {
+                        return '';
+                    }
+                }
             }
         },
         y: {
@@ -78,36 +150,412 @@ const commonOptions = {
     }
 };
 
-// Helper function to get data
+// ========== Security and Data Validation ==========
+
+// Secure data cache
+const dataCache = new Map();
+const MAX_CACHE_SIZE = 50;
+const CACHE_TTL = 5 * 60 * 1000; // 5 minutes
+
+// Sanitize and validate data key
+function sanitizeDataKey(key) {
+    if (typeof key !== 'string') return null;
+    // Only allow alphanumeric, hyphens, and underscores
+    return key.replace(/[^a-zA-Z0-9-_]/g, '');
+}
+
+// Validate JSON data
+function validateChartData(data) {
+    if (!Array.isArray(data)) return false;
+    
+    // Check for reasonable data size (prevent DoS)
+    if (data.length > 50000) {  // Increased limit for sensor data
+        if (window.harumikiUtils && window.harumikiUtils.logger) {
+            window.harumikiUtils.logger.warn('Data size exceeds maximum limit');
+        }
+        return false;
+    }
+    
+    // Validate data types
+    return data.every(item => {
+        return typeof item === 'number' || 
+               typeof item === 'string' || 
+               (typeof item === 'object' && item !== null);
+    });
+}
+
+// Secure helper function to get data
 function getChartData(dataKey) {
+    const sanitizedKey = sanitizeDataKey(dataKey);
+    if (!sanitizedKey) {
+        if (window.harumikiUtils && window.harumikiUtils.logger) {
+            window.harumikiUtils.logger.error('Invalid data key:', dataKey);
+        }
+        return [];
+    }
+    
+    // Check cache first
+    const cacheKey = `data-${sanitizedKey}`;
+    if (dataCache.has(cacheKey)) {
+        const cached = dataCache.get(cacheKey);
+        if (Date.now() - cached.timestamp < CACHE_TTL) {
+            return cached.data;
+        }
+        dataCache.delete(cacheKey);
+    }
+    
     const element = document.getElementById('chart-data');
-    const data = element.getAttribute(`data-${dataKey}`);
+    if (!element) {
+        if (window.harumikiUtils && window.harumikiUtils.logger) {
+            window.harumikiUtils.logger.error('Chart data element not found');
+        }
+        return [];
+    }
+    
+    const data = element.getAttribute(`data-${sanitizedKey}`);
     
     if (!data || data === 'None' || data === '') return [];
     
     try {
-        return JSON.parse(data.replace(/'/g, '"'));
+        // Handle Django template escaping and parse data
+        let cleanedData = data;
+        
+        // Handle Django's escapejs filter output
+        cleanedData = cleanedData.replace(/\\u0027/g, "'");  // Replace \u0027 with '
+        cleanedData = cleanedData.replace(/\\u002D/g, "-");  // Replace \u002D with -
+        cleanedData = cleanedData.replace(/'/g, '"');        // Replace ' with "
+        
+        const parsedData = JSON.parse(cleanedData);
+        
+        if (!validateChartData(parsedData)) {
+            if (window.harumikiUtils && window.harumikiUtils.logger) {
+                window.harumikiUtils.logger.error('Invalid chart data format:', sanitizedKey);
+            }
+            return [];
+        }
+        
+        // Cache the data
+        if (dataCache.size >= MAX_CACHE_SIZE) {
+            const firstKey = dataCache.keys().next().value;
+            dataCache.delete(firstKey);
+        }
+        
+        dataCache.set(cacheKey, {
+            data: parsedData,
+            timestamp: Date.now()
+        });
+        
+        return parsedData;
+        
     } catch (e) {
-        console.error(`Error parsing ${dataKey}:`, e);
+        if (window.harumikiUtils && window.harumikiUtils.logger) {
+            window.harumikiUtils.logger.error(`Error parsing ${sanitizedKey}:`, e);
+        }
         return [];
     }
 }
 
-// Initialize all charts when DOM is ready
-document.addEventListener('DOMContentLoaded', function() {
-    initializePMChart();
-    initializeCO2Chart();
-    initializeLuxUvChart();
-    initializePPFDChart();
-    initializeNitrogenChart();
-    initializePhosphorusChart();
-    initializePotassiumChart();
-    initializeTempSoilChart();
-    initializeTempAirWaterChart();
-    initializeHumidityChart();
-    initializeMoistureChart();
-    initializeECChart();
+// Form validation and CSRF protection
+function setupFormValidation() {
+    const form = document.querySelector('form[method="GET"]');
+    if (!form) return;
+    
+    form.addEventListener('submit', function(e) {
+        const monthSelect = this.querySelector('#monthSelect');
+        const yearInput = this.querySelector('input[name="year"]');
+        
+        if (!validateFormInputs(monthSelect, yearInput)) {
+            e.preventDefault();
+            showValidationError('Please check your date selection');
+        }
+    });
+    
+    // Add input validation
+    const yearInput = form.querySelector('input[name="year"]');
+    if (yearInput) {
+        yearInput.addEventListener('input', function() {
+            const year = parseInt(this.value);
+            const currentYear = new Date().getFullYear();
+            
+            if (year < 2020 || year > currentYear + 1) {
+                this.setCustomValidity(`Year must be between 2020 and ${currentYear + 1}`);
+            } else {
+                this.setCustomValidity('');
+            }
+        });
+    }
+}
+
+// Validate form inputs
+function validateFormInputs(monthSelect, yearInput) {
+    if (!monthSelect || !yearInput) return false;
+    
+    const month = parseInt(monthSelect.value);
+    const year = parseInt(yearInput.value);
+    const currentYear = new Date().getFullYear();
+    
+    // Validate month
+    if (isNaN(month) || month < 0 || month > 11) {
+        return false;
+    }
+    
+    // Validate year
+    if (isNaN(year) || year < 2020 || year > currentYear + 1) {
+        return false;
+    }
+    
+    return true;
+}
+
+// Show validation error
+function showValidationError(message) {
+    const alertDiv = document.createElement('div');
+    alertDiv.className = 'alert alert-warning alert-dismissible fade show';
+    alertDiv.innerHTML = `
+        <i class="bi bi-exclamation-triangle"></i> ${message}
+        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+    `;
+    
+    const container = document.querySelector('.compare-container');
+    if (container) {
+        container.insertBefore(alertDiv, container.firstChild);
+        
+        // Auto-remove after 5 seconds
+        setTimeout(() => {
+            if (alertDiv.parentNode) {
+                alertDiv.remove();
+            }
+        }, 5000);
+    }
+}
+
+// ========== Performance Optimization ==========
+
+// Chart loading queue and lazy loading
+const chartQueue = [
+    { id: 'pmChart', init: initializePMChart, loaded: false },
+    { id: 'co2Chart', init: initializeCO2Chart, loaded: false },
+    { id: 'luxUvChart', init: initializeLuxUvChart, loaded: false },
+    { id: 'ppfdChart', init: initializePPFDChart, loaded: false },
+    { id: 'nitrogenChart', init: initializeNitrogenChart, loaded: false },
+    { id: 'phosphorusChart', init: initializePhosphorusChart, loaded: false },
+    { id: 'potassiumChart', init: initializePotassiumChart, loaded: false },
+    { id: 'tempSoilChart', init: initializeTempSoilChart, loaded: false },
+    { id: 'tempAirWaterChart', init: initializeTempAirWaterChart, loaded: false },
+    { id: 'humidityChart', init: initializeHumidityChart, loaded: false },
+    { id: 'moistureChart', init: initializeMoistureChart, loaded: false },
+    { id: 'ecChart', init: initializeECChart, loaded: false }
+];
+
+// Intersection Observer for lazy loading
+const chartObserver = new IntersectionObserver((entries) => {
+    entries.forEach(entry => {
+        if (entry.isIntersecting) {
+            const chartData = chartQueue.find(chart => chart.id === entry.target.id);
+            if (chartData && !chartData.loaded) {
+                loadChartWithDelay(chartData);
+                chartObserver.unobserve(entry.target);
+            }
+        }
+    });
+}, {
+    rootMargin: '50px',
+    threshold: 0.1
 });
+
+// Load chart with performance optimization
+function loadChartWithDelay(chartData) {
+    if (chartData.loaded) return;
+    
+    const container = document.getElementById(chartData.id)?.closest('.chart-container');
+    if (container) {
+        addLoadingState(container);
+    }
+    
+    // Use requestAnimationFrame for smooth loading
+    requestAnimationFrame(() => {
+        try {
+            const startTime = performance.now();
+            
+            // Check if data is available
+            const hasData = checkChartDataAvailable(chartData.id);
+            if (!hasData) {
+                if (window.harumikiUtils && window.harumikiUtils.logger) {
+                    window.harumikiUtils.logger.warn(`No data available for chart: ${chartData.id}`);
+                }
+                if (container) {
+                    showNoDataMessage(container);
+                }
+                return;
+            }
+            
+            chartData.init();
+            chartData.loaded = true;
+            
+            if (container) {
+                removeLoadingState(container);
+            }
+            
+            // Track performance
+            trackChartPerformance(chartData.id, startTime);
+            
+            if (window.harumikiUtils && window.harumikiUtils.logger) {
+                window.harumikiUtils.logger.log(`Chart loaded: ${chartData.id}`);
+            }
+        } catch (error) {
+            if (window.harumikiUtils && window.harumikiUtils.logger) {
+                window.harumikiUtils.logger.error(`Failed to load chart: ${chartData.id}`, error);
+            }
+            if (container) {
+                showChartError(container);
+            }
+        }
+    });
+}
+
+// Add loading state
+function addLoadingState(container) {
+    const chartBody = container.querySelector('.chart-body');
+    if (chartBody && !chartBody.querySelector('.chart-loading')) {
+        const loadingDiv = document.createElement('div');
+        loadingDiv.className = 'chart-loading d-flex justify-content-center align-items-center';
+        loadingDiv.innerHTML = '<div class="spinner-border text-primary" role="status"><span class="visually-hidden">Loading chart...</span></div>';
+        chartBody.appendChild(loadingDiv);
+    }
+}
+
+// Remove loading state
+function removeLoadingState(container) {
+    const loading = container.querySelector('.chart-loading');
+    if (loading) {
+        loading.remove();
+    }
+}
+
+// Show chart error
+function showChartError(container) {
+    const chartBody = container.querySelector('.chart-body');
+    if (chartBody) {
+        chartBody.innerHTML = `
+            <div class="chart-error">
+                <i class="bi bi-exclamation-triangle"></i>
+                <div>Chart failed to load</div>
+                <button class="retry-btn" onclick="retryChartLoad('${container.querySelector('canvas')?.id}')">
+                    Retry
+                </button>
+            </div>
+        `;
+    }
+}
+
+// Show no data message
+function showNoDataMessage(container) {
+    const chartBody = container.querySelector('.chart-body');
+    if (chartBody) {
+        chartBody.innerHTML = `
+            <div class="chart-error">
+                <i class="bi bi-info-circle"></i>
+                <div>No data available for the selected period</div>
+                <small>Try selecting a different month or year</small>
+            </div>
+        `;
+    }
+}
+
+// Check if chart data is available
+function checkChartDataAvailable(chartId) {
+    // Map chart IDs to their data sources
+    const dataMapping = {
+        'pmChart': ['pm-gh1', 'pm-gh2', 'pm-outside'],
+        'co2Chart': ['co2-farm1', 'co2-farm2'],
+        'luxUvChart': ['uv-farm1', 'lux-farm1', 'uv-farm2', 'lux-farm2'],
+        'ppfdChart': ['ppfd-gh1-r8', 'ppfd-gh1-r24', 'ppfd-gh2-r16', 'ppfd-gh2-r24'],
+        'nitrogenChart': ['nitrogen-gh1-r8', 'nitrogen-gh1-r16', 'nitrogen-gh1-r24', 'nitrogen-gh2-r8', 'nitrogen-gh2-r16', 'nitrogen-gh2-r24'],
+        'phosphorusChart': ['phosphorus-gh1-r8', 'phosphorus-gh1-r16', 'phosphorus-gh1-r24', 'phosphorus-gh2-r8', 'phosphorus-gh2-r16', 'phosphorus-gh2-r24'],
+        'potassiumChart': ['potassium-gh1-r8', 'potassium-gh1-r16', 'potassium-gh1-r24', 'potassium-gh2-r8', 'potassium-gh2-r16', 'potassium-gh2-r24'],
+        'tempSoilChart': ['temp-npk-gh1-r8', 'temp-npk-gh1-r16', 'temp-npk-gh1-r24', 'temp-npk-gh2-r8', 'temp-npk-gh2-r16', 'temp-npk-gh2-r24'],
+        'tempAirWaterChart': ['air-temp-gh1-r8', 'air-temp-gh1-r16', 'air-temp-gh1-r24', 'air-temp-gh2-r8', 'air-temp-gh2-r16', 'air-temp-gh2-r24', 'temp-wm', 'temp-wp'],
+        'humidityChart': ['air-hum-gh1-r8', 'air-hum-gh1-r16', 'air-hum-gh1-r24', 'air-hum-gh2-r8', 'air-hum-gh2-r16', 'air-hum-gh2-r24'],
+        'moistureChart': ['soil-gh1-r8q1', 'soil-gh1-r8q2', 'soil-gh1-r16q3', 'soil-gh1-r16q4', 'soil-gh1-r24q5', 'soil-gh1-r24q6', 'soil-gh2-r8p1', 'soil-gh2-r8p2', 'soil-gh2-r8p3', 'soil-gh2-r24p4', 'soil-gh2-r24p5', 'soil-gh2-r24p6', 'soil-gh2-r16p8'],
+        'ecChart': ['ecwm', 'ecwp']
+    };
+    
+    const dataKeys = dataMapping[chartId];
+    if (!dataKeys) return true; // Unknown chart, assume data is available
+    
+    // Check if at least one data source has data
+    for (const key of dataKeys) {
+        const data = getChartData(key);
+        if (data && data.length > 0) {
+            return true;
+        }
+    }
+    
+    return false;
+}
+
+// Retry chart loading
+function retryChartLoad(chartId) {
+    const chartData = chartQueue.find(chart => chart.id === chartId);
+    if (chartData) {
+        chartData.loaded = false;
+        loadChartWithDelay(chartData);
+    }
+}
+
+// Initialize lazy loading when DOM is ready
+document.addEventListener('DOMContentLoaded', function() {
+    // Ensure Chart.js is loaded
+    if (typeof Chart === 'undefined') {
+        console.error('Chart.js is not loaded! Compare charts will not work.');
+        return;
+    }
+    
+    console.log('Chart.js is available, initializing compare charts...');
+    
+    // Setup intersection observer for all chart canvases
+    chartQueue.forEach(chart => {
+        const canvas = document.getElementById(chart.id);
+        if (canvas) {
+            chartObserver.observe(canvas);
+        } else {
+            console.warn(`Canvas element not found: ${chart.id}`);
+        }
+    });
+    
+    // Setup form validation
+    setupFormValidation();
+    
+    // Load visible charts immediately
+    loadVisibleCharts();
+    
+    // Debug data availability
+    if (window.harumikiUtils && window.harumikiUtils.logger) {
+        window.harumikiUtils.logger.log('Compare page initialized');
+        debugChartData();
+    }
+});
+
+// Load charts that are immediately visible
+function loadVisibleCharts() {
+    chartQueue.slice(0, 3).forEach(chart => {
+        const canvas = document.getElementById(chart.id);
+        if (canvas && isElementInViewport(canvas)) {
+            loadChartWithDelay(chart);
+        }
+    });
+}
+
+// Check if element is in viewport
+function isElementInViewport(element) {
+    const rect = element.getBoundingClientRect();
+    return (
+        rect.top >= 0 &&
+        rect.left >= 0 &&
+        rect.bottom <= (window.innerHeight || document.documentElement.clientHeight) &&
+        rect.right <= (window.innerWidth || document.documentElement.clientWidth)
+    );
+}
 
 // 1. PM2.5 Chart
 function initializePMChart() {
@@ -1053,9 +1501,122 @@ function formatDate(dateString) {
     });
 }
 
+// ========== Performance Monitoring ==========
+
+// Track chart loading performance
+const performanceMetrics = {
+    chartsLoaded: 0,
+    totalLoadTime: 0,
+    errors: 0
+};
+
+// Monitor chart performance
+function trackChartPerformance(chartId, startTime) {
+    const endTime = performance.now();
+    const loadTime = endTime - startTime;
+    
+    performanceMetrics.chartsLoaded++;
+    performanceMetrics.totalLoadTime += loadTime;
+    
+    if (window.harumikiUtils && window.harumikiUtils.logger) {
+        window.harumikiUtils.logger.log(`Chart ${chartId} loaded in ${loadTime.toFixed(2)}ms`);
+    }
+}
+
+// Memory cleanup
+function cleanupCharts() {
+    Chart.helpers.each(Chart.instances, function(instance) {
+        if (instance.chart) {
+            instance.chart.destroy();
+        }
+    });
+    
+    dataCache.clear();
+    performanceMetrics.chartsLoaded = 0;
+    performanceMetrics.totalLoadTime = 0;
+    performanceMetrics.errors = 0;
+}
+
+// Handle page visibility changes for performance
+function handleVisibilityChange() {
+    if (document.hidden) {
+        // Pause chart animations when page is not visible
+        Chart.helpers.each(Chart.instances, function(instance) {
+            if (instance.chart && instance.chart.options.animation) {
+                instance.chart.options.animation.duration = 0;
+            }
+        });
+    } else {
+        // Resume animations when page becomes visible
+        Chart.helpers.each(Chart.instances, function(instance) {
+            if (instance.chart && instance.chart.options.animation) {
+                instance.chart.options.animation.duration = 750;
+            }
+        });
+    }
+}
+
+document.addEventListener('visibilitychange', handleVisibilityChange);
+
+// Cleanup on page unload
+window.addEventListener('beforeunload', cleanupCharts);
+
+// Debug functions
+function debugChartData() {
+    if (window.harumikiUtils && window.harumikiUtils.logger) {
+        const element = document.getElementById('chart-data');
+        if (element) {
+            const attributes = Array.from(element.attributes)
+                .filter(attr => attr.name.startsWith('data-'))
+                .map(attr => ({
+                    name: attr.name,
+                    hasData: attr.value && attr.value !== 'None' && attr.value !== ''
+                }));
+            
+            window.harumikiUtils.logger.log('Chart data debug:', attributes);
+        }
+    }
+}
+
+// Check all chart data availability
+function checkAllChartsData() {
+    const results = {};
+    chartQueue.forEach(chart => {
+        results[chart.id] = {
+            hasData: checkChartDataAvailable(chart.id),
+            loaded: chart.loaded
+        };
+    });
+    
+    if (window.harumikiUtils && window.harumikiUtils.logger) {
+        window.harumikiUtils.logger.log('All charts data status:', results);
+    }
+    
+    return results;
+}
+
 // Export functions for external use
 window.compareCharts = {
     refresh: function() {
+        cleanupCharts();
         location.reload();
+    },
+    getMetrics: function() {
+        return {
+            ...performanceMetrics,
+            averageLoadTime: performanceMetrics.chartsLoaded > 0 
+                ? (performanceMetrics.totalLoadTime / performanceMetrics.chartsLoaded).toFixed(2)
+                : 0
+        };
+    },
+    cleanup: cleanupCharts,
+    debugData: debugChartData,
+    checkAllData: checkAllChartsData,
+    forceLoadAll: function() {
+        chartQueue.forEach(chart => {
+            if (!chart.loaded) {
+                loadChartWithDelay(chart);
+            }
+        });
     }
 };

@@ -168,7 +168,9 @@ function sendAjaxRequest(url, method = 'GET', data = null, callback = null) {
         })
         .catch(error => {
             hideLoading();
-            console.error('Error:', error);
+            if (window.harumikiUtils && window.harumikiUtils.logger) {
+                window.harumikiUtils.logger.error('Error:', error);
+            }
             showAlert('เกิดข้อผิดพลาด กรุณาลองใหม่อีกครั้ง', 'danger');
         });
 }

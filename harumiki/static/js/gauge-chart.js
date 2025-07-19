@@ -10,7 +10,9 @@ class GaugeChart {
     constructor(canvasId, options = {}) {
         this.canvas = document.getElementById(canvasId);
         if (!this.canvas) {
-            console.error(`Canvas element with id "${canvasId}" not found`);
+            if (window.harumikiUtils && window.harumikiUtils.logger) {
+                window.harumikiUtils.logger.error(`Canvas element with id "${canvasId}" not found`);
+            }
             return;
         }
         
@@ -107,7 +109,9 @@ class GaugeChart {
 
 // ========== Initialize All Gauges ==========
 document.addEventListener('DOMContentLoaded', function() {
-    console.log('Initializing gauge charts...');
+    if (window.harumikiUtils && window.harumikiUtils.logger) {
+        window.harumikiUtils.logger.log('Initializing gauge charts...');
+    }
     
     // Water gauges
     const ecwmValue = parseFloat(document.getElementById('VECWM')?.textContent || 0);
@@ -156,7 +160,9 @@ document.addEventListener('DOMContentLoaded', function() {
         
         if (canvasElement && valueElement) {
             const value = parseFloat(valueElement.textContent || 0);
-            console.log(`Creating gauge ${gauge.id} with value ${value}`);
+            if (window.harumikiUtils && window.harumikiUtils.logger) {
+                window.harumikiUtils.logger.log(`Creating gauge ${gauge.id} with value ${value}`);
+            }
             
             new GaugeChart(gauge.id, {
                 value: value,
@@ -167,15 +173,21 @@ document.addEventListener('DOMContentLoaded', function() {
             });
         } else {
             if (!canvasElement) {
-                console.warn(`Canvas element ${gauge.id} not found`);
+                if (window.harumikiUtils && window.harumikiUtils.logger) {
+                    window.harumikiUtils.logger.warn(`Canvas element ${gauge.id} not found`);
+                }
             }
             if (!valueElement) {
-                console.warn(`Value element ${gauge.valueId} not found`);
+                if (window.harumikiUtils && window.harumikiUtils.logger) {
+                    window.harumikiUtils.logger.warn(`Value element ${gauge.valueId} not found`);
+                }
             }
         }
     });
     
-    console.log('Gauge initialization completed');
+    if (window.harumikiUtils && window.harumikiUtils.logger) {
+        window.harumikiUtils.logger.log('Gauge initialization completed');
+    }
 });
 
 // ========== Alternative Gauge Using Chart.js (if available) ==========
@@ -214,12 +226,16 @@ function createChartJsGauge(canvasId, value, options = {}) {
 
 // ========== Debug Function ==========
 function debugGauges() {
-    console.log('=== Gauge Debug Info ===');
+    if (window.harumikiUtils && window.harumikiUtils.logger) {
+        window.harumikiUtils.logger.log('=== Gauge Debug Info ===');
+    }
     
     // Check water gauge values
     const ecwm = document.getElementById('VECWM')?.textContent;
     const tempwm = document.getElementById('VTEMPWM')?.textContent;
-    console.log('Water Values:', { ecwm, tempwm });
+    if (window.harumikiUtils && window.harumikiUtils.logger) {
+        window.harumikiUtils.logger.log('Water Values:', { ecwm, tempwm });
+    }
     
     // Check soil gauge values
     const soilValues = {};
@@ -227,14 +243,18 @@ function debugGauges() {
         const element = document.getElementById(id);
         soilValues[id] = element ? element.textContent : 'NOT FOUND';
     });
-    console.log('Soil Values:', soilValues);
+    if (window.harumikiUtils && window.harumikiUtils.logger) {
+        window.harumikiUtils.logger.log('Soil Values:', soilValues);
+    }
     
     // Check canvas elements
     const canvasElements = {};
     ['gaugeECWM', 'gaugeTEMPWM', 'gaugeR8G1', 'gaugeR8G2', 'gaugeR16G1', 'gaugeR16G2', 'gaugeR24G1', 'gaugeR24G2', 'gaugeR8G3', 'gaugeR24G3'].forEach(id => {
         canvasElements[id] = document.getElementById(id) ? 'EXISTS' : 'NOT FOUND';
     });
-    console.log('Canvas Elements:', canvasElements);
+    if (window.harumikiUtils && window.harumikiUtils.logger) {
+        window.harumikiUtils.logger.log('Canvas Elements:', canvasElements);
+    }
 }
 
 // ========== Export functions ==========

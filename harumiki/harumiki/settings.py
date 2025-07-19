@@ -79,6 +79,7 @@ MIDDLEWARE = [
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
+    'corsheaders.middleware.CorsMiddleware',
 ]
 
 ROOT_URLCONF = 'harumiki.urls'
@@ -164,13 +165,63 @@ CORS_ALLOWED_ORIGINS = env.list(
     default=['http://localhost:3000', 'http://127.0.0.1:3000']
 )
 
-# settings.py
-CACHES = {
-    'default': {
-        'BACKEND': 'django.core.cache.backends.locmem.LocMemCache',
-        'LOCATION': 'smart-farm-cache',
+# Cache Configuration - Redis for better performance
+REDIS_URL = env('REDIS_URL', default='redis://localhost:6379/1')
+
+# Check if Redis is available, fallback to locmem for development
+try:
+    import redis
+    r = redis.Redis.from_url(REDIS_URL, socket_connect_timeout=1)
+    r.ping()
+    USE_REDIS = True
+except:
+    USE_REDIS = False
+    print("Warning: Redis not available, using locmem cache")
+
+if USE_REDIS:
+    CACHES = {
+        'default': {
+            'BACKEND': 'django_redis.cache.RedisCache',
+            'LOCATION': REDIS_URL,
+            'OPTIONS': {
+                'CLIENT_CLASS': 'django_redis.client.DefaultClient',
+                'CONNECTION_POOL_KWARGS': {
+                    'max_connections': 20,
+                    'retry_on_timeout': True,
+                }
+            },
+            'TIMEOUT': 300,  # 5 minutes default
+            'KEY_PREFIX': 'smartfarm',
+        },
+        'sensor_data': {
+            'BACKEND': 'django_redis.cache.RedisCache', 
+            'LOCATION': REDIS_URL,
+            'OPTIONS': {
+                'CLIENT_CLASS': 'django_redis.client.DefaultClient',
+            },
+            'TIMEOUT': 60,  # 1 minute for sensor data
+            'KEY_PREFIX': 'sensor',
+        }
     }
-}
+else:
+    CACHES = {
+        'default': {
+            'BACKEND': 'django.core.cache.backends.locmem.LocMemCache',
+            'LOCATION': 'smart-farm-cache',
+            'TIMEOUT': 300,
+            'OPTIONS': {
+                'MAX_ENTRIES': 1000,
+            }
+        },
+        'sensor_data': {
+            'BACKEND': 'django.core.cache.backends.locmem.LocMemCache',
+            'LOCATION': 'sensor-cache',
+            'TIMEOUT': 60,
+            'OPTIONS': {
+                'MAX_ENTRIES': 500,
+            }
+        }
+    }
 
 # Logging configuration
 LOGGING = {

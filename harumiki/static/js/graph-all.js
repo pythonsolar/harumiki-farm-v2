@@ -175,20 +175,28 @@ function getChartData(dataKey) {
     const element = document.getElementById('chart-data');
     const data = element.getAttribute(`data-${dataKey}`);
     
-    console.log(`Getting data for ${dataKey}:`, data);
+    if (window.harumikiUtils && window.harumikiUtils.logger) {
+        window.harumikiUtils.logger.log(`Getting data for ${dataKey}:`, data);
+    }
     
     if (!data || data === 'None' || data === '') {
-        console.warn(`No data found for ${dataKey}`);
+        if (window.harumikiUtils && window.harumikiUtils.logger) {
+            window.harumikiUtils.logger.warn(`No data found for ${dataKey}`);
+        }
         return [];
     }
     
     try {
         let cleanData = data.replace(/'/g, '"');
         const parsed = JSON.parse(cleanData);
-        console.log(`Parsed data for ${dataKey}:`, parsed);
+        if (window.harumikiUtils && window.harumikiUtils.logger) {
+            window.harumikiUtils.logger.log(`Parsed data for ${dataKey}:`, parsed);
+        }
         return parsed;
     } catch (e) {
-        console.error(`Error parsing ${dataKey}:`, e);
+        if (window.harumikiUtils && window.harumikiUtils.logger) {
+            window.harumikiUtils.logger.error(`Error parsing ${dataKey}:`, e);
+        }
         return [];
     }
 }
@@ -196,9 +204,13 @@ function getChartData(dataKey) {
 // Global chart instance
 let allSensorsChart = null;
 
+
 // Initialize chart when DOM is ready
 document.addEventListener('DOMContentLoaded', function() {
-    console.log('DOM loaded, initializing chart...');
+    if (window.harumikiUtils && window.harumikiUtils.logger) {
+        window.harumikiUtils.logger.log('DOM loaded, initializing chart...');
+    }
+    
     initializeChart();
     setupEventListeners();
     populateNormalizationTable();
@@ -216,20 +228,26 @@ function initializeChart() {
                      getChartData('air-temp-r8-times');
     
     if (!timeLabels || timeLabels.length === 0) {
-        console.error('No time labels found!');
+        if (window.harumikiUtils && window.harumikiUtils.logger) {
+            window.harumikiUtils.logger.error('No time labels found!');
+        }
         // Try to find any datetime attribute
         const element = document.getElementById('chart-data');
         const attributes = element.attributes;
         for (let i = 0; i < attributes.length; i++) {
             if (attributes[i].name.includes('times')) {
-                console.log(`Found time attribute: ${attributes[i].name}`);
+                if (window.harumikiUtils && window.harumikiUtils.logger) {
+                    window.harumikiUtils.logger.log(`Found time attribute: ${attributes[i].name}`);
+                }
                 timeLabels = getChartData(attributes[i].name.replace('data-', ''));
                 if (timeLabels && timeLabels.length > 0) break;
             }
         }
     }
     
-    console.log('Time labels:', timeLabels);
+    if (window.harumikiUtils && window.harumikiUtils.logger) {
+        window.harumikiUtils.logger.log('Time labels:', timeLabels);
+    }
     
     // Prepare datasets
     const datasets = [];
@@ -242,7 +260,9 @@ function initializeChart() {
         
         if (rawData && rawData.length > 0) {
             dataFound = true;
-            console.log(`Adding dataset for ${key} (${config.label}) with ${rawData.length} points`);
+            if (window.harumikiUtils && window.harumikiUtils.logger) {
+                window.harumikiUtils.logger.log(`Adding dataset for ${key} (${config.label}) with ${rawData.length} points`);
+            }
             
             datasets.push({
                 label: config.label,
@@ -257,15 +277,21 @@ function initializeChart() {
                 group: config.group
             });
         } else {
-            console.warn(`No data for ${key} (${dataKey})`);
+            if (window.harumikiUtils && window.harumikiUtils.logger) {
+                window.harumikiUtils.logger.warn(`No data for ${key} (${dataKey})`);
+            }
         }
     });
     
     if (!dataFound) {
-        console.error('No sensor data found!');
+        if (window.harumikiUtils && window.harumikiUtils.logger) {
+            window.harumikiUtils.logger.error('No sensor data found!');
+        }
     }
     
-    console.log(`Total datasets: ${datasets.length}`);
+    if (window.harumikiUtils && window.harumikiUtils.logger) {
+        window.harumikiUtils.logger.log(`Total datasets: ${datasets.length}`);
+    }
     
     // Chart configuration
     const chartConfig = {
