@@ -31,4 +31,15 @@ urlpatterns = [
     
     # Comparison View
     path('compare/', views.CompareGH1and2, name='compare'),
+    
+    # API Endpoints
+    path('api/compare-chart-data/', views.get_compare_chart_data, name='api_compare_chart_data'),
+    
+    # Test Pages (for debugging)
+    path('test-compare/', views.test_compare, name='test_compare'),
+
+    # เพิ่มใน urls.py
+    path('debug-sensors/', views.debug_sensors, name='debug-sensors'),
+
+    path('get-compare-chart-data/', views.get_compare_chart_data, name='get-compare-chart-data'),
 ]

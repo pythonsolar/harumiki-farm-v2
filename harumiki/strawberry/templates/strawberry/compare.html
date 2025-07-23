@@ -104,219 +104,118 @@
         </div>
     </div>
 
-    <!-- Charts Section -->
-    <div class="charts-grid">
-        <!-- PM2.5 Chart -->
-        <div class="chart-container">
-            <div class="chart-header">
-                <h3>PM 2.5 (μg/m³)</h3>
-            </div>
-            <div class="chart-body">
-                <canvas id="pmChart"></canvas>
-            </div>
-        </div>
-
-        <!-- CO2 Chart -->
-        <div class="chart-container">
-            <div class="chart-header">
-                <h3>Carbon dioxide (ppm)</h3>
-            </div>
-            <div class="chart-body">
-                <canvas id="co2Chart"></canvas>
-            </div>
-        </div>
-
-        <!-- LUX & UV Chart -->
-        <div class="chart-container">
-            <div class="chart-header">
-                <h3>LUX (lux) & UV (nm)</h3>
-            </div>
-            <div class="chart-body">
-                <canvas id="luxUvChart"></canvas>
-            </div>
-        </div>
-
-        <!-- PPFD Chart -->
-        <div class="chart-container">
-            <div class="chart-header">
-                <h3>PPFD (μmol/s.m²)</h3>
-            </div>
-            <div class="chart-body">
-                <canvas id="ppfdChart"></canvas>
-            </div>
-        </div>
-
-        <!-- Nitrogen Chart -->
-        <div class="chart-container">
-            <div class="chart-header">
-                <h3>Nitrogen in soil</h3>
-            </div>
-            <div class="chart-body">
-                <canvas id="nitrogenChart"></canvas>
-            </div>
-        </div>
-
-        <!-- Phosphorus Chart -->
-        <div class="chart-container">
-            <div class="chart-header">
-                <h3>Phosphorus in soil</h3>
-            </div>
-            <div class="chart-body">
-                <canvas id="phosphorusChart"></canvas>
-            </div>
-        </div>
-
-        <!-- Potassium Chart -->
-        <div class="chart-container">
-            <div class="chart-header">
-                <h3>Potassium in soil</h3>
-            </div>
-            <div class="chart-body">
-                <canvas id="potassiumChart"></canvas>
-            </div>
-        </div>
-
-        <!-- Temperature Soil Chart -->
-        <div class="chart-container">
-            <div class="chart-header">
-                <h3>Temperature (°C) [Soil]</h3>
-            </div>
-            <div class="chart-body">
-                <canvas id="tempSoilChart"></canvas>
-            </div>
-        </div>
-
-        <!-- Temperature Air & Water Chart -->
-        <div class="chart-container">
-            <div class="chart-header">
-                <h3>Temperature (°C) [Air & Water]</h3>
-            </div>
-            <div class="chart-body">
-                <canvas id="tempAirWaterChart"></canvas>
-            </div>
-        </div>
-
-        <!-- Humidity Chart -->
-        <div class="chart-container">
-            <div class="chart-header">
-                <h3>Humidity (%) [Air]</h3>
-            </div>
-            <div class="chart-body">
-                <canvas id="humidityChart"></canvas>
-            </div>
-        </div>
-
-        <!-- Moisture Chart -->
-        <div class="chart-container">
-            <div class="chart-header">
-                <h3>Moisture (%) [Soil]</h3>
-            </div>
-            <div class="chart-body">
-                <canvas id="moistureChart"></canvas>
-            </div>
-        </div>
-
-        <!-- EC Chart -->
-        <div class="chart-container">
-            <div class="chart-header">
-                <h3>Electrical Conductivity (µS/cm)</h3>
-            </div>
-            <div class="chart-body">
-                <canvas id="ecChart"></canvas>
+    <!-- Chart Selection Section -->
+    <div class="chart-selection-card">
+        <h2 class="selection-title">
+            <i class="bi bi-graph-up"></i>
+            Select Chart to Display
+        </h2>
+        
+        <div class="chart-selector-form">
+            <div class="row align-items-end">
+                <div class="col-md-8">
+                    <label class="form-label" for="chartSelect">
+                        <i class="bi bi-bar-chart-line me-1"></i>
+                        Chart Type:
+                    </label>
+                    <select id="chartSelect" class="form-select chart-select" 
+                            aria-describedby="chartHelp">
+                        <option value="" disabled selected>Choose a chart to display...</option>
+                        <option value="pm" data-title="PM 2.5 (μg/m³)" data-priority="1">
+                            🌫️ PM 2.5 (μg/m³)
+                        </option>
+                        <option value="co2" data-title="Carbon dioxide (ppm)" data-priority="1">
+                            🫧 Carbon dioxide (ppm)
+                        </option>
+                        <option value="luxuv" data-title="LUX (lux) & UV (nm)" data-priority="2">
+                            ☀️ LUX (lux) & UV (nm)
+                        </option>
+                        <option value="ppfd" data-title="PPFD (μmol/s.m²)" data-priority="2">
+                            💡 PPFD (μmol/s.m²)
+                        </option>
+                        <option value="nitrogen" data-title="Nitrogen in soil" data-priority="3">
+                            🌱 Nitrogen in soil
+                        </option>
+                        <option value="phosphorus" data-title="Phosphorus in soil" data-priority="3">
+                            🧪 Phosphorus in soil
+                        </option>
+                        <option value="potassium" data-title="Potassium in soil" data-priority="3">
+                            ⚗️ Potassium in soil
+                        </option>
+                        <option value="tempsoil" data-title="Temperature (°C) [Soil]" data-priority="3">
+                            🌡️ Temperature (°C) [Soil]
+                        </option>
+                        <option value="tempairwater" data-title="Temperature (°C) [Air & Water]" data-priority="2">
+                            🌡️ Temperature (°C) [Air & Water]
+                        </option>
+                        <option value="humidity" data-title="Humidity (%) [Air]" data-priority="2">
+                            💧 Humidity (%) [Air]
+                        </option>
+                        <option value="moisture" data-title="Moisture (%) [Soil]" data-priority="4">
+                            🌊 Moisture (%) [Soil]
+                        </option>
+                        <option value="ec" data-title="Electrical Conductivity (µS/cm)" data-priority="1">
+                            ⚡ Electrical Conductivity (µS/cm)
+                        </option>
+                    </select>
+                    <div id="chartHelp" class="form-text">
+                        Select a sensor type to compare data between GH1 and GH2
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <button type="button" id="loadChartBtn" class="btn btn-primary w-100" 
+                            disabled aria-describedby="loadHelp">
+                        <span class="btn-text">
+                            <i class="bi bi-play-fill me-1" aria-hidden="true"></i>
+                            Load Chart
+                        </span>
+                        <span class="btn-loading d-none">
+                            <span class="spinner-border spinner-border-sm me-1" role="status" aria-hidden="true"></span>
+                            Loading...
+                        </span>
+                    </button>
+                    <div id="loadHelp" class="form-text">Click to load selected chart</div>
+                </div>
             </div>
         </div>
     </div>
 
-    <!-- Secure data container for JavaScript -->
+    <!-- Single Chart Display Section -->
+    <div class="chart-display-section" id="chartDisplaySection" style="display: none;">
+        <div class="chart-container" id="dynamicChartContainer">
+            <div class="chart-header">
+                <div class="d-flex justify-content-between align-items-center">
+                    <h3 id="chartTitle">Select a chart to display</h3>
+                    <div class="chart-actions">
+                        <button type="button" class="btn btn-outline-secondary btn-sm" 
+                                id="refreshChartBtn" title="Refresh Chart">
+                            <i class="bi bi-arrow-clockwise"></i>
+                        </button>
+                        <button type="button" class="btn btn-outline-secondary btn-sm" 
+                                id="fullscreenBtn" title="Fullscreen">
+                            <i class="bi bi-arrows-fullscreen"></i>
+                        </button>
+                    </div>
+                </div>
+            </div>
+            <div class="chart-body" id="dynamicChartBody" data-chart-loaded="false">
+                <div class="chart-placeholder">
+                    <div class="placeholder-content">
+                        <i class="bi bi-graph-up placeholder-icon"></i>
+                        <h4>Ready to Load Chart</h4>
+                        <p>Select a chart type from the dropdown above and click "Load Chart" to begin</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Chart data will be loaded dynamically via AJAX -->
     <div id="chart-data" class="d-none" 
          role="region" aria-label="Chart data storage"
-         data-pm-gh1="{{ pm_GH1.values|escapejs }}"
-         data-pm-gh1-times="{{ pm_GH1.datetimes|escapejs }}"
-         data-pm-gh2="{{ pm_GH2.values|escapejs }}"
-         data-pm-outside="{{ pm_outside.values|escapejs }}"
-         
-         data-co2-farm1="{{ CO2_Farm1.values|escapejs }}"
-         data-co2-farm1-times="{{ CO2_Farm1.datetimes|escapejs }}"
-         data-co2-farm2="{{ CO2_Farm2.values|escapejs }}"
-         
-         data-uv-farm1="{{ UV_FARM1.values|escapejs }}"
-         data-uv-farm1-times="{{ UV_FARM1.datetimes|escapejs }}"
-         data-lux-farm1="{{ LUX_FARM1.values|escapejs }}"
-         data-uv-farm2="{{ UV_FARM2.values|escapejs }}"
-         data-lux-farm2="{{ LUX_FARM2.values|escapejs }}"
-         
-         data-ppfd-gh1-r8="{{ ppfd_GH1_R8.values|escapejs }}"
-         data-ppfd-gh1-r8-times="{{ ppfd_GH1_R8.datetimes|escapejs }}"
-         data-ppfd-gh1-r24="{{ ppfd_GH1_R24.values|escapejs }}"
-         data-ppfd-gh2-r16="{{ ppfd_GH2_R16.values|escapejs }}"
-         data-ppfd-gh2-r24="{{ ppfd_GH2_R24.values|escapejs }}"
-         
-         data-nitrogen-gh1-r8="{{ nitrogen_GH1_R8.values|escapejs }}"
-         data-nitrogen-gh1-r8-times="{{ nitrogen_GH1_R8.datetimes|escapejs }}"
-         data-nitrogen-gh1-r16="{{ nitrogen_GH1_R16.values|escapejs }}"
-         data-nitrogen-gh1-r24="{{ nitrogen_GH1_R24.values|escapejs }}"
-         data-nitrogen-gh2-r8="{{ nitrogen_GH2_R8.values|escapejs }}"
-         data-nitrogen-gh2-r16="{{ nitrogen_GH2_R16.values|escapejs }}"
-         data-nitrogen-gh2-r24="{{ nitrogen_GH2_R24.values|escapejs }}"
-         
-         data-phosphorus-gh1-r8="{{ phosphorus_GH1_R8.values|escapejs }}"
-         data-phosphorus-gh1-r16="{{ phosphorus_GH1_R16.values|escapejs }}"
-         data-phosphorus-gh1-r24="{{ phosphorus_GH1_R24.values|escapejs }}"
-         data-phosphorus-gh2-r8="{{ phosphorus_GH2_R8.values|escapejs }}"
-         data-phosphorus-gh2-r16="{{ phosphorus_GH2_R16.values|escapejs }}"
-         data-phosphorus-gh2-r24="{{ phosphorus_GH2_R24.values|escapejs }}"
-         
-         data-potassium-gh1-r8="{{ potassium_GH1_R8.values|escapejs }}"
-         data-potassium-gh1-r16="{{ potassium_GH1_R16.values|escapejs }}"
-         data-potassium-gh1-r24="{{ potassium_GH1_R24.values|escapejs }}"
-         data-potassium-gh2-r8="{{ potassium_GH2_R8.values|escapejs }}"
-         data-potassium-gh2-r16="{{ potassium_GH2_R16.values|escapejs }}"
-         data-potassium-gh2-r24="{{ potassium_GH2_R24.values|escapejs }}"
-         
-         data-temp-npk-gh1-r8="{{ temp_npk_GH1_R8.values|escapejs }}"
-         data-temp-npk-gh1-r8-times="{{ temp_npk_GH1_R8.datetimes|escapejs }}"
-         data-temp-npk-gh1-r16="{{ temp_npk_GH1_R16.values|escapejs }}"
-         data-temp-npk-gh1-r24="{{ temp_npk_GH1_R24.values|escapejs }}"
-         data-temp-npk-gh2-r8="{{ temp_npk_GH2_R8.values|escapejs }}"
-         data-temp-npk-gh2-r16="{{ temp_npk_GH2_R16.values|escapejs }}"
-         data-temp-npk-gh2-r24="{{ temp_npk_GH2_R24.values|escapejs }}"
-         
-         data-air-temp-gh1-r8="{{ airTemp_GH1_R8.values|escapejs }}"
-         data-air-temp-gh1-r8-times="{{ airTemp_GH1_R8.datetimes|escapejs }}"
-         data-air-temp-gh1-r16="{{ airTemp_GH1_R16.values|escapejs }}"
-         data-air-temp-gh1-r24="{{ airTemp_GH1_R24.values|escapejs }}"
-         data-air-temp-gh2-r8="{{ airTemp_GH2_R8.values|escapejs }}"
-         data-air-temp-gh2-r16="{{ airTemp_GH2_R16.values|escapejs }}"
-         data-air-temp-gh2-r24="{{ airTemp_GH2_R24.values|escapejs }}"
-         data-temp-wm="{{ TempWM.values|escapejs }}"
-         data-temp-wp="{{ TempWP.values|escapejs }}"
-         
-         data-air-hum-gh1-r8="{{ airHum_GH1_R8.values|escapejs }}"
-         data-air-hum-gh1-r8-times="{{ airHum_GH1_R8.datetimes|escapejs }}"
-         data-air-hum-gh1-r16="{{ airHum_GH1_R16.values|escapejs }}"
-         data-air-hum-gh1-r24="{{ airHum_GH1_R24.values|escapejs }}"
-         data-air-hum-gh2-r8="{{ airHum_GH2_R8.values|escapejs }}"
-         data-air-hum-gh2-r16="{{ airHum_GH2_R16.values|escapejs }}"
-         data-air-hum-gh2-r24="{{ airHum_GH2_R24.values|escapejs }}"
-         
-         data-soil-gh1-r8q1="{{ soil_GH1_R8_Q1.values|escapejs }}"
-         data-soil-gh1-r8q1-times="{{ soil_GH1_R8_Q1.datetimes|escapejs }}"
-         data-soil-gh1-r8q2="{{ soil_GH1_R8_Q2.values|escapejs }}"
-         data-soil-gh1-r16q3="{{ soil_GH1_R16_Q3.values|escapejs }}"
-         data-soil-gh1-r16q4="{{ soil_GH1_R16_Q4.values|escapejs }}"
-         data-soil-gh1-r24q5="{{ soil_GH1_R24_Q5.values|escapejs }}"
-         data-soil-gh1-r24q6="{{ soil_GH1_R24_Q6.values|escapejs }}"
-         data-soil-gh2-r8p1="{{ soil_GH2_R8_P1.values|escapejs }}"
-         data-soil-gh2-r8p2="{{ soil_GH2_R8_P2.values|escapejs }}"
-         data-soil-gh2-r8p3="{{ soil_GH2_R8_P3.values|escapejs }}"
-         data-soil-gh2-r24p4="{{ soil_GH2_R24_P4.values|escapejs }}"
-         data-soil-gh2-r24p5="{{ soil_GH2_R24_P5.values|escapejs }}"
-         data-soil-gh2-r24p6="{{ soil_GH2_R24_P6.values|escapejs }}"
-         data-soil-gh2-r16p8="{{ soil_GH2_R16_P8.values|escapejs }}"
-         
-         data-ecwm="{{ ECWM.values|escapejs }}"
-         data-ecwm-times="{{ ECWM.datetimes|escapejs }}"
-         data-ecwp="{{ ECWP.values|escapejs }}">
+         data-date-range="{{ first_date }}|{{ last_date }}"
+         data-month="{{ month }}"
+         data-year="{{ year }}">
     </div>
     
     <!-- Performance monitoring -->
@@ -328,28 +227,30 @@
 {% endblock %}
 
 {% block extra_js %}
-<!-- Wait for Chart.js to load before executing compare.js -->
+<script src="{% static 'js/compare-selective.js' %}"></script>
 <script>
-// Check if Chart.js is loaded, if not wait for it
-function waitForChart() {
-    if (typeof Chart !== 'undefined') {
-        // Chart.js is loaded, load compare.js
-        const script = document.createElement('script');
-        script.src = "{% static 'js/compare.js' %}";
-        script.onload = function() {
-            console.log('Compare.js loaded successfully');
-        };
-        script.onerror = function() {
-            console.error('Failed to load compare.js');
-        };
-        document.head.appendChild(script);
-    } else {
-        // Chart.js not loaded yet, wait and try again
-        setTimeout(waitForChart, 100);
+document.addEventListener('DOMContentLoaded', function() {
+    console.log('🚀 Compare page loaded');
+    
+    // Wait for Chart.js to be available
+    function waitForChartJS() {
+        if (typeof Chart !== 'undefined') {
+            console.log('✅ Chart.js available, initializing compare page...');
+            
+            // Initialize the page
+            if (typeof initializeComparePage !== 'undefined') {
+                initializeComparePage();
+            } else {
+                console.error('❌ initializeComparePage function not found');
+            }
+        } else {
+            console.log('⏳ Waiting for Chart.js...');
+            setTimeout(waitForChartJS, 200);
+        }
     }
-}
-
-// Start checking when DOM is ready
-document.addEventListener('DOMContentLoaded', waitForChart);
+    
+    // Start waiting for Chart.js
+    waitForChartJS();
+});
 </script>
 {% endblock %}
