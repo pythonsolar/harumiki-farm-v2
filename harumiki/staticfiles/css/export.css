@@ -1,0 +1,360 @@
+/* static/css/export.css */
+/* ========== Export Page Styles ========== */
+
+/* Main Container */
+.export-container {
+    background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+    min-height: 100vh;
+    padding: 20px;
+}
+
+/* Header Section */
+.export-header {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+    padding: 40px;
+    border-radius: 20px;
+    text-align: center;
+    margin-bottom: 30px;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+}
+
+.export-header h1 {
+    font-size: 2.5rem;
+    font-weight: 700;
+    margin-bottom: 10px;
+}
+
+.export-header p {
+    font-size: 1.1rem;
+    opacity: 0.9;
+}
+
+/* Export Cards */
+.export-card {
+    background: white;
+    border-radius: 15px;
+    padding: 30px;
+    margin-bottom: 20px;
+    box-shadow: 0 5px 20px rgba(0,0,0,0.08);
+    transition: transform 0.3s ease;
+}
+
+.export-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 10px 30px rgba(0,0,0,0.12);
+}
+
+.export-card h3 {
+    color: #2c3e50;
+    margin-bottom: 20px;
+    font-weight: 600;
+}
+
+/* Form Elements */
+.form-label {
+    font-weight: 600;
+    color: #495057;
+    margin-bottom: 8px;
+}
+
+.form-control, 
+.form-select {
+    border-radius: 10px;
+    border: 2px solid #e9ecef;
+    padding: 12px 15px;
+    transition: all 0.3s ease;
+}
+
+.form-control:focus, 
+.form-select:focus {
+    border-color: #667eea;
+    box-shadow: 0 0 0 0.2rem rgba(102, 126, 234, 0.25);
+}
+
+/* Buttons */
+.btn-export {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    border: none;
+    color: white;
+    padding: 12px 30px;
+    border-radius: 10px;
+    font-weight: 600;
+    transition: all 0.3s ease;
+}
+
+.btn-export:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 5px 15px rgba(102, 126, 234, 0.4);
+    color: white;
+}
+
+.btn-farm {
+    padding: 15px 30px;
+    border-radius: 10px;
+    font-weight: 600;
+    transition: all 0.3s ease;
+    margin: 10px;
+}
+
+.btn-farm1 {
+    background: linear-gradient(135deg, #11998e 0%, #38ef7d 100%);
+    border: none;
+    color: white;
+}
+
+.btn-farm2 {
+    background: linear-gradient(135deg, #fc4a1a 0%, #f7b733 100%);
+    border: none;
+    color: white;
+}
+
+/* Sensor Grid */
+.sensor-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+    gap: 15px;
+    margin-top: 20px;
+}
+
+.sensor-checkbox {
+    background: #f8f9fa;
+    border: 2px solid #e9ecef;
+    border-radius: 10px;
+    padding: 12px;
+    transition: all 0.3s ease;
+    cursor: pointer;
+}
+
+.sensor-checkbox:hover {
+    background: #e9ecef;
+    border-color: #667eea;
+}
+
+.sensor-checkbox.selected {
+    background: #667eea;
+    color: white;
+    border-color: #667eea;
+}
+
+.sensor-checkbox input[type="checkbox"] {
+    margin-right: 8px;
+}
+
+/* Date Range Card */
+.date-range-card {
+    background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+    color: white;
+    border-radius: 15px;
+    padding: 20px;
+    margin-bottom: 20px;
+}
+
+/* Alerts */
+.alert {
+    border-radius: 10px;
+    padding: 15px 20px;
+    margin-bottom: 20px;
+    animation: slideIn 0.5s ease;
+}
+
+@keyframes slideIn {
+    from {
+        transform: translateY(-20px);
+        opacity: 0;
+    }
+    to {
+        transform: translateY(0);
+        opacity: 1;
+    }
+}
+
+/* Icons & Stats */
+.icon-farm {
+    font-size: 3rem;
+    margin-bottom: 20px;
+}
+
+.stats-card {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+    border-radius: 15px;
+    padding: 20px;
+    text-align: center;
+}
+
+.stats-card h4 {
+    font-size: 2rem;
+    margin-bottom: 5px;
+}
+
+/* Tabs */
+.tabs-container {
+    margin-bottom: 30px;
+}
+
+.nav-tabs {
+    border: none;
+}
+
+.nav-tabs .nav-link {
+    border: none;
+    border-radius: 10px;
+    padding: 12px 30px;
+    margin-right: 10px;
+    font-weight: 600;
+    color: #495057;
+    background: #f8f9fa;
+    transition: all 0.3s ease;
+}
+
+.nav-tabs .nav-link.active {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+}
+
+.nav-tabs .nav-link:hover {
+    transform: translateY(-2px);
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+    .export-header h1 {
+        font-size: 2rem;
+    }
+    
+    .export-card {
+        padding: 20px;
+    }
+    
+    .sensor-grid {
+        grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+        gap: 10px;
+    }
+    
+    .nav-tabs .nav-link {
+        padding: 10px 20px;
+        font-size: 0.9rem;
+    }
+}
+
+/* Loading States */
+.btn-loading {
+    display: none;
+}
+
+.btn:disabled .btn-text {
+    display: none;
+}
+
+.btn:disabled .btn-loading {
+    display: inline-block;
+}
+
+.spin {
+    animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+}
+
+/* Enhanced Focus Styles */
+.form-control:focus,
+.form-select:focus,
+.btn:focus,
+.nav-link:focus {
+    outline: 2px solid #0d6efd;
+    outline-offset: 2px;
+}
+
+/* Error States */
+.form-control.is-invalid,
+.form-select.is-invalid {
+    border-color: #dc3545;
+    background-image: none;
+}
+
+.invalid-feedback {
+    display: none;
+    width: 100%;
+    margin-top: 0.25rem;
+    font-size: 0.875em;
+    color: #dc3545;
+}
+
+.was-validated .form-control:invalid ~ .invalid-feedback,
+.was-validated .form-select:invalid ~ .invalid-feedback,
+.is-invalid ~ .invalid-feedback {
+    display: block;
+}
+
+/* Skip Link */
+.skip-link {
+    position: absolute;
+    top: -40px;
+    left: 6px;
+    background: #000;
+    color: #fff;
+    padding: 8px;
+    text-decoration: none;
+    z-index: 1000;
+}
+
+.skip-link:focus {
+    top: 6px;
+}
+
+/* High Contrast Mode Support */
+@media (prefers-contrast: high) {
+    .export-card {
+        border: 2px solid #000;
+    }
+    
+    .btn-export {
+        border: 2px solid #000;
+    }
+}
+
+/* Reduced Motion Support */
+@media (prefers-reduced-motion: reduce) {
+    .export-card,
+    .btn-export,
+    .nav-tabs .nav-link {
+        transition: none;
+        animation: none;
+    }
+    
+    .spin {
+        animation: none;
+    }
+}
+
+/* Performance: GPU Acceleration for Animations */
+.export-card,
+.btn-export,
+.nav-tabs .nav-link {
+    will-change: transform;
+}
+
+/* Print Styles */
+@media print {
+    .export-container {
+        background: white;
+    }
+    
+    .export-header {
+        background: none;
+        color: black;
+        border: 2px solid black;
+    }
+    
+    .btn, .nav-tabs {
+        display: none;
+    }
+    
+    .form-text {
+        display: none;
+    }
+}

@@ -130,8 +130,13 @@
                     <h5>CO2 Inside Farm1</h5>
                 </div>
                 <div class="sensor-value">
-                    <span id="co2" class="value">{{ CO2_R1 }}</span>
-                    <span class="unit">ppm</span>
+                    {% if CO2_R1 %}
+                        <span id="co2" class="value">{{ CO2_R1 }}</span>
+                        <span class="unit">ppm</span>
+                    {% else %}
+                        <span id="co2" class="value text-muted">< 400</span>
+                        <span class="unit">ppm</span>
+                    {% endif %}
                 </div>
                 <div class="sensor-status">
                     <span class="status-indicator"></span>

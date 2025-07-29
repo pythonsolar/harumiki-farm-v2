@@ -78,7 +78,7 @@ SENSOR_MAPPINGS = {
     'farm2': {
         'pm': {'PM25_R2': 'atmos', 'PM25_OUTSIDE': 'atmos'},
         'water': {'EC': ['conduct', 'temp']},
-        'co2': {'CO2_R1': 'val', 'CO2_R2': 'val'},
+        'co2': {'CO2_R2': 'val'},
         'npk': {
             'NPK1': ['nitrogen', 'phosphorus', 'potassium', 'temperature'],  # R8
             'NPK2': ['nitrogen', 'phosphorus', 'potassium', 'temperature'],  # R16
@@ -135,8 +135,9 @@ def get_history_val_optimized(sensor_id, name_value, start_datetime, end_datetim
         logger.info(f"Cache hit for optimized data: {sensor_id}")
         return cached_result
     
-    # Get raw data using existing function
-    raw_data = get_history_val(sensor_id, name_value, start_datetime, end_datetime)
+    # Get raw data using existing function (longer timeout for CO2)
+    timeout = 120 if 'CO2' in sensor_id else 60
+    raw_data = get_history_val(sensor_id, name_value, start_datetime, end_datetime, timeout=timeout)
     
     # Skip processing if no data
     if not raw_data or 'values' not in raw_data or not raw_data['values']:
@@ -302,11 +303,19 @@ def get_water_data(water_sensors):
     return context
 
 def get_co2_data(co2_sensors):
-    """Get CO2 sensor data"""
+    """Get CO2 sensor data with filtering"""
     context = {}
     for sensor_id, value_key in co2_sensors.items():
-        value = get_latest_sensor_value(sensor_id, value_key)
-        context[sensor_id] = value
+        raw_value = get_latest_sensor_value(sensor_id, value_key)
+        
+        # Show all CO2 values >= 0
+        if raw_value is not None and raw_value >= 0:
+            context[sensor_id] = raw_value
+            logger.info(f"CO2 data - {sensor_id}: {raw_value}")
+        else:
+            context[sensor_id] = None
+            logger.warning(f"CO2 data - {sensor_id}: {raw_value} (invalid - negative or null)")
+    
     return context
 
 def get_npk_data(npk_sensors, farm_key):
@@ -545,7 +554,168 @@ def get_historical_sensor_data(sensor_id, value_key, start_datetime, end_datetim
         logger.error("Historical data parsing error: %s", str(e))
         return {"error": f"Data parsing failed: {str(e)}"}
 
-def get_history_val(sensor_id, name_value, start_datetime, end_datetime, max_retries=2):
+def filter_sensor_data(values, datetimes, sensor_type='default', min_val=None, max_val=None, show_zero_for_invalid=False):
+    """
+    Filter sensor data based on sensor type
+    
+    Args:
+        values: List of sensor values
+        datetimes: List of corresponding timestamps
+        sensor_type: Type of sensor for specific filtering rules
+        min_val: Minimum valid value
+        max_val: Maximum valid value
+        show_zero_for_invalid: If True, show 0 for invalid values instead of skipping
+    
+    Returns:
+        Filtered (values, datetimes) tuple
+    """
+    if not values or not datetimes:
+        return [], []
+    
+    # Define sensor-specific valid ranges
+    sensor_ranges = {
+        'co2': (0, 2000),    # CO2 range in ppm (0-2000)
+        'pm': (0, 500),      # PM2.5 range
+        'temp': (-10, 50),   # Temperature range
+        'humidity': (0, 100), # Humidity percentage
+        'default': (None, None)
+    }
+    
+    # Get range for sensor type
+    if sensor_type in sensor_ranges:
+        default_min, default_max = sensor_ranges[sensor_type]
+        min_val = min_val or default_min
+        max_val = max_val or default_max
+    
+    # Filter data
+    filtered_values = []
+    filtered_datetimes = []
+    
+    for i, val in enumerate(values):
+        datetime_val = datetimes[i] if i < len(datetimes) else None
+        
+        # Handle invalid/null values
+        if val is None:
+            if show_zero_for_invalid:
+                filtered_values.append(-999)  # Special marker for invalid data
+                filtered_datetimes.append(datetime_val)
+                logger.debug(f"Replaced null {sensor_type} value with -999 at {datetime_val}")
+                continue
+            else:
+                continue
+            
+        # Note: CO2 values of 0 are now considered valid (removed 400 ppm minimum)
+        # Zero CO2 values are allowed and will be processed normally
+            
+        # Check range if specified
+        if min_val is not None and val < min_val:
+            if show_zero_for_invalid:
+                filtered_values.append(-999)  # Special marker for invalid data
+                filtered_datetimes.append(datetime_val)
+                logger.debug(f"Replaced out-of-range {sensor_type} value {val} < {min_val} with -999")
+                continue
+            else:
+                logger.warning(f"Skipping out-of-range {sensor_type} value: {val} < {min_val}")
+                continue
+            
+        if max_val is not None and val > max_val:
+            if show_zero_for_invalid:
+                filtered_values.append(-999)  # Special marker for invalid data
+                filtered_datetimes.append(datetime_val)
+                logger.debug(f"Replaced out-of-range {sensor_type} value {val} > {max_val} with -999")
+                continue
+            else:
+                logger.warning(f"Skipping out-of-range {sensor_type} value: {val} > {max_val}")
+                continue
+            
+        # Valid value - keep it
+        filtered_values.append(val)
+        filtered_datetimes.append(datetime_val)
+    
+    return filtered_values, filtered_datetimes
+
+def synchronize_co2_timestamps(chart_data):
+    """
+    Synchronize timestamps between CO2 Farm1 and Farm2 data
+    Fill missing timestamps with 0 values
+    """
+    if 'co2-farm1' not in chart_data or 'co2-farm2' not in chart_data:
+        logger.warning("Missing CO2 data keys for synchronization")
+        return chart_data
+    
+    # Get timestamps for both farms - look for specific keys first
+    farm1_times_key = None
+    farm2_times_key = None
+    
+    # Try to find specific timestamp keys
+    for key in chart_data.keys():
+        if key.endswith('-times'):
+            if 'co2-farm1' in key:
+                farm1_times_key = key
+            elif 'co2-farm2' in key:
+                farm2_times_key = key
+    
+    # If not found, find any available timestamps
+    if not farm1_times_key or not farm2_times_key:
+        for key in chart_data.keys():
+            if key.endswith('-times') and chart_data.get(key):
+                if not farm1_times_key:
+                    farm1_times_key = key
+                elif not farm2_times_key:
+                    farm2_times_key = key
+                break
+    
+    if not farm1_times_key:
+        logger.warning("No timestamp keys found for CO2 synchronization")
+        return chart_data
+    
+    logger.info(f"CO2 sync: Using timestamp keys - farm1: {farm1_times_key}, farm2: {farm2_times_key}")
+    logger.info(f"CO2 sync: Available chart_data keys: {list(chart_data.keys())}")
+    
+    # Get all unique timestamps and sort them
+    all_timestamps = set()
+    if farm1_times_key in chart_data:
+        all_timestamps.update(chart_data[farm1_times_key])
+        logger.info(f"CO2 sync: Added {len(chart_data[farm1_times_key])} timestamps from {farm1_times_key}")
+    if farm2_times_key in chart_data and farm2_times_key != farm1_times_key:
+        all_timestamps.update(chart_data[farm2_times_key])
+        logger.info(f"CO2 sync: Added {len(chart_data[farm2_times_key])} timestamps from {farm2_times_key}")
+    
+    if not all_timestamps:
+        logger.warning("No timestamps found for CO2 synchronization")
+        return chart_data
+        
+    sorted_timestamps = sorted(all_timestamps)
+    logger.info(f"CO2 sync: Total unique timestamps: {len(sorted_timestamps)}")
+    
+    # Create synchronized data for both farms
+    farm1_values = chart_data.get('co2-farm1', [])
+    farm2_values = chart_data.get('co2-farm2', [])
+    farm1_timestamps = chart_data.get(farm1_times_key, [])
+    farm2_timestamps = chart_data.get(farm2_times_key, [])
+    
+    # Create timestamp to value mapping
+    farm1_map = dict(zip(farm1_timestamps, farm1_values)) if len(farm1_timestamps) == len(farm1_values) else {}
+    farm2_map = dict(zip(farm2_timestamps, farm2_values)) if len(farm2_timestamps) == len(farm2_values) else {}
+    
+    # Synchronize data
+    sync_farm1_values = []
+    sync_farm2_values = []
+    
+    for timestamp in sorted_timestamps:
+        sync_farm1_values.append(farm1_map.get(timestamp, -999))  # Use -999 for missing data
+        sync_farm2_values.append(farm2_map.get(timestamp, -999))  # Use -999 for missing data
+    
+    # Update chart data
+    chart_data['co2-farm1'] = sync_farm1_values
+    chart_data['co2-farm2'] = sync_farm2_values
+    chart_data['co2-farm1-times'] = sorted_timestamps
+    chart_data['co2-farm2-times'] = sorted_timestamps
+    
+    logger.info(f"CO2 timestamps synchronized: {len(sorted_timestamps)} points")
+    return chart_data
+
+def get_history_val(sensor_id, name_value, start_datetime, end_datetime, max_retries=2, timeout=60):
     """
     Get historical sensor values with retry logic
     """
@@ -564,7 +734,7 @@ def get_history_val(sensor_id, name_value, start_datetime, end_datetime, max_ret
                 url, 
                 headers=headers, 
                 params=params,
-                timeout=60  # เพิ่มกลับเป็น 60 วินาทีสำหรับข้อมูลเยอะ
+                timeout=timeout  # ใช้ timeout ที่ส่งเข้ามา
             )
             response.raise_for_status()
             
@@ -741,6 +911,27 @@ def update_graph1(start_datetime, end_datetime):
     TempWM = get_history_val("EC", "temp", start_datetime, end_datetime)
     CO2_R1 = get_history_val("CO2_R1", "val", start_datetime, end_datetime)
     CO2_R2 = get_history_val("CO2_R2", "val", start_datetime, end_datetime)
+    
+    # Filter CO2 data to remove invalid values
+    if CO2_R1 and isinstance(CO2_R1, dict):
+        values = CO2_R1.get('values', [])
+        datetimes = CO2_R1.get('datetimes', [])
+        if values and datetimes:
+            filtered_values, filtered_datetimes = filter_sensor_data(
+                values, datetimes, sensor_type='co2'
+            )
+            CO2_R1 = {'values': filtered_values, 'datetimes': filtered_datetimes}
+            logger.info(f"CO2_R1 filtered: {len(values)} -> {len(filtered_values)} values")
+    
+    if CO2_R2 and isinstance(CO2_R2, dict):
+        values = CO2_R2.get('values', [])
+        datetimes = CO2_R2.get('datetimes', [])
+        if values and datetimes:
+            filtered_values, filtered_datetimes = filter_sensor_data(
+                values, datetimes, sensor_type='co2'
+            )
+            CO2_R2 = {'values': filtered_values, 'datetimes': filtered_datetimes}
+            logger.info(f"CO2_R2 filtered: {len(values)} -> {len(filtered_values)} values")
     nitrogen4 = get_history_val("NPK4", "nitrogen", start_datetime, end_datetime)
     nitrogen5 = get_history_val("NPK5", "nitrogen", start_datetime, end_datetime)
     nitrogen6 = get_history_val("NPK6", "nitrogen", start_datetime, end_datetime)
@@ -1732,8 +1923,8 @@ def get_compare_chart_data(request):
     start_datetime = f"{start_date}T00:00:00"
     end_datetime = f"{end_date}T23:59:59"
     
-    # Generate cache key for this specific chart
-    cache_key = f"chart_data_{chart_type}_{year}_{month}_{start_date}_{end_date}"
+    # Generate cache key for this specific chart (v4 = allow 0 ppm CO2 values)
+    cache_key = f"chart_data_v4_{chart_type}_{year}_{month}_{start_date}_{end_date}"
     
     # Try cache first
     cached_data = cache.get(cache_key)
@@ -1828,7 +2019,7 @@ def get_chart_specific_data(chart_type, start_datetime, end_datetime):
         ],
         'co2': [
             ('co2-farm1', 'CO2_R1', 'val'),
-            ('co2-farm2', 'CO2_R2', 'val')  # Note: CO2_R2 has no historical data
+            ('co2-farm2', 'CO2_R2', 'val')
         ],
         'luxuv': [
             ('uv-farm1', 'UV1', 'uv_value'),
@@ -1964,9 +2155,12 @@ def get_chart_specific_data(chart_type, start_datetime, end_datetime):
             )
             future_to_key[future] = key
         
-        # Collect results with timeout
-        timeout_duration = 120 if len(queries) > 10 else 80
-        logger.info(f"Using timeout of {timeout_duration}s for {len(queries)} sensors")
+        # Collect results with timeout (longer for CO2 due to API issues)
+        if chart_type == 'co2':
+            timeout_duration = 180  # 3 minutes for CO2 due to API issues
+        else:
+            timeout_duration = 120 if len(queries) > 10 else 80
+        logger.info(f"Using timeout of {timeout_duration}s for {len(queries)} sensors (chart_type: {chart_type})")
         
         completed_futures = 0
         total_futures = len(future_to_key)
@@ -1980,14 +2174,31 @@ def get_chart_specific_data(chart_type, start_datetime, end_datetime):
                     result = future.result()
                     
                     if result:
-                        logger.info(f"({completed_futures}/{total_futures}) Result for {key}: "
-                                  f"{len(result.get('values', []))} values")
+                        values = result.get('values', [])
+                        datetimes = result.get('datetimes', [])
                         
-                        chart_data[key] = result.get('values', [])
+                        # Apply filtering for CO2 data
+                        if chart_type == 'co2' and values:
+                            original_count = len(values)
+                            logger.info(f"CO2 {key}: Raw data sample: {values[:5]} (total: {original_count})")
+                            values, datetimes = filter_sensor_data(
+                                values, datetimes, 
+                                sensor_type='co2',
+                                min_val=0,     # Show all values from 0
+                                max_val=2000,  # Maximum valid CO2
+                                show_zero_for_invalid=True  # Show 0 for invalid CO2 values
+                            )
+                            filtered_count = len(values)
+                            logger.info(f"CO2 {key}: After filtering: {values[:5]} (total: {filtered_count})")
+                            logger.info(f"CO2 filtering for {key}: {original_count} -> {filtered_count} values (min=0)")
+                        
+                        logger.info(f"({completed_futures}/{total_futures}) Result for {key}: {len(values)} values")
+                        
+                        chart_data[key] = values
                         
                         # Add timestamps for first dataset with data
-                        if '-times' not in chart_data and result.get('datetimes'):
-                            chart_data[key + '-times'] = result.get('datetimes', [])
+                        if '-times' not in chart_data and datetimes:
+                            chart_data[key + '-times'] = datetimes
                     else:
                         chart_data[key] = []
                         
@@ -2008,6 +2219,10 @@ def get_chart_specific_data(chart_type, start_datetime, end_datetime):
         # Generate default timestamps if none found
         logger.warning("No timestamps found in any dataset, generating defaults")
         chart_data['default-times'] = []
+    
+    # Synchronize CO2 timestamps if this is CO2 chart
+    if chart_type == 'co2':
+        chart_data = synchronize_co2_timestamps(chart_data)
     
     # Log summary
     sensors_with_data = sum(1 for k, v in chart_data.items() 

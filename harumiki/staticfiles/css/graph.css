@@ -1,0 +1,276 @@
+/* static/css/graph.css */
+/* ========== Graph Dashboard Styles ========== */
+
+/* Dashboard Container */
+.graph-dashboard-container {
+    padding: 2rem;
+    background-color: #f8f9fa;
+    min-height: 100vh;
+}
+
+/* Dashboard Header */
+.dashboard-header {
+    text-align: center;
+    margin-bottom: 3rem;
+    padding: 2rem;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+    border-radius: 1rem;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+}
+
+.dashboard-header h1 {
+    font-size: 2.5rem;
+    font-weight: 700;
+    margin-bottom: 0.5rem;
+}
+
+.dashboard-header .subtitle {
+    font-size: 1.2rem;
+    opacity: 0.9;
+}
+
+/* Filter Section */
+.filter-section {
+    background: white;
+    padding: 2rem;
+    border-radius: 1rem;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.08);
+    margin-bottom: 3rem;
+}
+
+.date-filter-form .form-label {
+    font-weight: 600;
+    color: #495057;
+    margin-bottom: 0.5rem;
+}
+
+.date-filter-form .form-control {
+    border: 2px solid #e0e6ed;
+    border-radius: 0.5rem;
+    padding: 0.75rem;
+    transition: all 0.3s ease;
+}
+
+.date-filter-form .form-control:focus {
+    border-color: #667eea;
+    box-shadow: 0 0 0 0.2rem rgba(102, 126, 234, 0.25);
+}
+
+.date-filter-form .btn-primary {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    border: none;
+    padding: 0.75rem 2rem;
+    font-weight: 600;
+    border-radius: 0.5rem;
+    transition: all 0.3s ease;
+}
+
+.date-filter-form .btn-primary:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 5px 15px rgba(102, 126, 234, 0.4);
+}
+
+/* Chart Sections */
+.chart-section {
+    margin-bottom: 3rem;
+}
+
+.section-header {
+    margin-bottom: 2rem;
+    padding-bottom: 1rem;
+    border-bottom: 3px solid #e0e6ed;
+}
+
+.section-header h2 {
+    font-size: 1.8rem;
+    font-weight: 700;
+    color: #2c3e50;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.section-header i {
+    color: #667eea;
+}
+
+/* Chart Cards */
+.chart-card {
+    background: white;
+    border-radius: 1rem;
+    box-shadow: 0 2px 15px rgba(0, 0, 0, 0.08);
+    overflow: hidden;
+    height: 100%;
+    transition: all 0.3s ease;
+}
+
+.chart-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 5px 25px rgba(0, 0, 0, 0.12);
+}
+
+.chart-header {
+    background: #f8f9fa;
+    padding: 1.5rem;
+    border-bottom: 2px solid #e0e6ed;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.chart-header h3 {
+    font-size: 1.2rem;
+    font-weight: 600;
+    color: #2c3e50;
+    margin: 0;
+}
+
+.chart-unit {
+    background: #667eea;
+    color: white;
+    padding: 0.25rem 0.75rem;
+    border-radius: 2rem;
+    font-size: 0.875rem;
+    font-weight: 500;
+}
+
+.chart-body {
+    padding: 2rem;
+    position: relative;
+    height: 400px;
+}
+
+.chart-body canvas {
+    max-height: 100% !important;
+}
+
+/* Loading Animation */
+.chart-loading {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    font-size: 1.2rem;
+    color: #667eea;
+    text-align: center;
+    z-index: 10;
+}
+
+.chart-loading .spin {
+    animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+    .graph-dashboard-container {
+        padding: 1rem;
+    }
+    
+    .dashboard-header h1 {
+        font-size: 1.8rem;
+    }
+    
+    .chart-body {
+        padding: 1rem;
+        height: 300px;
+    }
+    
+    .filter-section {
+        padding: 1rem;
+    }
+}
+
+/* Chart.js Custom Styles */
+.chart-legend {
+    margin-top: 1rem;
+    padding-top: 1rem;
+    border-top: 1px solid #e0e6ed;
+}
+
+/* Tooltip Customization */
+.chartjs-tooltip {
+    background: rgba(0, 0, 0, 0.8) !important;
+    border-radius: 0.5rem !important;
+    padding: 0.75rem !important;
+    font-size: 0.875rem !important;
+}
+
+/* Color Variables for Charts */
+:root {
+    --chart-primary: #667eea;
+    --chart-secondary: #764ba2;
+    --chart-success: #3cd278;
+    --chart-warning: #ffb74c;
+    --chart-danger: #ff4c61;
+    --chart-info: #4fc3f7;
+    --chart-light: #f8f9fa;
+    --chart-dark: #2c3e50;
+}
+
+/* Animation Classes */
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(20px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.chart-card {
+    animation: fadeIn 0.6s ease-out;
+}
+
+/* Grid Line Styles */
+.chart-grid-lines {
+    stroke: #e0e6ed;
+    stroke-dasharray: 5, 5;
+}
+
+/* Axis Styles */
+.chart-axis {
+    font-size: 0.875rem;
+    color: #6c757d;
+}
+
+/* Legend Styles */
+.chart-legend-item {
+    display: inline-flex;
+    align-items: center;
+    margin-right: 1.5rem;
+    margin-bottom: 0.5rem;
+}
+
+.chart-legend-color {
+    width: 20px;
+    height: 3px;
+    margin-right: 0.5rem;
+    border-radius: 2px;
+}
+
+/* Print Styles */
+@media print {
+    .filter-section {
+        display: none;
+    }
+    
+    .chart-card {
+        break-inside: avoid;
+        box-shadow: none;
+        border: 1px solid #dee2e6;
+    }
+    
+    .dashboard-header {
+        background: none;
+        color: #000;
+        border: 2px solid #000;
+    }
+}

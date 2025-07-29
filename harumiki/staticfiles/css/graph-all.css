@@ -1,0 +1,258 @@
+/* static/css/graph-all.css */
+/* Graph All Sensors Styles */
+.graph-all-container {
+    padding: 20px;
+    background-color: #f8f9fa;
+    min-height: 100vh;
+}
+
+/* Header Styles */
+.graph-header {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+    padding: 30px;
+    border-radius: 15px;
+    text-align: center;
+    margin-bottom: 30px;
+    box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+}
+
+.graph-header h1 {
+    font-size: 2.5rem;
+    font-weight: 700;
+    margin-bottom: 10px;
+}
+
+.graph-header .subtitle {
+    font-size: 1.1rem;
+    opacity: 0.9;
+}
+
+/* Filter Section */
+.filter-section {
+    background: white;
+    padding: 25px;
+    border-radius: 12px;
+    margin-bottom: 25px;
+    box-shadow: 0 3px 10px rgba(0,0,0,0.08);
+}
+
+.date-filter-form .form-label {
+    font-weight: 600;
+    color: #495057;
+    margin-bottom: 8px;
+}
+
+.date-filter-form .form-control {
+    border-radius: 8px;
+    border: 2px solid #e9ecef;
+    padding: 10px 15px;
+    transition: all 0.3s ease;
+}
+
+.date-filter-form .form-control:focus {
+    border-color: #667eea;
+    box-shadow: 0 0 0 0.2rem rgba(102, 126, 234, 0.25);
+}
+
+.date-filter-form .btn-primary {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    border: none;
+    padding: 12px 25px;
+    font-weight: 600;
+    border-radius: 8px;
+    transition: transform 0.2s ease;
+}
+
+.date-filter-form .btn-primary:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 5px 15px rgba(102, 126, 234, 0.4);
+}
+
+/* Legend Controls */
+.legend-controls {
+    background: white;
+    padding: 25px;
+    border-radius: 12px;
+    margin-bottom: 25px;
+    box-shadow: 0 3px 10px rgba(0,0,0,0.08);
+}
+
+.legend-controls h3 {
+    font-size: 1.3rem;
+    font-weight: 600;
+    margin-bottom: 20px;
+    color: #333;
+}
+
+.button-group {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+    justify-content: center;
+}
+
+.toggle-group {
+    min-width: 140px;
+    padding: 8px 16px;
+    border-radius: 6px;
+    font-weight: 500;
+    transition: all 0.3s ease;
+}
+
+.toggle-group.active {
+    background-color: #667eea;
+    border-color: #667eea;
+    color: white;
+}
+
+.toggle-group:hover {
+    transform: translateY(-2px);
+}
+
+#show-all, #hide-all {
+    min-width: 100px;
+    font-weight: 600;
+}
+
+/* Chart Section */
+.chart-section {
+    margin-bottom: 30px;
+}
+
+.chart-card {
+    background: white;
+    border-radius: 15px;
+    box-shadow: 0 5px 20px rgba(0,0,0,0.08);
+    overflow: hidden;
+}
+
+.chart-header {
+    background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+    padding: 20px 25px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    border-bottom: 1px solid #e9ecef;
+}
+
+.chart-header h2 {
+    font-size: 1.5rem;
+    font-weight: 600;
+    color: #2c3e50;
+    margin: 0;
+}
+
+.chart-unit {
+    background: #667eea;
+    color: white;
+    padding: 5px 15px;
+    border-radius: 20px;
+    font-size: 0.85rem;
+    font-weight: 500;
+}
+
+.chart-body {
+    padding: 30px;
+    height: 600px;
+}
+
+/* Data Info Section */
+.data-info-section {
+    background: white;
+    padding: 25px;
+    border-radius: 12px;
+    box-shadow: 0 3px 10px rgba(0,0,0,0.08);
+}
+
+.data-info-section h3 {
+    font-size: 1.3rem;
+    font-weight: 600;
+    margin-bottom: 20px;
+    color: #333;
+}
+
+.info-table {
+    max-height: 400px;
+    overflow-y: auto;
+}
+
+.info-table table {
+    font-size: 0.9rem;
+}
+
+.info-table th {
+    background-color: #f8f9fa;
+    position: sticky;
+    top: 0;
+    z-index: 10;
+    font-weight: 600;
+    color: #495057;
+}
+
+.info-table td {
+    padding: 10px;
+}
+
+.sensor-group-air { background-color: #e3f2fd; }
+.sensor-group-light { background-color: #fff3e0; }
+/* Additional styles for sensor groups */
+.sensor-group-npk1 { background-color: #e8f5e9; }
+.sensor-group-npk2 { background-color: #f1f8e9; }
+.sensor-group-temp1 { background-color: #fce4ec; }
+.sensor-group-temp2 { background-color: #ffebee; }
+.sensor-group-humidity1 { background-color: #e1f5fe; }
+.sensor-group-humidity2 { background-color: #e0f7fa; }
+.sensor-group-water { background-color: #f3e5f5; }
+
+/* Responsive Design */
+@media (max-width: 768px) {
+    .graph-header h1 {
+        font-size: 1.8rem;
+    }
+    
+    .chart-body {
+        height: 400px;
+        padding: 15px;
+    }
+    
+    .button-group {
+        flex-direction: column;
+    }
+    
+    .toggle-group {
+        width: 100%;
+    }
+}
+
+/* Loading Animation */
+.loading {
+    display: inline-block;
+    width: 20px;
+    height: 20px;
+    border: 3px solid #f3f3f3;
+    border-top: 3px solid #667eea;
+    border-radius: 50%;
+    animation: spin 1s linear infinite;
+}
+
+.chart-loading {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    font-size: 1.2rem;
+    color: #667eea;
+    text-align: center;
+    z-index: 10;
+}
+
+.chart-loading .spin {
+    animation: spin 1s linear infinite;
+    margin-right: 0.5rem;
+}
+
+@keyframes spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+}

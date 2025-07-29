@@ -1,0 +1,879 @@
+/* Smart Farm Dashboard - Final CSS Version */
+
+/* ===========================
+   1. CSS Variables & Root
+   =========================== */
+:root {
+    /* Color Palette */
+    --primary-green: #10b981;
+    --secondary-green: #059669;
+    --accent-red: #ef4444;
+    --accent-blue: #3b82f6;
+    --accent-orange: #f59e0b;
+    --bg-white: rgba(255, 255, 255, 0.95);
+    --bg-glass: rgba(255, 255, 255, 0.25);
+    --shadow-color: rgba(0, 0, 0, 0.1);
+    --text-primary: #1f2937;
+    --text-secondary: #4b5563;
+    --border-color: rgba(255, 255, 255, 0.3);
+    
+    /* Gradients */
+    --gradient-primary: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    --gradient-success: linear-gradient(135deg, #84fab0 0%, #8fd3f4 100%);
+    --gradient-warning: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+    --gradient-info: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+}
+
+/* ===========================
+   2. Container & Layout
+   =========================== */
+.smartfarm-container {
+    width: 100%;
+    max-width: 1400px;
+    margin: 0 auto;
+    position: relative;
+    padding: 20px;
+    background: linear-gradient(to bottom, #f0f9ff, #e0f2fe);
+    border-radius: 20px;
+    box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1);
+}
+
+/* Background Image with Aspect Ratio */
+.background-image {
+    position: relative;
+    width: 100%;
+    max-width: 1400px;
+    margin: 0 auto;
+    background-size: contain;
+    background-position: center;
+    background-repeat: no-repeat;
+    border-radius: 16px;
+    overflow: hidden;
+    box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.06);
+    
+    /* Aspect Ratio for Modern Browsers */
+    aspect-ratio: 1400 / 900;
+    height: auto !important;
+}
+
+/* Fallback for older browsers */
+@supports not (aspect-ratio: 1) {
+    .background-image {
+        height: 0 !important;
+        padding-bottom: 64.28%; /* 900/1400 * 100 */
+    }
+    
+    .background-image > * {
+        position: absolute;
+    }
+}
+
+/* Background overlay for better contrast */
+.background-image::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: radial-gradient(circle at center, transparent 40%, rgba(0, 0, 0, 0.02) 100%);
+    pointer-events: none;
+}
+
+/* ===========================
+   3. Time Display
+   =========================== */
+.time-display {
+    position: absolute;
+    top: 2%;
+    left: 50%;
+    transform: translateX(-50%);
+    background: var(--bg-glass);
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
+    padding: clamp(8px, 1vw, 12px) clamp(20px, 2vw, 30px);
+    border-radius: 20px;
+    font-weight: 600;
+    color: var(--text-primary);
+    box-shadow: 
+        0 8px 32px rgba(31, 38, 135, 0.15),
+        inset 0 1px 0 rgba(255, 255, 255, 0.6);
+    border: 1px solid var(--border-color);
+    text-align: center;
+    z-index: 100;
+    transition: all 0.3s ease;
+    animation: slideDown 0.6s ease-out;
+    font-size: clamp(0.8rem, 1.2vw, 1rem);
+}
+
+.time-display:hover {
+    transform: translateX(-50%) translateY(-2px);
+    box-shadow: 
+        0 12px 40px rgba(31, 38, 135, 0.2),
+        inset 0 1px 0 rgba(255, 255, 255, 0.8);
+}
+
+#current-date {
+    font-size: clamp(0.9rem, 1.3vw, 1.1rem);
+    color: var(--text-secondary);
+    margin-bottom: 4px;
+    font-weight: 500;
+}
+
+#current-clock {
+    font-size: clamp(1.1rem, 1.8vw, 1.5rem);
+    color: var(--text-primary);
+    font-weight: 700;
+    font-variant-numeric: tabular-nums;
+    letter-spacing: 0.5px;
+}
+
+/* ===========================
+   4. Sensor Styles
+   =========================== */
+.sensor-value {
+    position: absolute;
+    background: var(--bg-glass);
+    backdrop-filter: blur(16px);
+    -webkit-backdrop-filter: blur(16px);
+    padding: clamp(5px, 1vw, 10px) clamp(8px, 1.5vw, 14px);
+    border-radius: 16px;
+    box-shadow: 
+        0 8px 32px rgba(31, 38, 135, 0.12),
+        inset 0 1px 0 rgba(255, 255, 255, 0.5);
+    border: 1px solid var(--border-color);
+    font-size: clamp(0.65rem, 1.2vw, 0.875rem);
+    line-height: 1.4;
+    transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+    min-width: clamp(70px, 8vw, 120px);
+    animation: fadeInScale 0.5s ease-out;
+    animation-fill-mode: both;
+}
+
+/* Stagger animation for sensors */
+.sensor-value:nth-child(1) { animation-delay: 0.1s; }
+.sensor-value:nth-child(2) { animation-delay: 0.15s; }
+.sensor-value:nth-child(3) { animation-delay: 0.2s; }
+.sensor-value:nth-child(4) { animation-delay: 0.25s; }
+.sensor-value:nth-child(5) { animation-delay: 0.3s; }
+.sensor-value:nth-child(6) { animation-delay: 0.35s; }
+.sensor-value:nth-child(7) { animation-delay: 0.4s; }
+.sensor-value:nth-child(8) { animation-delay: 0.45s; }
+.sensor-value:nth-child(9) { animation-delay: 0.5s; }
+.sensor-value:nth-child(10) { animation-delay: 0.55s; }
+.sensor-value:nth-child(11) { animation-delay: 0.6s; }
+.sensor-value:nth-child(12) { animation-delay: 0.65s; }
+.sensor-value:nth-child(13) { animation-delay: 0.7s; }
+.sensor-value:nth-child(14) { animation-delay: 0.75s; }
+.sensor-value:nth-child(15) { animation-delay: 0.8s; }
+.sensor-value:nth-child(16) { animation-delay: 0.85s; }
+
+.sensor-value:hover {
+    transform: translateY(-5px) scale(1.05);
+    box-shadow: 
+        0 20px 40px rgba(31, 38, 135, 0.2),
+        inset 0 1px 0 rgba(255, 255, 255, 0.7);
+    background: rgba(255, 255, 255, 0.35);
+    z-index: 50;
+}
+
+.sensor-value h2 {
+    font-size: clamp(0.7rem, 1.3vw, 0.9rem);
+    margin: 0 0 6px 0;
+    color: var(--secondary-green);
+    font-weight: 700;
+    letter-spacing: 0.5px;
+    text-transform: uppercase;
+    padding-bottom: 6px;
+    border-bottom: 2px solid rgba(16, 185, 129, 0.3);
+    display: flex;
+    align-items: center;
+    gap: 6px;
+}
+
+.sensor-value h2 i {
+    font-size: 0.9em;
+    opacity: 0.8;
+    transition: all 0.3s ease;
+}
+
+.sensor-value:hover h2 i {
+    opacity: 1;
+    transform: scale(1.1);
+}
+
+.sensor-value p {
+    margin: 3px 0;
+    font-size: 0.85rem;
+    color: var(--text-secondary);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.sensor-value strong {
+    color: var(--text-primary);
+    font-weight: 600;
+    font-size: 0.8rem;
+}
+
+.sensor-value .value {
+    font-weight: 700;
+    font-size: clamp(0.8rem, 1.5vw, 1rem);
+    background: linear-gradient(135deg, var(--primary-green), var(--secondary-green));
+    -webkit-background-clip: text;
+    background-clip: text;
+    -webkit-text-fill-color: transparent;
+    color: transparent;
+}
+
+/* Color coding for different sensor types */
+.sensor-value[data-type="moisture"] .value {
+    background: var(--gradient-info);
+    -webkit-background-clip: text;
+    background-clip: text;
+    -webkit-text-fill-color: transparent;
+    color: transparent;
+}
+
+/* NPK specific styling */
+.npk-values {
+    display: flex;
+    gap: 10px;
+    flex-wrap: wrap;
+    margin-top: 4px;
+}
+
+.npk-values p {
+    background: rgba(16, 185, 129, 0.1);
+    padding: clamp(3px, 0.5vw, 4px) clamp(6px, 0.8vw, 8px);
+    border-radius: 8px;
+    margin: 2px 0;
+    font-size: clamp(0.65rem, 1vw, 0.82rem);
+    border: 1px solid rgba(16, 185, 129, 0.2);
+    transition: all 0.3s ease;
+}
+
+.npk-values p:hover {
+    background: rgba(16, 185, 129, 0.2);
+    transform: translateY(-1px);
+}
+
+.npk-values span {
+    white-space: nowrap;
+}
+
+/* Status indicators */
+.sensor-value::before {
+    content: '';
+    position: absolute;
+    top: 8px;
+    right: 8px;
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    background: var(--primary-green);
+    box-shadow: 0 0 0 2px rgba(16, 185, 129, 0.3);
+    animation: pulse-dot 2s infinite;
+}
+
+/* Loading state */
+.sensor-loading {
+    opacity: 0.6;
+    animation: shimmer 1.5s infinite;
+}
+
+.sensor-loading::after {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: -100%;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(
+        90deg,
+        transparent,
+        rgba(255, 255, 255, 0.4),
+        transparent
+    );
+    animation: shimmer-slide 1.5s infinite;
+}
+
+/* Highlighted state */
+.sensor-value.highlighted {
+    background: linear-gradient(135deg, rgba(251, 191, 36, 0.3), rgba(245, 158, 11, 0.3)) !important;
+    border-color: var(--accent-orange) !important;
+    box-shadow: 
+        0 0 0 4px rgba(245, 158, 11, 0.2),
+        0 20px 40px rgba(245, 158, 11, 0.3) !important;
+    transform: scale(1.05);
+}
+
+/* ===========================
+   5. UI Elements
+   =========================== */
+/* Refresh button */
+.refresh-btn {
+    position: fixed !important;
+    top: 20px !important;
+    right: 20px !important;
+    background: var(--gradient-primary) !important;
+    color: white !important;
+    border: none !important;
+    padding: 10px 20px !important;
+    border-radius: 12px !important;
+    font-weight: 600 !important;
+    box-shadow: 0 4px 15px rgba(103, 126, 234, 0.3) !important;
+    transition: all 0.3s ease !important;
+    z-index: 1000 !important;
+}
+
+.refresh-btn:hover {
+    transform: translateY(-2px) !important;
+    box-shadow: 0 6px 20px rgba(103, 126, 234, 0.4) !important;
+}
+
+.refresh-btn:active {
+    transform: translateY(0) !important;
+}
+
+/* Farm indicator */
+.farm-indicator {
+    position: absolute;
+    top: 15px;
+    left: 15px;
+    background: var(--bg-glass);
+    backdrop-filter: blur(10px);
+    padding: 8px 16px;
+    border-radius: 10px;
+    font-size: 0.9rem;
+    font-weight: 700;
+    color: var(--primary-green);
+    border: 1px solid var(--border-color);
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+    animation: slideRight 0.6s ease-out;
+}
+
+/* Enhanced navigation buttons */
+.smartfarm-container > .mb-3 {
+    position: fixed;
+    top: 20px;
+    left: 20px;
+    z-index: 100;
+    display: flex;
+    gap: 10px;
+}
+
+.smartfarm-container > .mb-3 .btn {
+    background: linear-gradient(135deg, #667eea, #764ba2) !important;
+    border: none !important;
+    padding: 10px 20px !important;
+    border-radius: 12px !important;
+    font-weight: 600 !important;
+    box-shadow: 0 4px 15px rgba(103, 126, 234, 0.3) !important;
+    transition: all 0.3s ease !important;
+    color: white !important;
+    text-decoration: none !important;
+}
+
+.smartfarm-container > .mb-3 .btn:hover {
+    transform: translateY(-2px) !important;
+    box-shadow: 0 6px 20px rgba(103, 126, 234, 0.4) !important;
+}
+
+.smartfarm-container > .mb-3 .btn-outline-secondary {
+    background: linear-gradient(135deg, #84fab0, #8fd3f4) !important;
+    box-shadow: 0 4px 15px rgba(132, 250, 176, 0.3) !important;
+}
+
+.smartfarm-container > .mb-3 .btn-outline-secondary:hover {
+    box-shadow: 0 6px 20px rgba(132, 250, 176, 0.4) !important;
+}
+
+/* Page Preloader */
+.page-preloader {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(255, 255, 255, 0.98);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 9999;
+    backdrop-filter: blur(10px);
+}
+
+.preloader-content {
+    text-align: center;
+    animation: fadeInScale 0.5s ease-out;
+}
+
+.preloader-spinner {
+    width: 60px;
+    height: 60px;
+    border: 4px solid #f0f0f0;
+    border-top-color: var(--primary-green);
+    border-radius: 50%;
+    animation: spin 1s linear infinite;
+    margin: 0 auto 20px;
+    box-shadow: 0 0 20px rgba(16, 185, 129, 0.3);
+}
+
+/* ===========================
+   6. Animations
+   =========================== */
+@keyframes fadeInScale {
+    from {
+        opacity: 0;
+        transform: scale(0.9);
+    }
+    to {
+        opacity: 1;
+        transform: scale(1);
+    }
+}
+
+@keyframes slideDown {
+    from {
+        opacity: 0;
+        transform: translateX(-50%) translateY(-20px);
+    }
+    to {
+        opacity: 1;
+        transform: translateX(-50%) translateY(0);
+    }
+}
+
+@keyframes slideRight {
+    from {
+        opacity: 0;
+        transform: translateX(-20px);
+    }
+    to {
+        opacity: 1;
+        transform: translateX(0);
+    }
+}
+
+@keyframes pulse-dot {
+    0%, 100% {
+        transform: scale(1);
+        opacity: 1;
+    }
+    50% {
+        transform: scale(1.5);
+        opacity: 0.7;
+    }
+}
+
+@keyframes shimmer {
+    0%, 100% {
+        opacity: 0.6;
+    }
+    50% {
+        opacity: 0.8;
+    }
+}
+
+@keyframes shimmer-slide {
+    to {
+        left: 100%;
+    }
+}
+
+@keyframes spin {
+    to { transform: rotate(360deg); }
+}
+
+/* ===========================
+   7. Sensor Positions
+   =========================== */
+/* Farm 1 Sensor Positions */
+.farm1 #sensor-5 { top: 3.5%; left: 68%; text-align: center; } /* PM2.5 */
+.farm1 #sensor-3 { top: 3.5%; left: 80%; text-align: center; } /* CO2 */
+
+.farm1 #sensor-1 { top: 85.8%; left: 47%; text-align: left; } /* ความชื้น-R8 หัว */
+.farm1 #sensor-2 { top: 84.6%; left: 18.3%; text-align: left; } /* ค่า NPK-R8 */
+.farm1 #sensor-4 { top: 70%; left: 22%; text-align: center; } /* PPFD-R8 */
+.farm1 #sensor-13 { top: 42.7%; left: 6%; text-align: center; } /* ความชื้น-R8 ท้าย */
+.farm1 #sensor-9 { top: 54.6%; left: 6%; text-align: center; } /* SHT-8 */
+
+.farm1 #sensor-15 { top: 70.1%; left: 65%; text-align: center; } /* ความชื้น-R16 หัว */
+.farm1 #sensor-16 { top: 82%; left: 65%; text-align: center; } /* SHT-R16 */
+.farm1 #sensor-10 { top: 16%; left: 20%; text-align: left; } /* ค่า NPK-R16 */
+.farm1 #sensor-12 { top: 27%; left: 20%; text-align: left; } /* ความชื้น-R16 ท้าย */
+
+.farm1 #sensor-6 { top: 56%; left: 82%; text-align: left; } /* ความชื้น-R24 หัว */
+.farm1 #sensor-7 { top: 68.1%; left: 82%; text-align: left; } /* ค่า NPK-R24 */
+.farm1 #sensor-8 { top: 16%; left: 50%; text-align: right; } /* SHT-R24 */
+.farm1 #sensor-14 { top: 16%; left: 62.5%; text-align: left; } /* ความชื้น-R24 ท้าย */
+.farm1 #sensor-11 { top: 16%; left: 76.5%; text-align: left; } /* PPFD-R24 */
+
+/* Farm 2 Sensor Positions */
+.farm2 #sensor-1 { top: 63%; left: 23%; text-align: right; } /* ความชื้น-R8 */
+.farm2 #sensor-2 { top: 75.3%; left: 11%; text-align: right; } /* ค่า NPK-R8 */
+.farm2 #sensor-3 { top: 14%; left: 22.2%; text-align: center; } /* CO2 */
+.farm2 #sensor-4 { top: 14%; left: 60%; text-align: left; } /* PPFD-R24 */
+.farm2 #sensor-5 { top: 14%; left: 11.5%; text-align: center; } /* PM2.5 */
+.farm2 #sensor-6 { top: 25%; left: 68%; text-align: right; } /* ความชื้น-R24 */
+.farm2 #sensor-7 { top: 25%; left: 78%; text-align: left; } /* ค่า NPK-R24 */
+.farm2 #sensor-8 { top: 14%; left: 50%; text-align: right; } /* SHT-R24 */
+.farm2 #sensor-9 { top: 79%; left: 50%; text-align: center; } /* SHT-8 */
+.farm2 #sensor-10 { top: 68.5%; left: 65%; text-align: left; } /* ค่า NPK-R16 */
+.farm2 #sensor-11 { top: 76.8%; left: 65%; text-align: left; } /* PPFD-R16 */
+
+/* ===========================
+   8. Responsive Design
+   =========================== */
+/* Tablet (768px - 1024px) */
+@media (min-width: 768px) and (max-width: 1024px) {
+    .sensor-value {
+        transform: scale(0.9);
+        transform-origin: top left;
+    }
+}
+
+/* Mobile (< 768px) */
+@media (max-width: 768px) {
+    .smartfarm-container {
+        padding: 10px;
+        border-radius: 12px;
+    }
+    
+    .background-image {
+        display: flex;
+        flex-direction: column;
+        aspect-ratio: unset;
+        height: auto !important;
+        min-height: 100vh;
+        padding: 20px 10px;
+        background-size: cover;
+        background-position: center top;
+        border-radius: 8px;
+    }
+    
+    /* Mobile sensor grid */
+    .sensor-value {
+        position: relative !important;
+        top: auto !important;
+        left: auto !important;
+        margin: 5px !important;
+        display: inline-block;
+        width: calc(50% - 10px);
+        transform: none !important;
+        font-size: 0.7rem;
+        padding: 6px 10px;
+        min-width: 80px;
+        border-radius: 10px;
+    }
+    
+    /* Full width for complex sensors */
+    .sensor-value:has(.npk-values),
+    .sensor-value:has(p:nth-child(3)) {
+        width: calc(100% - 10px);
+    }
+    
+    .sensor-value h2 {
+        font-size: 0.75rem;
+        margin-bottom: 4px;
+    }
+    
+    .sensor-value h2 i {
+        display: none;
+    }
+    
+    .sensor-value p {
+        font-size: 0.7rem;
+    }
+    
+    .sensor-value .value {
+        font-size: 0.85rem;
+    }
+    
+    /* Hide position indicators on mobile */
+    .sensor-value::before {
+        display: none;
+    }
+    
+    .time-display {
+        padding: 8px 20px;
+        border-radius: 12px;
+    }
+    
+    #current-date {
+        font-size: 0.9rem;
+    }
+    
+    #current-clock {
+        font-size: 1.1rem;
+    }
+    
+    /* Adjust navigation buttons */
+    .smartfarm-container > .mb-3 {
+        position: relative !important;
+        display: flex;
+        justify-content: center;
+        flex-wrap: wrap;
+        margin-bottom: 10px;
+    }
+    
+    .smartfarm-container > .mb-3 .btn {
+        font-size: 0.85rem !important;
+        padding: 8px 16px !important;
+    }
+    
+    .refresh-btn {
+        padding: 8px 16px !important;
+        font-size: 0.85rem !important;
+    }
+    
+    .npk-values {
+        gap: 6px;
+    }
+    
+    .npk-values p {
+        padding: 3px 6px;
+        font-size: 0.7rem;
+    }
+    
+    /* Control buttons */
+    .dark-mode-toggle,
+    .auto-refresh-toggle {
+        width: 40px !important;
+        height: 40px !important;
+        font-size: 1.2rem !important;
+    }
+    
+    .auto-refresh-toggle {
+        bottom: 60px !important;
+        font-size: 0.75rem !important;
+        padding: 6px 12px !important;
+    }
+}
+
+/* Small Mobile (< 480px) */
+@media (max-width: 480px) {
+    .background-image {
+        min-height: auto;
+    }
+    
+    .sensor-value {
+        font-size: 0.65rem;
+        padding: 5px 8px;
+        min-width: 70px;
+    }
+    
+    .sensor-value h2 {
+        font-size: 0.7rem;
+    }
+    
+    .sensor-value .value {
+        font-size: 0.8rem;
+    }
+    
+    /* Stack NPK values vertically */
+    .npk-values {
+        flex-direction: column;
+        gap: 4px;
+    }
+    
+    .npk-values p {
+        width: 100%;
+        text-align: center;
+    }
+}
+
+/* Large screens */
+@media (min-width: 1400px) {
+    .background-image {
+        margin: 0 auto;
+        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+        border-radius: 20px;
+    }
+}
+
+/* ===========================
+   9. Special States
+   =========================== */
+/* Print styles */
+@media print {
+    .smartfarm-container {
+        background: white;
+        box-shadow: none;
+    }
+    
+    .background-image {
+        aspect-ratio: 1400 / 900;
+        max-width: 100%;
+        page-break-inside: avoid;
+    }
+    
+    .sensor-value {
+        background: white !important;
+        border: 2px solid #000 !important;
+        box-shadow: none !important;
+    }
+    
+    .refresh-btn,
+    .smartfarm-container > .mb-3,
+    .dark-mode-toggle,
+    .auto-refresh-toggle,
+    .farm-indicator {
+        display: none !important;
+    }
+    
+    .sensor-value::before {
+        display: none;
+    }
+}
+
+/* Dark mode */
+@media (prefers-color-scheme: dark) {
+    :root {
+        --bg-glass: rgba(30, 30, 30, 0.6);
+        --text-primary: #f9fafb;
+        --text-secondary: #d1d5db;
+        --border-color: rgba(255, 255, 255, 0.1);
+        --shadow-color: rgba(0, 0, 0, 0.3);
+    }
+    
+    .smartfarm-container {
+        background: linear-gradient(to bottom, #0f172a, #1e293b);
+    }
+    
+    .sensor-value {
+        background: var(--bg-glass);
+        border-color: var(--border-color);
+    }
+    
+    .time-display {
+        background: var(--bg-glass);
+        border-color: var(--border-color);
+    }
+}
+
+.dark-mode {
+    background: #1a1a1a;
+    color: white;
+}
+
+.dark-mode .smartfarm-container {
+    background: linear-gradient(to bottom, #0f172a, #1e293b);
+}
+
+.dark-mode .sensor-value,
+.dark-mode .time-display {
+    background: rgba(30, 30, 30, 0.8);
+    color: white;
+}
+
+.dark-mode .sensor-value h2 {
+    color: #34d399;
+    border-bottom-color: rgba(52, 211, 153, 0.3);
+}
+
+.dark-mode .sensor-value strong,
+.dark-mode .sensor-value p {
+    color: #e5e7eb;
+}
+
+/* Accessibility */
+@media (prefers-reduced-motion: reduce) {
+    * {
+        animation-duration: 0.01ms !important;
+        animation-iteration-count: 1 !important;
+        transition-duration: 0.01ms !important;
+    }
+}
+
+/* High contrast mode */
+@media (prefers-contrast: high) {
+    .sensor-value {
+        border-width: 2px;
+        font-weight: 600;
+    }
+    
+    .sensor-value .value {
+        -webkit-text-fill-color: var(--accent-red);
+        color: var(--accent-red);
+        background: none !important;
+        -webkit-background-clip: unset;
+        background-clip: unset;
+    }
+}
+
+/* Mobile sensor grid layout */
+.mobile-sensor-grid {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+    padding: 10px;
+    justify-content: center;
+}
+
+.sensor-category-header {
+    width: 100%;
+    padding: 10px;
+    margin: 10px 0 5px 0;
+    background: rgba(16, 185, 129, 0.1);
+    border-radius: 8px;
+    font-weight: 600;
+    color: #10b981;
+    text-align: center;
+}
+
+/* Enhanced button styles */
+.btn-primary {
+    background: linear-gradient(135deg, #667eea, #764ba2) !important;
+    border: none !important;
+    transition: all 0.3s ease !important;
+}
+
+.btn-primary:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 20px rgba(103, 126, 234, 0.4) !important;
+}
+
+/* แบบ Modern Style - NPK-R24 แนวดิ่ง */
+#sensor-7 .npk-values {
+    display: flex;
+    flex-direction: column;
+    gap: 5px;
+    margin-top: 6px;
+}
+
+#sensor-7 .npk-values p {
+    background: rgba(16, 185, 129, 0.15);
+    padding: 5px 10px;
+    border-radius: 6px;
+    margin: 0;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    border-left: 3px solid rgba(16, 185, 129, 0.5);
+    transition: all 0.2s ease;
+}
+
+#sensor-7 .npk-values p:hover {
+    background: rgba(16, 185, 129, 0.25);
+    border-left-color: rgba(16, 185, 129, 0.8);
+    transform: translateX(2px);
+}
+
+#sensor-7 .npk-values p strong {
+    color: var(--secondary-green);
+    font-weight: 700;
+    min-width: 20px;
+}
+
+#sensor-7 .npk-values p .value {
+    font-weight: 700;
+    margin-left: auto;
+}
+
+/* ปรับขนาดกล่องให้พอดี */
+#sensor-7 {
+    min-width: 150px;
+}

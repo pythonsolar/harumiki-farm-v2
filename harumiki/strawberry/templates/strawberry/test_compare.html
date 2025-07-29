@@ -1,0 +1,217 @@
+{% extends 'strawberry/base.html' %}
+{% load static %}
+
+{% block title %}Test Compare Functionality{% endblock %}
+
+{% block content %}
+<div class="container mt-5">
+    <h1>🧪 Test Compare Functionality</h1>
+    
+    <!-- Test Basic Form -->
+    <div class="card mb-4">
+        <div class="card-body">
+            <h3>Basic Form Test</h3>
+            
+            <div class="row">
+                <div class="col-md-6">
+                    <label class="form-label">Chart Type:</label>
+                    <select id="testChartSelect" class="form-select">
+                        <option value="" disabled selected>Choose a chart...</option>
+                        <option value="pm">🌫️ PM 2.5</option>
+                        <option value="co2">🫧 Carbon dioxide</option>
+                        <option value="ec">⚡ Electrical Conductivity</option>
+                        <option value="luxuv">☀️ LUX & UV</option>
+                        <option value="nitrogen">🌱 Nitrogen</option>
+                    </select>
+                </div>
+                <div class="col-md-6">
+                    <label class="form-label">&nbsp;</label>
+                    <button type="button" id="testLoadBtn" class="btn btn-primary w-100" disabled>
+                        <i class="bi bi-play-fill me-1"></i>
+                        Load Chart
+                    </button>
+                </div>
+            </div>
+            
+            <div class="mt-3">
+                <button type="button" id="debugBtn" class="btn btn-info me-2">
+                    <i class="bi bi-bug"></i>
+                    Run Debug Checks
+                </button>
+                <button type="button" id="clearLogBtn" class="btn btn-warning">
+                    <i class="bi bi-trash"></i>
+                    Clear Log
+                </button>
+                <a href="{% url 'compare' %}" class="btn btn-success">
+                    <i class="bi bi-arrow-left"></i>
+                    Back to Compare
+                </a>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Debug Log -->
+    <div class="card">
+        <div class="card-body">
+            <h3>🔍 Debug Log</h3>
+            <pre id="debugLog" class="bg-dark text-light p-3" style="max-height: 400px; overflow-y: auto; font-size: 0.9rem;"></pre>
+        </div>
+    </div>
+</div>
+
+<script>
+// Debug utilities
+const debugLog = document.getElementById('debugLog');
+
+function log(message) {
+    const timestamp = new Date().toLocaleTimeString();
+    debugLog.textContent += `[${timestamp}] ${message}\n`;
+    debugLog.scrollTop = debugLog.scrollHeight;
+    console.log(message);
+}
+
+// Initialize test
+document.addEventListener('DOMContentLoaded', function() {
+    log('🚀 DOM loaded');
+    log('📊 Chart.js available: ' + (typeof Chart !== 'undefined'));
+    if (typeof Chart !== 'undefined') {
+        log('📊 Chart.js version: ' + Chart.version);
+    }
+    
+    // Test elements
+    const chartSelect = document.getElementById('testChartSelect');
+    const loadBtn = document.getElementById('testLoadBtn');
+    const debugBtn = document.getElementById('debugBtn');
+    const clearLogBtn = document.getElementById('clearLogBtn');
+    
+    log('🔍 Elements found: ' + JSON.stringify({
+        chartSelect: !!chartSelect,
+        loadBtn: !!loadBtn,
+        debugBtn: !!debugBtn,
+        clearLogBtn: !!clearLogBtn
+    }));
+    
+    // Test event listeners
+    if (chartSelect && loadBtn) {
+        chartSelect.addEventListener('change', function() {
+            const value = this.value;
+            loadBtn.disabled = !value;
+            log('📈 Chart selected: ' + value);
+        });
+        
+        loadBtn.addEventListener('click', function() {
+            const selectedChart = chartSelect.value;
+            log('🔥 Load button clicked! Selected: ' + selectedChart);
+            
+            if (selectedChart) {
+                testAPICall(selectedChart);
+            }
+        });
+    }
+    
+    // Debug button
+    debugBtn.addEventListener('click', function() {
+        log('🔧 Running debug checks...');
+        log('✅ Chart.js: ' + (typeof Chart !== 'undefined'));
+        log('✅ Fetch API: ' + (typeof fetch !== 'undefined'));
+        log('✅ Current URL: ' + window.location.href);
+        log('✅ User Agent: ' + navigator.userAgent.slice(0, 50) + '...');
+        
+        // Test CSRF token
+        const csrfToken = getCookie('csrftoken');
+        log('✅ CSRF Token: ' + (csrfToken ? 'Available' : 'Not found'));
+        
+        // Test chart data element
+        const dataElement = document.getElementById('chart-data');
+        log('✅ Chart data element: ' + !!dataElement);
+        
+        if (dataElement) {
+            log('📅 Date range: ' + dataElement.getAttribute('data-date-range'));
+            log('📅 Month: ' + dataElement.getAttribute('data-month'));
+            log('📅 Year: ' + dataElement.getAttribute('data-year'));
+        }
+    });
+    
+    // Clear log button
+    clearLogBtn.addEventListener('click', function() {
+        debugLog.textContent = '';
+        log('🧹 Log cleared');
+    });
+});
+
+// Test API call
+async function testAPICall(chartType) {
+    log('🌐 Testing API call for: ' + chartType);
+    
+    const params = new URLSearchParams({
+        chart_type: chartType,
+        month: '10',
+        year: '2024',
+        start_date: '2024-11-01',
+        end_date: '2024-11-30'
+    });
+    
+    const url = '/api/compare-chart-data/?' + params;
+    log('📡 Request URL: ' + url);
+    
+    try {
+        const csrfToken = getCookie('csrftoken');
+        
+        const response = await fetch(url, {
+            method: 'GET',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-Requested-With': 'XMLHttpRequest',
+                'X-CSRFToken': csrfToken || ''
+            }
+        });
+        
+        log('📨 Response status: ' + response.status + ' ' + response.statusText);
+        
+        if (!response.ok) {
+            const errorText = await response.text();
+            log('❌ Response error: ' + errorText.slice(0, 200));
+            throw new Error(`HTTP error! status: ${response.status}`);
+        }
+        
+        const data = await response.json();
+        log('✅ API Response status: ' + data.status);
+        log('✅ Data keys: ' + Object.keys(data.data || {}).join(', '));
+        
+        // Show data sample
+        if (data.data) {
+            const firstKey = Object.keys(data.data)[0];
+            if (firstKey && Array.isArray(data.data[firstKey])) {
+                log('📊 Sample data points: ' + data.data[firstKey].length);
+            }
+        }
+        
+    } catch (error) {
+        log('❌ API Error: ' + error.message);
+    }
+}
+
+// Utility function to get CSRF token
+function getCookie(name) {
+    let cookieValue = null;
+    if (document.cookie && document.cookie !== '') {
+        const cookies = document.cookie.split(';');
+        for (let i = 0; i < cookies.length; i++) {
+            const cookie = cookies[i].trim();
+            if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                break;
+            }
+        }
+    }
+    return cookieValue;
+}
+</script>
+
+<!-- Add chart data element for testing -->
+<div id="chart-data" class="d-none" 
+     data-date-range="2024-11-01|2024-11-30"
+     data-month="10"
+     data-year="2024">
+</div>
+{% endblock %}
