@@ -38,7 +38,7 @@
     height: 100vh;
     margin: 0 auto;
     position: relative;
-    padding: 20px;
+    padding: 1.5vw;
     background: linear-gradient(to bottom, #f0f9ff, #e0f2fe);
     display: flex;
     align-items: center;
@@ -46,20 +46,23 @@
     overflow: hidden;
 }
 
-/* Scaling Wrapper - This is the key! */
+/* Responsive Wrapper - No complex scaling needed! */
 .scaling-wrapper {
     position: relative;
-    width: var(--base-width);
-    height: var(--base-height);
+    width: 100%;
+    max-width: min(90vw, 90vh * var(--aspect-ratio));
+    height: calc(100vw / var(--aspect-ratio));
+    max-height: 90vh;
     transform-origin: center center;
-    transition: transform 0.3s ease;
+    transition: all 0.3s ease;
 }
 
-/* Background Image Container with Fixed Dimensions */
+/* Background Image Container - Fully Responsive */
 .background-image {
-    position: absolute;
+    position: relative;
     width: 100%;
-    height: 100%;
+    height: 0;
+    padding-bottom: calc(100% / var(--aspect-ratio)); /* Maintain aspect ratio */
     background-size: contain;
     background-position: center;
     background-repeat: no-repeat;
@@ -81,11 +84,11 @@
 }
 
 /* ===========================
-   3. Time Display - Fixed Position
+   3. Time Display - Fixed Position (UPDATED)
    =========================== */
 .time-display {
     position: absolute;
-    top: 2%;
+    top: 3%; /* ปรับให้อยู่ระดับเดียวกับ PM2.5 และ CO2 */
     left: 50%;
     transform: translateX(-50%);
     background: var(--bg-glass);
@@ -107,11 +110,63 @@
     white-space: nowrap;
 }
 
+/* Responsive adjustments for time display */
+@media screen and (max-width: 1366px) {
+    /* สำหรับจอ 14 นิ้ว */
+    .time-display {
+        top: 3%; /* คงระดับเดียวกันทุกขนาดจอ */
+        font-size: 0.9rem;
+        padding: 10px 25px;
+    }
+    
+    #current-clock {
+        font-size: 1rem !important;
+    }
+}
+
+@media screen and (min-width: 1920px) {
+    /* สำหรับจอ 24 นิ้ว */
+    .time-display {
+        top: 3%; /* คงระดับเดียวกันทุกขนาดจอ */
+        padding: 14px 35px;
+    }
+    
+    #current-clock {
+        font-size: 1.1rem !important;
+    }
+}
+
+/* สำหรับจอที่มีความสูงน้อย */
+@media screen and (max-height: 768px) {
+    .time-display {
+        top: 3%; /* คงระดับเดียวกันทุกขนาดจอ */
+    }
+}
+
 .time-display:hover {
     transform: translateX(-50%) translateY(-2px);
     box-shadow: 
         0 12px 40px rgba(31, 38, 135, 0.2),
         inset 0 1px 0 rgba(255, 255, 255, 0.8);
+}
+
+/* จัดแนวให้ตรงกับ sensor boxes */
+.time-display {
+    display: inline-flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    min-height: 80px; /* ให้มีความสูงใกล้เคียงกับ sensor boxes */
+}
+
+#last-update-label {
+    font-size: 0.9rem;
+    color: var(--primary-green);
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    margin-bottom: 2px;
+    opacity: 0.9;
 }
 
 #current-date {
@@ -122,7 +177,7 @@
 }
 
 #current-clock {
-    font-size: 1.5rem;
+    font-size: 1.1rem;
     color: var(--text-primary);
     font-weight: 700;
     font-variant-numeric: tabular-nums;
@@ -321,56 +376,88 @@
    5. Fixed Sensor Positions - FINAL POSITIONS
    =========================== */
 
-/* Farm 1 Sensor Positions - With !important to override any conflicts */
-.farm1 #sensor-5 { position: absolute !important; top: 50px !important; left: 950px !important; } /* PM2.5 - top right */
-.farm1 #sensor-3 { position: absolute !important; top: 50px !important; left: 1120px !important; } /* CO2 - top right */
+/* Farm 1 Sensor Positions - Responsive Percentage-based (Restructured like Farm 2) */
+/* Base calculations: 1400px width x 900px height */
+/* 
+   RESTRUCTURED TO MATCH FARM 2 FORMAT:
+   - Sensor count reduced from 16 to 12
+   - Moisture sensors combined (หัว+ท้าย in same sensor)
+   - Same structure as Farm 2 for consistency
+   - Positions kept the same as original Farm 1 design
+*/
+.farm1 #sensor-5 { position: absolute; top: 5.56%; left: 67.86%; } /* PM2.5 - top right (50px / 900px = 5.56%, 950px / 1400px = 67.86%) */
+.farm1 #sensor-3 { position: absolute; top: 5.56%; left: 80%; } /* CO2 - top right (50px / 900px = 5.56%, 1120px / 1400px = 80%) */
 
-/* R8 Section - Bottom area */
-.farm1 #sensor-1 { position: absolute !important; top: 759px !important; left: 660px !important; } /* ความชื้น-R8 หัว */
-.farm1 #sensor-2 { position: absolute !important; top: 670px !important; left: 505px !important; } /* ค่า NPK-R8 */
-.farm1 #sensor-4 { position: absolute !important; top: 630px !important; left: 350px !important; } /* PPFD-R8 */
-.farm1 #sensor-13 { position: absolute !important; top: 430px !important; left: 105px !important; } /* ความชื้น-R8 ท้าย */
-.farm1 #sensor-9 { position: absolute !important; top: 513px !important; left: 105px !important; } /* SHT-8 */
+/* R8 Section - Now combined humidity */
+.farm1 #sensor-1 { position: absolute; top: 81%; left: 51%; } /* ความชื้น-R8 หัว+ท้าย (759px / 900px = 84.33%, 660px / 1400px = 47.14%) */
+.farm1 #sensor-2 { position: absolute; top: 69%; left: 36.07%; } /* ค่า NPK-R8 (670px / 900px = 74.44%, 505px / 1400px = 36.07%) */
+.farm1 #sensor-4 { position: absolute; top: 60%; left: 23.5%; } /* PPFD-R8 (630px / 900px = 70%, 350px / 1400px = 25%) */
+.farm1 #sensor-9 { position: absolute; top: 49%; left: 7%; } /* SHT-8 (513px / 900px = 57%, 105px / 1400px = 7.5%) */
 
-/* R16 Section - Middle area */
-.farm1 #sensor-15 { position: absolute !important; top: 660px !important; left: 900px !important; } /* ความชื้น-R16 หัว */
-.farm1 #sensor-16 { position: absolute !important; top: 742px !important; left: 900px !important; } /* SHT-R16 */
-.farm1 #sensor-10 { position: absolute !important; top: 160px !important; left: 260px !important; } /* ค่า NPK-R16 */
-.farm1 #sensor-12 { position: absolute !important; top: 247px !important; left: 111px !important; } /* ความชื้น-R16 ท้าย */
+/* R16 Section - Now combined humidity */
+.farm1 #sensor-12 { position: absolute; top: 65%; left: 64.29%; } /* ความชื้น-R16 หัว+ท้าย (660px / 900px = 73.33%, 900px / 1400px = 64.29%) */
+.farm1 #sensor-10 { position: absolute; top: 9%; left: 15%; } /* ค่า NPK-R16 (160px / 900px = 17.78%, 260px / 1400px = 18.57%) */
 
-/* R24 Section - Top area */
-.farm1 #sensor-6 { position: absolute !important; top: 510px !important; left: 1140px !important; } /* ความชื้น-R24 หัว */
-.farm1 #sensor-7 { position: absolute !important; top: 592px !important; left: 1140px !important; } /* ค่า NPK-R24 */
-.farm1 #sensor-8 { position: absolute !important; top: 160px !important; left: 697px !important; } /* SHT-R24 */
-.farm1 #sensor-14 { position: absolute !important; top: 160px !important; left: 830px !important; } /* ความชื้น-R24 ท้าย */
-.farm1 #sensor-11 { position: absolute !important; top: 160px !important; left: 980px !important; } /* PPFD-R24 */
+/* R24 Section - Now combined humidity */
+.farm1 #sensor-6 { position: absolute; top: 45%; left: 81.43%; } /* ความชื้น-R24 หัว+ท้าย (510px / 900px = 56.67%, 1140px / 1400px = 81.43%) */
+.farm1 #sensor-7 { position: absolute; top: 61%; left: 81.43%; } /* ค่า NPK-R24 (592px / 900px = 65.78%, 1140px / 1400px = 81.43%) */
+.farm1 #sensor-8 { position: absolute; top: 17.78%; left: 57%; } /* SHT-R24 (160px / 900px = 17.78%, 697px / 1400px = 49.79%) */
+.farm1 #sensor-11 { position: absolute; top: 17.78%; left: 70%; } /* PPFD-R24 (160px / 900px = 17.78%, 980px / 1400px = 70%) */
 
-/* Farm 2 Sensor Positions - With !important to override any conflicts */
-.farm2 #sensor-3 { position: absolute !important; top: 50px !important; left: 950px !important; } /* CO2 */
-.farm2 #sensor-5 { position: absolute !important; top: 50px !important; left: 1120px !important; } /* PM2.5 */
+/* Farm 2 Sensor Positions - Responsive Percentage-based */
+/* Base calculations: 1400px width x 900px height */
+.farm2 #sensor-3 { position: absolute; top: 5.56%; left: 67.86%; } /* CO2 (50px / 900px = 5.56%, 950px / 1400px = 67.86%) */
+.farm2 #sensor-5 { position: absolute; top: 5.56%; left: 80%; } /* PM2.5 (50px / 900px = 5.56%, 1120px / 1400px = 80%) */
 
-.farm2 #sensor-1 { position: absolute !important; top: 600px !important; left: 370px !important; } /* ความชื้น-R8 */
-.farm2 #sensor-2 { position: absolute !important; top: 600px !important; left: 215px !important; } /* ค่า NPK-R8 */
-.farm2 #sensor-9 { position: absolute !important; top: 715px !important; left: 700px !important; } /* SHT-8 */
+.farm2 #sensor-1 { position: absolute; top: 66.67%; left: 26.43%; } /* ความชื้น-R8 (600px / 900px = 66.67%, 370px / 1400px = 26.43%) */
+.farm2 #sensor-2 { position: absolute; top: 66.67%; left: 11.7%; } /* ค่า NPK-R8 (600px / 900px = 66.67%, 215px / 1400px = 15.36%) */
+.farm2 #sensor-9 { position: absolute; top: 79.44%; left: 50%; } /* SHT-8 (715px / 900px = 79.44%, 700px / 1400px = 50%) */
 
-.farm2 #sensor-10 { position: absolute !important; top: 620px !important; left: 900px !important; } /* ค่า NPK-R16 */
-.farm2 #sensor-11 { position: absolute !important; top: 620px !important; left: 1055px !important; } /* PPFD-R16 */
+.farm2 #sensor-10 { position: absolute; top: 68.89%; left: 65.2%; } /* ค่า NPK-R16 (620px / 900px = 68.89%, 900px / 1400px = 64.29%) */
+.farm2 #sensor-11 { position: absolute; top: 68.89%; left: 80%; } /* PPFD-R16 (620px / 900px = 68.89%, 1055px / 1400px = 75.36%) */
 
-.farm2 #sensor-6 { position: absolute !important; top: 210px !important; left: 950px !important; } /* ความชื้น-R24 */
-.farm2 #sensor-7 { position: absolute !important; top: 210px !important; left: 1100px !important; } /* ค่า NPK-R24 */
-.farm2 #sensor-8 { position: absolute !important; top: 130px !important; left: 470px !important; } /* SHT-R24 */
-.farm2 #sensor-4 { position: absolute !important; top: 130px !important; left: 337px !important; } /* PPFD-R24 */
+.farm2 #sensor-6 { position: absolute; top: 23.33%; left: 67.86%; } /* ความชื้น-R24 (210px / 900px = 23.33%, 950px / 1400px = 67.86%) */
+.farm2 #sensor-7 { position: absolute; top: 23.33%; left: 82.1%; } /* ค่า NPK-R24 (210px / 900px = 23.33%, 1100px / 1400px = 78.57%) */
+.farm2 #sensor-8 { position: absolute; top: 16.5%; left: 33.57%; } /* SHT-R24 (130px / 900px = 14.44%, 470px / 1400px = 33.57%) */
+.farm2 #sensor-4 { position: absolute; top: 16.5%; left: 21.07%; } /* PPFD-R24 (130px / 900px = 14.44%, 337px / 1400px = 24.07%) */
 
 /* Special styling for edge sensors */
 .farm1 #sensor-6,
 .farm1 #sensor-7,
 .farm1 #sensor-2,
 .farm1 #sensor-10,
+.farm1 #sensor-12,
 .farm2 #sensor-6,
 .farm2 #sensor-7,
 .farm2 #sensor-2,
 .farm2 #sensor-10 {
     max-width: 150px;
+}
+
+/* Ensure consistent styling for both farms */
+.farm1 .sensor-value,
+.farm2 .sensor-value {
+    /* Same base styles for both farms */
+    background: var(--bg-glass);
+    backdrop-filter: blur(16px);
+    -webkit-backdrop-filter: blur(16px);
+    border: 1px solid var(--border-color);
+}
+
+/* Consistent NPK sensor widths for both farms */
+.farm1 #sensor-2, .farm1 #sensor-7, .farm1 #sensor-10,
+.farm2 #sensor-2, .farm2 #sensor-7, .farm2 #sensor-10 {
+    min-width: 150px;
+}
+
+
+
+/* Consistent time display for both farms */
+.farm1 .time-display,
+.farm2 .time-display {
+    top: 4%;
+    left: 50%;
+    transform: translateX(-50%);
 }
 
 /* Edge sensor indicator */
@@ -527,37 +614,76 @@
     .smartfarm-container {
         height: auto;
         min-height: 100vh;
-        padding: 10px;
+        padding: 3vw;
+        align-items: flex-start;
     }
     
     .scaling-wrapper {
         width: 100%;
+        max-width: none;
         height: auto;
-        transform: none !important;
     }
     
     .background-image {
         position: relative;
         width: 100%;
         height: auto;
-        min-height: 600px;
+        padding-bottom: 56.25%; /* 16:9 aspect ratio for mobile */
         background-size: cover;
-        background-position: top center;
+        background-position: center;
+        display: flex;
+        flex-wrap: wrap;
+        align-content: flex-start;
+        justify-content: center;
+        gap: 8px;
+        padding: 15px;
+        box-sizing: border-box;
     }
     
     .sensor-value {
         position: relative !important;
         top: auto !important;
         left: auto !important;
-        display: inline-block;
-        width: calc(50% - 10px);
-        margin: 5px;
-        transform: none !important;
+        flex: 0 0 calc(50% - 4px);
+        max-width: calc(50% - 4px);
+        margin: 0;
+        font-size: 0.7rem;
+        padding: 8px 10px;
+        min-width: auto;
     }
     
-    .sensor-value:has(.npk-values),
-    .sensor-value:has(p:nth-child(3)) {
-        width: calc(100% - 10px);
+    /* Full width for NPK sensors on mobile */
+    .sensor-value:has(.npk-values) {
+        flex: 0 0 100%;
+        max-width: 100%;
+    }
+    
+    .sensor-value h2 {
+        font-size: 0.75rem !important;
+        margin-bottom: 4px;
+    }
+    
+    .sensor-value p {
+        font-size: 0.65rem !important;
+        margin: 2px 0;
+    }
+    
+    .npk-values p {
+        padding: 3px 6px;
+        font-size: 0.6rem !important;
+    }
+    
+    /* Responsive time display */
+    .time-display {
+        position: relative;
+        top: auto;
+        left: auto;
+        transform: none;
+        order: -1;
+        flex: 0 0 100%;
+        margin-bottom: 10px;
+        font-size: 0.8rem;
+        padding: 8px 15px;
     }
 }
 
@@ -762,4 +888,72 @@
 /* Special styling for NPK-R24 sensor */
 #sensor-7 {
     min-width: 150px;
+}
+
+/* ===========================
+   12. Responsive Utilities & Performance
+   =========================== */
+/* Responsive text sizing */
+.responsive-text {
+    font-size: clamp(0.75rem, 2vw, 1rem);
+}
+
+.responsive-text-sm {
+    font-size: clamp(0.65rem, 1.5vw, 0.85rem);
+}
+
+.responsive-text-lg {
+    font-size: clamp(0.9rem, 2.5vw, 1.2rem);
+}
+
+/* Responsive spacing */
+.responsive-padding {
+    padding: clamp(8px, 2vw, 16px);
+}
+
+.responsive-margin {
+    margin: clamp(4px, 1vw, 10px);
+}
+
+/* Responsive widths */
+.responsive-width {
+    width: clamp(100px, 15vw, 200px);
+}
+
+/* Hide utilities */
+@media (max-width: 767px) {
+    .hide-mobile {
+        display: none;
+    }
+}
+
+@media (min-width: 768px) {
+    .hide-desktop {
+        display: none;
+    }
+}
+
+/* Responsive flex */
+.responsive-flex {
+    display: flex;
+    flex-wrap: wrap;
+    gap: clamp(5px, 1vw, 15px);
+}
+
+.responsive-flex > * {
+    flex: 1 1 clamp(120px, 25%, 200px);
+}
+
+/* Performance optimizations */
+.sensor-value {
+    contain: layout style;
+    will-change: auto;
+}
+
+.sensor-value:hover {
+    will-change: transform, box-shadow;
+}
+
+.sensor-value:not(:hover) {
+    will-change: auto;
 }

@@ -9,7 +9,7 @@
 <style>
     .farm1-background {
         background-image: url("{% static 'images/new harumiki-v02-farm1.png' %}");
-        background-position: center calc(50% + 50px); /* ขยับลง 30px */
+        {% comment %} background-position: center calc(50% + 50px); /* ขยับลง 30px */ {% endcomment %}
     }
 </style>
 {% endblock %}
@@ -26,16 +26,18 @@
     </div>
 
     <div class="background-image farm1 farm1-background">
-        <!-- Time Display -->
+        <!-- Last Update Time Display -->
         <div id="current-time" class="time-display">
+            <div id="last-update-label">ข้อมูลล่าสุด</div>
             <div id="current-date"></div>
             <div id="current-clock"></div>
         </div>
         
-        <!-- Sensor Values -->
+        <!-- Sensor Values - Restructured like Farm 2 -->
         <div id="sensor-1" class="sensor-value" data-type="moisture">
             <h2>ความชื้น-R8</h2>
             <p><strong>หัว:</strong> <span class="value">{{ soil7|default:"0" }}</span>%</p>
+            <p><strong>ท้าย:</strong> <span class="value">{{ soil8|default:"0" }}</span>%</p>
         </div>
         
         <div id="sensor-2" class="sensor-value">
@@ -65,6 +67,7 @@
         <div id="sensor-6" class="sensor-value" data-type="moisture">
             <h2>ความชื้น-R24</h2>
             <p><strong>หัว:</strong> <span class="value">{{ soil11|default:"0" }}</span>%</p>
+            <p><strong>ท้าย:</strong> <span class="value">{{ soil12|default:"0" }}</span>%</p>
         </div>
         
         <div id="sensor-7" class="sensor-value">
@@ -104,28 +107,8 @@
         
         <div id="sensor-12" class="sensor-value" data-type="moisture">
             <h2>ความชื้น-R16</h2>
-            <p><strong>ท้าย:</strong> <span class="value">{{ soil10|default:"0" }}</span>%</p>
-        </div>
-        
-        <div id="sensor-13" class="sensor-value" data-type="moisture">
-            <h2>ความชื้น-R8</h2>
-            <p><strong>ท้าย:</strong> <span class="value">{{ soil8|default:"0" }}</span>%</p>
-        </div>
-        
-        <div id="sensor-14" class="sensor-value" data-type="moisture">
-            <h2>ความชื้น-R24</h2>
-            <p><strong>ท้าย:</strong> <span class="value">{{ soil12|default:"0" }}</span>%</p>
-        </div>
-        
-        <div id="sensor-15" class="sensor-value" data-type="moisture">
-            <h2>ความชื้น-R16</h2>
             <p><strong>หัว:</strong> <span class="value">{{ soil9|default:"0" }}</span>%</p>
-        </div>
-        
-        <div id="sensor-16" class="sensor-value">
-            <h2>SHT-R16</h2>
-            <p><strong>Hum:</strong> <span class="value">{{ airhumR16_Q|default:"0" }}</span>%</p>
-            <p><strong>Temp:</strong> <span class="value">{{ airtempR16_Q|default:"0" }}</span>°C</p>
+            <p><strong>ท้าย:</strong> <span class="value">{{ soil10|default:"0" }}</span>%</p>
         </div>
     </div>
 </div>

@@ -56,134 +56,93 @@ const state = {
 };
 
 // ===========================
-// 3. Responsive Scaling System
+// 3. Simple Responsive System
 // ===========================
-function initializeScalingSystem() {
-    // Create scaling wrapper if it doesn't exist
+function initializeResponsiveSystem() {
+    // Much simpler - CSS handles responsiveness!
     const backgroundImage = document.querySelector('.background-image');
     if (!backgroundImage) return;
     
-    let scalingWrapper = document.querySelector('.scaling-wrapper');
-    if (!scalingWrapper) {
-        scalingWrapper = document.createElement('div');
-        scalingWrapper.className = 'scaling-wrapper';
+    // Simple mobile check
+    function checkMobileLayout() {
+        state.isMobile = window.innerWidth < 768;
         
-        // Move background-image inside scaling wrapper
-        const parent = backgroundImage.parentNode;
-        parent.insertBefore(scalingWrapper, backgroundImage);
-        scalingWrapper.appendChild(backgroundImage);
+        if (state.isMobile) {
+            reorganizeSensorsForMobile();
+        }
     }
     
-    // Calculate and apply scale
-    calculateAndApplyScale();
+    // Check on load and resize
+    checkMobileLayout();
     
-    // Add resize listener with debounce
+    // Simple debounced resize handler
     let resizeTimeout;
     window.addEventListener('resize', () => {
         clearTimeout(resizeTimeout);
-        resizeTimeout = setTimeout(() => {
-            calculateAndApplyScale();
-        }, 100);
+        resizeTimeout = setTimeout(checkMobileLayout, 150);
     });
     
-    // Handle orientation change
+    // Orientation change
     window.addEventListener('orientationchange', () => {
-        setTimeout(() => {
-            calculateAndApplyScale();
-        }, 200);
+        setTimeout(checkMobileLayout, 200);
     });
 }
 
-function calculateAndApplyScale() {
+// No complex scaling needed - CSS handles it!
+// This function is now much simpler
+function updateResponsiveElements() {
     const container = document.querySelector('.smartfarm-container');
-    const scalingWrapper = document.querySelector('.scaling-wrapper');
+    if (!container) return;
     
-    if (!container || !scalingWrapper) return;
-    
-    // Check if mobile
+    // Simple mobile check
     state.isMobile = window.innerWidth < 768;
+    state.currentScale = 1; // Always 1 - CSS handles scaling
     
     if (state.isMobile) {
-        // Reset scale for mobile
-        scalingWrapper.style.transform = 'none';
-        scalingWrapper.style.setProperty('--scale-factor', '1');
-        state.currentScale = 1;
         reorganizeSensorsForMobile();
-        return;
     }
-    
-    // Calculate available space (accounting for padding)
-    const containerPadding = 40; // 20px on each side
-    const availableWidth = container.clientWidth - containerPadding;
-    const availableHeight = container.clientHeight - containerPadding;
-    
-    // Calculate scale factors
-    const scaleX = availableWidth / CONFIG.baseDimensions.width;
-    const scaleY = availableHeight / CONFIG.baseDimensions.height;
-    
-    // Use the smaller scale to maintain aspect ratio
-    const scale = Math.min(scaleX, scaleY, 1); // Cap at 1 to prevent upscaling
-    
-    // Apply scale
-    state.currentScale = scale;
-    scalingWrapper.style.transform = `scale(${scale})`;
-    scalingWrapper.style.setProperty('--scale-factor', scale.toString());
-    
-    // Center the scaled content
-    const scaledWidth = CONFIG.baseDimensions.width * scale;
-    const scaledHeight = CONFIG.baseDimensions.height * scale;
-    
-    const offsetX = (availableWidth - scaledWidth) / 2;
-    const offsetY = (availableHeight - scaledHeight) / 2;
-    
-    scalingWrapper.style.position = 'absolute';
-    scalingWrapper.style.left = `${offsetX + containerPadding/2}px`;
-    scalingWrapper.style.top = `${offsetY + containerPadding/2}px`;
-    
-    // Update sensor font sizes based on scale
-    updateSensorFontSizes(scale);
 }
 
-function updateSensorFontSizes(scale) {
-    // Only apply font scaling for very small scales
-    if (scale < 0.7) {
-        const sensors = document.querySelectorAll('.sensor-value');
-        sensors.forEach(sensor => {
-            sensor.style.setProperty('--font-scale', (scale / 0.7).toString());
-        });
-    } else {
-        // Reset font scale
-        const sensors = document.querySelectorAll('.sensor-value');
-        sensors.forEach(sensor => {
-            sensor.style.removeProperty('--font-scale');
-        });
-    }
+// Font sizes are now handled by CSS clamp() - no JS needed!
+// This function is no longer necessary but kept for compatibility
+function updateSensorFontSizes() {
+    // CSS clamp() handles responsive font sizes automatically
+    // No JavaScript needed!
+    return;
 }
 
 // ===========================
 // 4. Core Functions
 // ===========================
-function updateCurrentTimeAndDate() {
+function updateLastUpdateTime() {
     const now = new Date();
     
-    const dateString = now.toLocaleDateString(CONFIG.locale, CONFIG.dateOptions);
-    const timeString = now.toLocaleTimeString(CONFIG.locale, CONFIG.timeOptions);
+    // Format วันที่เป็น DD/MM/YYYY
+    const day = now.getDate().toString().padStart(2, '0');
+    const month = (now.getMonth() + 1).toString().padStart(2, '0');
+    const year = now.getFullYear() + 543;
+    const dateString = `${day}/${month}/${year}`;
+    
+    // Format เวลาเป็น HH:MM:SS
+    const hours = now.getHours().toString().padStart(2, '0');
+    const minutes = now.getMinutes().toString().padStart(2, '0');
+    const seconds = now.getSeconds().toString().padStart(2, '0');
+    const timeString = `${hours}:${minutes}:${seconds}`;
 
     const dateElement = document.getElementById('current-date');
     const clockElement = document.getElementById('current-clock');
     
-    if (dateElement) {
-        dateElement.textContent = dateString;
-        dateElement.style.opacity = '0';
-        setTimeout(() => {
-            dateElement.style.transition = 'opacity 0.3s ease';
-            dateElement.style.opacity = '1';
-        }, 10);
+    if (dateElement && clockElement) {
+        // รวมวันที่และเวลาไว้ใน clockElement
+        dateElement.style.display = 'none'; // ซ่อน date element
+        clockElement.textContent = `${dateString} ${timeString}`;
+        clockElement.style.fontSize = '1.2rem'; // ปรับขนาดตามต้องการ
     }
-    
-    if (clockElement) {
-        clockElement.textContent = timeString;
-    }
+}
+
+// Keep old function name for compatibility but show last update time
+function updateCurrentTimeAndDate() {
+    updateLastUpdateTime();
 }
 
 function formatSensorValues() {
@@ -352,6 +311,9 @@ function showNotification(message, type = 'info') {
 
 function refreshSensorData() {
     if (!state.isAutoRefresh) return;
+    
+    // Update last refresh time before showing overlay
+    updateLastUpdateTime();
     
     const overlay = document.createElement('div');
     overlay.className = 'refresh-overlay';
@@ -767,48 +729,21 @@ function addAnimationStyles() {
 }
 
 // ===========================
-// 9. Boundary Protection System
+// 9. Simple Boundary Check (Optional)
 // ===========================
-function initBoundaryProtection() {
+function checkSensorPositions() {
+    // With percentage positioning, boundary issues are rare
+    // This function is now much simpler and mainly for debugging
     const sensors = document.querySelectorAll('.sensor-value');
-    const baseWidth = CONFIG.baseDimensions.width;
-    const baseHeight = CONFIG.baseDimensions.height;
     
     sensors.forEach(sensor => {
-        // Get current position
-        const left = parseInt(sensor.style.left || window.getComputedStyle(sensor).left);
-        const top = parseInt(sensor.style.top || window.getComputedStyle(sensor).top);
-        const width = 150; // Estimated max width
-        const height = 100; // Estimated max height
+        const rect = sensor.getBoundingClientRect();
+        const container = document.querySelector('.background-image').getBoundingClientRect();
         
-        // Define safe boundaries
-        const minLeft = CONFIG.boundaries.minLeft;
-        const minTop = CONFIG.boundaries.minTop;
-        const maxLeft = baseWidth - CONFIG.boundaries.maxRightOffset;
-        const maxTop = baseHeight - CONFIG.boundaries.maxBottomOffset;
-        
-        // Apply boundary constraints
-        let newLeft = left;
-        let newTop = top;
-        
-        if (left < minLeft) newLeft = minLeft;
-        if (left + width > maxLeft) newLeft = maxLeft - width;
-        if (top < minTop) newTop = minTop;
-        if (top + height > maxTop) newTop = maxTop - height;
-        
-        // Update position if needed
-        if (newLeft !== left || newTop !== top) {
-            sensor.style.left = newLeft + 'px';
-            sensor.style.top = newTop + 'px';
-            if (window.harumikiUtils && window.harumikiUtils.logger) {
-                window.harumikiUtils.logger.warn(`Sensor ${sensor.id} adjusted from (${left}, ${top}) to (${newLeft}, ${newTop})`);
-            }
-        }
-        
-        // Add visual indicator for edge sensors
-        if (newLeft <= minLeft || newLeft >= maxLeft - width || 
-            newTop <= minTop || newTop >= maxTop - height) {
+        // Check if sensor is outside container (edge case)
+        if (rect.right > container.right || rect.bottom > container.bottom) {
             sensor.classList.add('edge-sensor');
+            console.warn(`Sensor ${sensor.id} may be at edge of container`);
         }
     });
 }
@@ -828,20 +763,20 @@ document.addEventListener('DOMContentLoaded', function() {
     // Add animation styles
     addAnimationStyles();
     
-    // Initialize scaling system FIRST
-    initializeScalingSystem();
+    // Initialize simple responsive system
+    initializeResponsiveSystem();
     
-    // Initialize boundary protection
-    initBoundaryProtection();
+    // Optional boundary check
+    checkSensorPositions();
     
     // Add icons to sensor titles
     setTimeout(() => {
         addSensorIcons();
     }, 500);
     
-    // Start clock
-    updateCurrentTimeAndDate();
-    setInterval(updateCurrentTimeAndDate, 1000);
+    // Set last update time (when page loaded)
+    updateLastUpdateTime();
+    // No need to update every second - this shows when data was last refreshed
     
     // Format sensor values
     formatSensorValues();
@@ -960,7 +895,7 @@ window.smartfarm = {
     getState: () => state,
     getSensorHistory: (sensorId) => state.sensorHistory[sensorId] || [],
     getCurrentScale: () => state.currentScale,
-    recalculateScale: () => calculateAndApplyScale(),
+    updateResponsive: () => updateResponsiveElements(),
     // Debug helper to get pixel positions
     getPixelPositions: () => {
         const positions = {};
@@ -1006,13 +941,9 @@ window.smartfarm = {
         });
         
         if (violations.length > 0) {
-            if (window.harumikiUtils && window.harumikiUtils.logger) {
-                window.harumikiUtils.logger.warn('⚠️ Boundary violations found:', violations);
-            }
+            console.warn('⚠️ Boundary violations found:', violations);
         } else {
-            if (window.harumikiUtils && window.harumikiUtils.logger) {
-                window.harumikiUtils.logger.log('✅ All sensors within boundaries');
-            }
+            console.log('✅ All sensors within boundaries');
         }
         
         return violations;

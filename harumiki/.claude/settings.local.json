@@ -22,7 +22,9 @@
       "Bash(grep:*)",
       "Bash(tasklist:*)",
       "Bash(pkill:*)",
-      "Bash(powershell:*)"
+      "Bash(powershell:*)",
+      "Bash(git ls-tree:*)",
+      "Bash(cmd /c:*)"
     ],
     "deny": []
   }
