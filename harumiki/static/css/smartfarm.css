@@ -389,37 +389,37 @@
 .farm1 #sensor-3 { position: absolute; top: 5.56%; left: 80%; } /* CO2 - top right (50px / 900px = 5.56%, 1120px / 1400px = 80%) */
 
 /* R8 Section - Now combined humidity */
-.farm1 #sensor-1 { position: absolute; top: 81%; left: 51%; } /* ความชื้น-R8 หัว+ท้าย (759px / 900px = 84.33%, 660px / 1400px = 47.14%) */
+.farm1 #sensor-1 { position: absolute; top: 79%; left: 51%; } /* ความชื้น-R8 หัว+ท้าย (759px / 900px = 84.33%, 660px / 1400px = 47.14%) */
 .farm1 #sensor-2 { position: absolute; top: 69%; left: 36.07%; } /* ค่า NPK-R8 (670px / 900px = 74.44%, 505px / 1400px = 36.07%) */
 .farm1 #sensor-4 { position: absolute; top: 60%; left: 23.5%; } /* PPFD-R8 (630px / 900px = 70%, 350px / 1400px = 25%) */
 .farm1 #sensor-9 { position: absolute; top: 49%; left: 7%; } /* SHT-8 (513px / 900px = 57%, 105px / 1400px = 7.5%) */
 
 /* R16 Section - Now combined humidity */
 .farm1 #sensor-12 { position: absolute; top: 65%; left: 64.29%; } /* ความชื้น-R16 หัว+ท้าย (660px / 900px = 73.33%, 900px / 1400px = 64.29%) */
-.farm1 #sensor-10 { position: absolute; top: 9%; left: 15%; } /* ค่า NPK-R16 (160px / 900px = 17.78%, 260px / 1400px = 18.57%) */
+.farm1 #sensor-10 { position: absolute; top: 9%; left: 18%; } /* ค่า NPK-R16 (160px / 900px = 17.78%, 260px / 1400px = 18.57%) */
 
 /* R24 Section - Now combined humidity */
 .farm1 #sensor-6 { position: absolute; top: 45%; left: 81.43%; } /* ความชื้น-R24 หัว+ท้าย (510px / 900px = 56.67%, 1140px / 1400px = 81.43%) */
 .farm1 #sensor-7 { position: absolute; top: 61%; left: 81.43%; } /* ค่า NPK-R24 (592px / 900px = 65.78%, 1140px / 1400px = 81.43%) */
-.farm1 #sensor-8 { position: absolute; top: 17.78%; left: 57%; } /* SHT-R24 (160px / 900px = 17.78%, 697px / 1400px = 49.79%) */
-.farm1 #sensor-11 { position: absolute; top: 17.78%; left: 70%; } /* PPFD-R24 (160px / 900px = 17.78%, 980px / 1400px = 70%) */
+.farm1 #sensor-8 { position: absolute; top: 17.78%; left: 48%; } /* SHT-R24 (160px / 900px = 17.78%, 697px / 1400px = 49.79%) */
+.farm1 #sensor-11 { position: absolute; top: 17.78%; left: 61%; } /* PPFD-R24 (160px / 900px = 17.78%, 980px / 1400px = 70%) */
 
 /* Farm 2 Sensor Positions - Responsive Percentage-based */
 /* Base calculations: 1400px width x 900px height */
 .farm2 #sensor-3 { position: absolute; top: 5.56%; left: 67.86%; } /* CO2 (50px / 900px = 5.56%, 950px / 1400px = 67.86%) */
 .farm2 #sensor-5 { position: absolute; top: 5.56%; left: 80%; } /* PM2.5 (50px / 900px = 5.56%, 1120px / 1400px = 80%) */
 
-.farm2 #sensor-1 { position: absolute; top: 66.67%; left: 26.43%; } /* ความชื้น-R8 (600px / 900px = 66.67%, 370px / 1400px = 26.43%) */
-.farm2 #sensor-2 { position: absolute; top: 66.67%; left: 11.7%; } /* ค่า NPK-R8 (600px / 900px = 66.67%, 215px / 1400px = 15.36%) */
-.farm2 #sensor-9 { position: absolute; top: 79.44%; left: 50%; } /* SHT-8 (715px / 900px = 79.44%, 700px / 1400px = 50%) */
+.farm2 #sensor-1 { position: absolute; top: 63.67%; left: 26.43%; } /* ความชื้น-R8 (600px / 900px = 66.67%, 370px / 1400px = 26.43%) */
+.farm2 #sensor-2 { position: absolute; top: 63.67%; left: 11.7%; } /* ค่า NPK-R8 (600px / 900px = 66.67%, 215px / 1400px = 15.36%) */
+.farm2 #sensor-9 { position: absolute; top: 77.44%; left: 50%; } /* SHT-8 (715px / 900px = 79.44%, 700px / 1400px = 50%) */
 
-.farm2 #sensor-10 { position: absolute; top: 68.89%; left: 65.2%; } /* ค่า NPK-R16 (620px / 900px = 68.89%, 900px / 1400px = 64.29%) */
-.farm2 #sensor-11 { position: absolute; top: 68.89%; left: 80%; } /* PPFD-R16 (620px / 900px = 68.89%, 1055px / 1400px = 75.36%) */
+.farm2 #sensor-10 { position: absolute; top: 62.89%; left: 65.2%; } /* ค่า NPK-R16 (620px / 900px = 68.89%, 900px / 1400px = 64.29%) */
+.farm2 #sensor-11 { position: absolute; top: 62.89%; left: 80%; } /* PPFD-R16 (620px / 900px = 68.89%, 1055px / 1400px = 75.36%) */
 
-.farm2 #sensor-6 { position: absolute; top: 23.33%; left: 67.86%; } /* ความชื้น-R24 (210px / 900px = 23.33%, 950px / 1400px = 67.86%) */
-.farm2 #sensor-7 { position: absolute; top: 23.33%; left: 82.1%; } /* ค่า NPK-R24 (210px / 900px = 23.33%, 1100px / 1400px = 78.57%) */
-.farm2 #sensor-8 { position: absolute; top: 16.5%; left: 33.57%; } /* SHT-R24 (130px / 900px = 14.44%, 470px / 1400px = 33.57%) */
-.farm2 #sensor-4 { position: absolute; top: 16.5%; left: 21.07%; } /* PPFD-R24 (130px / 900px = 14.44%, 337px / 1400px = 24.07%) */
+.farm2 #sensor-6 { position: absolute; top: 23.33%; left: 62.86%; } /* ความชื้น-R24 (210px / 900px = 23.33%, 950px / 1400px = 67.86%) */
+.farm2 #sensor-7 { position: absolute; top: 23.33%; left: 77.1%; } /* ค่า NPK-R24 (210px / 900px = 23.33%, 1100px / 1400px = 78.57%) */
+.farm2 #sensor-8 { position: absolute; top: 16.5%; left: 32.57%; } /* SHT-R24 (130px / 900px = 14.44%, 470px / 1400px = 33.57%) */
+.farm2 #sensor-4 { position: absolute; top: 16.5%; left: 20.07%; } /* PPFD-R24 (130px / 900px = 14.44%, 337px / 1400px = 24.07%) */
 
 /* Special styling for edge sensors */
 .farm1 #sensor-6,
@@ -956,4 +956,71 @@
 
 .sensor-value:not(:hover) {
     will-change: auto;
+}
+
+/* ===========================
+   13. AJAX Update Animations
+   =========================== */
+.sensor-value .value.updating {
+    animation: pulse-update 0.6s ease;
+    color: #10b981 !important;
+    font-weight: 700;
+}
+
+@keyframes pulse-update {
+    0% { 
+        transform: scale(1); 
+        opacity: 1; 
+    }
+    50% { 
+        transform: scale(1.15); 
+        opacity: 0.8;
+        color: #059669;
+    }
+    100% { 
+        transform: scale(1); 
+        opacity: 1; 
+    }
+}
+
+.sensor-value.value-updated {
+    animation: flash-border 0.6s ease;
+}
+
+@keyframes flash-border {
+    0% { 
+        border-color: rgba(16, 185, 129, 0.3);
+        box-shadow: 0 8px 32px rgba(31, 38, 135, 0.12);
+    }
+    50% { 
+        border-color: rgba(16, 185, 129, 0.8);
+        box-shadow: 0 8px 32px rgba(16, 185, 129, 0.3);
+    }
+    100% { 
+        border-color: rgba(255, 255, 255, 0.3);
+        box-shadow: 0 8px 32px rgba(31, 38, 135, 0.12);
+    }
+}
+
+/* Refresh indicator */
+.refresh-indicator {
+    animation: slideInRight 0.3s ease-out;
+}
+
+@keyframes slideInRight {
+    from {
+        transform: translateX(50px);
+        opacity: 0;
+    }
+    to {
+        transform: translateX(0);
+        opacity: 1;
+    }
+}
+
+/* Prevent layout shift during updates */
+.sensor-value .value {
+    display: inline-block;
+    min-width: 3ch;
+    text-align: right;
 }

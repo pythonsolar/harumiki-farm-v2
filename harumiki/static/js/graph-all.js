@@ -84,7 +84,8 @@ const SENSOR_CONFIG = {
     'soil13': { max: 100, unit: '%', group: 'humidity2', label: 'Soil 13 (F2)', color: '#AFEEEE' },
     
     // Water Quality
-    'ECWM': { max: 1500, unit: 'μS/cm', group: 'water', label: 'EC Mixed Water', color: '#36A2EB' }
+    'ECWM': { max: 1500, unit: 'μS/cm', group: 'water', label: 'EC Mixed Water', color: '#36A2EB' },
+    'ECWP': { max: 1500, unit: 'μS/cm', group: 'water', label: 'EC Pure Water', color: '#4BC0C0' },
 };
 
 // Complete data mapping for all sensors
@@ -167,7 +168,8 @@ const DATA_MAPPING = {
     'soil13': 'soil13',
     
     // Water
-    'ECWM': 'ecwm'
+    'ECWM': 'ecwm',
+    'ECWP': 'ecwp',
 };
 
 // Helper function to get chart data with debugging
@@ -201,6 +203,9 @@ function getChartData(dataKey) {
     }
 }
 
+// Note: Data alignment is now handled directly in initializeChart() function
+// Each sensor's timestamps are retrieved individually and aligned to a common timeline
+
 // Global chart instance
 let allSensorsChart = null;
 
@@ -216,57 +221,134 @@ document.addEventListener('DOMContentLoaded', function() {
     populateNormalizationTable();
 });
 
+// Determine current farm from page URL or context
+function getCurrentFarm() {
+    // Try to detect from URL first
+    if (window.location.pathname.includes('graph-all2')) {
+        return 2;
+    } else if (window.location.pathname.includes('graph-all1')) {
+        return 1;
+    }
+    
+    // Try to get from context if available
+    const chartData = document.getElementById('chart-data');
+    if (chartData) {
+        // Check if Farm 2 specific data exists
+        if (chartData.getAttribute('data-pm-r2') || 
+            chartData.getAttribute('data-nitrogen-r8')) {
+            return 2;
+        }
+    }
+    
+    // Default to Farm 1
+    return 1;
+}
+
+// Filter sensors based on current farm
+function getRelevantSensors(currentFarm) {
+    const relevantSensors = {};
+    
+    Object.entries(SENSOR_CONFIG).forEach(([key, config]) => {
+        // Include shared sensors (air quality, water)
+        if (['air', 'water'].includes(config.group)) {
+            relevantSensors[key] = config;
+            return;
+        }
+        
+        // Include farm-specific sensors
+        if (currentFarm === 1) {
+            // Farm 1 sensors: npk, temp1, humidity1, npk1
+            if (['npk', 'temp1', 'humidity1', 'npk1', 'light'].includes(config.group) && 
+                !key.includes('R8') && !key.includes('R16') && !key.includes('R24') ||
+                key.includes('3') || key.includes('4') || key.includes('5') || key.includes('6') ||
+                key === 'UV_R8' || key === 'LUX_R8' || key === 'ppfd3' || key === 'ppfd4') {
+                relevantSensors[key] = config;
+            }
+        } else if (currentFarm === 2) {
+            // Farm 2 sensors: npk2, temp2, humidity2
+            if (['npk2', 'temp2', 'humidity2', 'light'].includes(config.group) || 
+                key.includes('R8') || key.includes('R16') || key.includes('R24') ||
+                key === 'UV_R24' || key === 'LUX_R24' || key === 'ppfdR16' || key === 'ppfdR24') {
+                relevantSensors[key] = config;
+            }
+        }
+    });
+    
+    return relevantSensors;
+}
+
 // Main chart initialization
 function initializeChart() {
     const ctx = document.getElementById('allSensorsChart').getContext('2d');
     
-    // Try different time label sources for Farm 2
-    let timeLabels = getChartData('pm-r2-times') || 
-                     getChartData('pm-r1-times') || 
-                     getChartData('co2-r1-times') ||
-                     getChartData('nitrogen-r8-times') ||
-                     getChartData('air-temp-r8-times');
-    
-    if (!timeLabels || timeLabels.length === 0) {
-        if (window.harumikiUtils && window.harumikiUtils.logger) {
-            window.harumikiUtils.logger.error('No time labels found!');
-        }
-        // Try to find any datetime attribute
-        const element = document.getElementById('chart-data');
-        const attributes = element.attributes;
-        for (let i = 0; i < attributes.length; i++) {
-            if (attributes[i].name.includes('times')) {
-                if (window.harumikiUtils && window.harumikiUtils.logger) {
-                    window.harumikiUtils.logger.log(`Found time attribute: ${attributes[i].name}`);
-                }
-                timeLabels = getChartData(attributes[i].name.replace('data-', ''));
-                if (timeLabels && timeLabels.length > 0) break;
-            }
-        }
-    }
+    // Determine current farm
+    const currentFarm = getCurrentFarm();
     
     if (window.harumikiUtils && window.harumikiUtils.logger) {
-        window.harumikiUtils.logger.log('Time labels:', timeLabels);
+        window.harumikiUtils.logger.log(`Initializing chart for Farm ${currentFarm}`);
     }
     
-    // Prepare datasets
+    // Get relevant sensors for current farm
+    const relevantSensors = getRelevantSensors(currentFarm);
+    
+    // Collect all unique timestamps from all sensors
+    const allTimestamps = new Set();
+    const sensorDataMap = new Map();
+    
+    // Prepare datasets and collect timestamps
     const datasets = [];
     let dataFound = false;
     
-    // Create datasets for each sensor
-    Object.entries(SENSOR_CONFIG).forEach(([key, config]) => {
+    // Process each relevant sensor
+    Object.entries(relevantSensors).forEach(([key, config]) => {
         const dataKey = DATA_MAPPING[key];
-        const rawData = getChartData(dataKey);
+        const rawValues = getChartData(dataKey);
+        const rawTimes = getChartData(`${dataKey}-times`);
         
-        if (rawData && rawData.length > 0) {
+        if (rawValues && rawValues.length > 0 && rawTimes && rawTimes.length > 0) {
             dataFound = true;
+            
+            // Create a map for this sensor's data
+            const sensorMap = new Map();
+            rawTimes.forEach((time, index) => {
+                if (time && rawValues[index] !== undefined) {
+                    allTimestamps.add(time);
+                    sensorMap.set(time, rawValues[index]);
+                }
+            });
+            
+            sensorDataMap.set(key, sensorMap);
+            
             if (window.harumikiUtils && window.harumikiUtils.logger) {
-                window.harumikiUtils.logger.log(`Adding dataset for ${key} (${config.label}) with ${rawData.length} points`);
+                window.harumikiUtils.logger.log(`Adding dataset for ${key} (${config.label}) with ${sensorMap.size} points`);
             }
+        } else {
+            if (window.harumikiUtils && window.harumikiUtils.logger) {
+                window.harumikiUtils.logger.warn(`No data for ${key} (${dataKey}) - values: ${rawValues?.length || 0}, times: ${rawTimes?.length || 0}`);
+            }
+        }
+    });
+    
+    // Convert timestamps to sorted array
+    const timeLabels = Array.from(allTimestamps).sort();
+    
+    if (window.harumikiUtils && window.harumikiUtils.logger) {
+        window.harumikiUtils.logger.log(`Total unique timestamps: ${timeLabels.length}`);
+    }
+    
+    // Create aligned datasets
+    Object.entries(SENSOR_CONFIG).forEach(([key, config]) => {
+        if (sensorDataMap.has(key)) {
+            const sensorMap = sensorDataMap.get(key);
+            
+            // Create aligned data array with null for missing timestamps
+            const alignedData = timeLabels.map(time => {
+                return sensorMap.has(time) ? sensorMap.get(time) : null;
+            });
             
             datasets.push({
                 label: config.label,
-                data: rawData,
+                data: alignedData,
                 borderColor: config.color,
                 backgroundColor: config.color + '20',
                 borderWidth: 2,
@@ -274,12 +356,9 @@ function initializeChart() {
                 pointRadius: 0,
                 pointHoverRadius: 5,
                 hidden: false,
+                spanGaps: true, // Connect lines across null values for all sensors
                 group: config.group
             });
-        } else {
-            if (window.harumikiUtils && window.harumikiUtils.logger) {
-                window.harumikiUtils.logger.warn(`No data for ${key} (${dataKey})`);
-            }
         }
     });
     
@@ -291,6 +370,7 @@ function initializeChart() {
     
     if (window.harumikiUtils && window.harumikiUtils.logger) {
         window.harumikiUtils.logger.log(`Total datasets: ${datasets.length}`);
+        window.harumikiUtils.logger.log(`Time range: ${timeLabels[0]} to ${timeLabels[timeLabels.length-1]}`);
     }
     
     // Chart configuration
@@ -354,6 +434,10 @@ function initializeChart() {
                     padding: 10,
                     cornerRadius: 8,
                     displayColors: true,
+                    filter: function(tooltipItem) {
+                        // Hide tooltip for null values
+                        return tooltipItem.raw !== null;
+                    },
                     callbacks: {
                         label: function(context) {
                             const label = context.dataset.label || '';
@@ -438,9 +522,40 @@ function setupEventListeners() {
             // Toggle button state
             this.classList.toggle('active');
             
-            // Toggle datasets visibility
+            // Toggle datasets visibility - handle farm-specific groups
             allSensorsChart.data.datasets.forEach((dataset, index) => {
+                let shouldToggle = false;
+                
+                // Handle general group matching
                 if (dataset.group === group) {
+                    shouldToggle = true;
+                }
+                
+                // Handle farm-specific group mapping
+                const currentFarm = getCurrentFarm();
+                if (currentFarm === 1) {
+                    if (group === 'npk' && ['npk', 'npk1'].includes(dataset.group)) {
+                        shouldToggle = true;
+                    }
+                    if (group === 'temp' && ['temp', 'temp1'].includes(dataset.group)) {
+                        shouldToggle = true;
+                    }
+                    if (group === 'humidity' && ['humidity', 'humidity1'].includes(dataset.group)) {
+                        shouldToggle = true;
+                    }
+                } else if (currentFarm === 2) {
+                    if (group === 'npk' && ['npk', 'npk2'].includes(dataset.group)) {
+                        shouldToggle = true;
+                    }
+                    if (group === 'temp' && ['temp', 'temp2'].includes(dataset.group)) {
+                        shouldToggle = true;
+                    }
+                    if (group === 'humidity' && ['humidity', 'humidity2'].includes(dataset.group)) {
+                        shouldToggle = true;
+                    }
+                }
+                
+                if (shouldToggle) {
                     const meta = allSensorsChart.getDatasetMeta(index);
                     meta.hidden = isActive;
                 }
@@ -489,9 +604,13 @@ function populateNormalizationTable() {
     const tbody = document.getElementById('normalization-info');
     if (!tbody) return;
     
-    // Group sensors by type
+    // Determine current farm and get relevant sensors
+    const currentFarm = getCurrentFarm();
+    const relevantSensors = getRelevantSensors(currentFarm);
+    
+    // Group relevant sensors by type
     const groupedSensors = {};
-    Object.entries(SENSOR_CONFIG).forEach(([key, config]) => {
+    Object.entries(relevantSensors).forEach(([key, config]) => {
         if (!groupedSensors[config.group]) {
             groupedSensors[config.group] = [];
         }

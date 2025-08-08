@@ -4,17 +4,20 @@
  */
 
 // Secure logging that only works in development
-const DEBUG = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1';
+// ตรวจสอบก่อนประกาศ
+if (typeof window.harumikiDebug === 'undefined') {
+    window.harumikiDebug = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1';
+}
 
 const logger = {
     log: (...args) => {
-        if (DEBUG) console.log(...args);
+        if (window.harumikiDebug) console.log(...args);
     },
     warn: (...args) => {
-        if (DEBUG) console.warn(...args);
+        if (window.harumikiDebug) console.warn(...args);
     },
     error: (...args) => {
-        if (DEBUG) console.error(...args);
+        if (window.harumikiDebug) console.error(...args);
     }
 };
 

@@ -130,11 +130,57 @@ function getChartData(dataKey) {
     }
 }
 
+// Align data for multiple datasets with potentially different timestamps
+function alignDatasets(timestamps1, values1, timestamps2, values2) {
+    // Create maps for quick lookup
+    const data1Map = new Map();
+    const data2Map = new Map();
+    
+    // Populate maps
+    timestamps1.forEach((ts, idx) => {
+        if (ts && values1[idx] !== undefined) {
+            data1Map.set(ts, values1[idx]);
+        }
+    });
+    
+    timestamps2.forEach((ts, idx) => {
+        if (ts && values2[idx] !== undefined) {
+            data2Map.set(ts, values2[idx]);
+        }
+    });
+    
+    // Get all unique timestamps and sort them
+    const allTimestamps = [...new Set([...timestamps1, ...timestamps2])].filter(ts => ts).sort();
+    
+    // Create aligned datasets
+    const alignedValues1 = [];
+    const alignedValues2 = [];
+    
+    allTimestamps.forEach(ts => {
+        // Use null for missing data points to create gaps in the line
+        alignedValues1.push(data1Map.has(ts) ? data1Map.get(ts) : null);
+        alignedValues2.push(data2Map.has(ts) ? data2Map.get(ts) : null);
+    });
+    
+    return {
+        timestamps: allTimestamps,
+        values1: alignedValues1,
+        values2: alignedValues2
+    };
+}
+
 
 // Initialize all charts when DOM is ready
 document.addEventListener('DOMContentLoaded', function() {
+    
     if (window.harumikiUtils && window.harumikiUtils.logger) {
         window.harumikiUtils.logger.log(`Initializing charts for Farm ${currentFarm}`);
+    }
+    
+    // Check if Chart.js is available
+    if (typeof Chart === 'undefined') {
+        console.error('Chart.js is not loaded!');
+        return;
     }
     
     initializePMChart();
@@ -151,49 +197,56 @@ document.addEventListener('DOMContentLoaded', function() {
 function initializePMChart() {
     const ctx = document.getElementById('pmChart').getContext('2d');
     
-    let xValues, pmInValues, pmOutsideValues, labelIn;
+    let pmInTimes, pmInValues, pmOutsideTimes, pmOutsideValues, labelIn;
     
     if (currentFarm === 1) {
-        xValues = getChartData('pm-outside-times');
+        pmInTimes = getChartData('pm-r1-times') || getChartData('pm-outside-times');
         pmInValues = getChartData('pm-r1');
+        pmOutsideTimes = getChartData('pm-outside-times');
         pmOutsideValues = getChartData('pm-outside');
         labelIn = 'PM2.5 Inside Farm1';
     } else {
-        xValues = getChartData('pm-r2-times');
+        pmInTimes = getChartData('pm-r2-times');
         pmInValues = getChartData('pm-r2');
+        pmOutsideTimes = getChartData('pm-outside-times');
         pmOutsideValues = getChartData('pm-outside');
         labelIn = 'PM2.5 R2';
     }
 
+    // Align datasets to handle missing data
+    const aligned = alignDatasets(pmInTimes, pmInValues, pmOutsideTimes, pmOutsideValues);
+
     new Chart(ctx, {
         type: 'line',
         data: {
-            labels: xValues,
+            labels: aligned.timestamps,
             datasets: [
                 {
                     label: labelIn,
-                    data: pmInValues,
+                    data: aligned.values1,
                     borderColor: chartColors.teal,
                     backgroundColor: chartColors.teal + '20',
                     borderWidth: 2,
                     tension: 0.1,
                     pointRadius: 3,
                     pointHoverRadius: 5,
-                    pointBackgroundColor: pmInValues.map(value => 
+                    spanGaps: false, // Don't connect lines across null values
+                    pointBackgroundColor: aligned.values1.map(value => 
                         value > 75 ? chartColors.danger : chartColors.teal
                     )
                 },
                 {
-                    label: currentFarm === 1 ? 'PM2.5 Outside' : 'PM Outside',
-                    data: pmOutsideValues,
-                    borderColor: chartColors.pink,
-                    backgroundColor: chartColors.pink + '20',
+                    label: 'PM2.5 Outside',
+                    data: aligned.values2,
+                    borderColor: chartColors.danger,
+                    backgroundColor: chartColors.danger + '20',
                     borderWidth: 2,
                     tension: 0.1,
                     pointRadius: 3,
                     pointHoverRadius: 5,
-                    pointBackgroundColor: pmOutsideValues.map(value => 
-                        value > 75 ? chartColors.danger : chartColors.pink
+                    spanGaps: false, // Don't connect lines across null values
+                    pointBackgroundColor: aligned.values2.map(value => 
+                        value > 75 ? chartColors.dark : chartColors.danger
                     )
                 }
             ]
@@ -202,26 +255,11 @@ function initializePMChart() {
             ...commonOptions,
             plugins: {
                 ...commonOptions.plugins,
-                annotation: {
-                    annotations: {
-                        line1: {
-                            type: 'line',
-                            yMin: 75,
-                            yMax: 75,
-                            borderColor: chartColors.danger,
-                            borderWidth: 2,
-                            borderDash: [5, 5],
-                            label: {
-                                content: 'Unhealthy Level (>75)',
-                                enabled: true,
-                                position: 'end',
-                                backgroundColor: chartColors.danger,
-                                color: 'white',
-                                font: {
-                                    size: 11
-                                }
-                            }
-                        }
+                tooltip: {
+                    ...commonOptions.plugins.tooltip,
+                    filter: function(tooltipItem) {
+                        // Hide tooltip for null values
+                        return tooltipItem.raw !== null;
                     }
                 }
             }
@@ -233,40 +271,47 @@ function initializePMChart() {
 function initializeCO2Chart() {
     const ctx = document.getElementById('CO2_Chart').getContext('2d');
     
-    const xValues = getChartData(currentFarm === 1 ? 'co2-r1-times' : 'co2-times');
+    // Get timestamps and values for both farms
+    const co2R1Times = getChartData('co2-r1-times');
     const co2R1Values = getChartData('co2-r1');
+    const co2R2Times = getChartData('co2-r2-times');
     const co2R2Values = getChartData('co2-r2');
+    
+    // Debug logging for CO2 data comparison
+    console.log('CO2 Data Debug:');
+    console.log(`CO2_R1: ${co2R1Values.length} values, first 5:`, co2R1Values.slice(0, 5));
+    console.log(`CO2_R2: ${co2R2Values.length} values, first 5:`, co2R2Values.slice(0, 5));
+    console.log(`CO2_R1 times: ${co2R1Times.length}, CO2_R2 times: ${co2R2Times.length}`);
+    
+    // Align datasets to handle missing data
+    const aligned = alignDatasets(co2R1Times, co2R1Values, co2R2Times, co2R2Values);
 
     new Chart(ctx, {
         type: 'line',
         data: {
-            labels: xValues,
+            labels: aligned.timestamps,
             datasets: [
                 {
-                    label: currentFarm === 1 ? 'CO2 Farm 1' : 'CO2 Farm1',
-                    data: co2R1Values,
-                    borderColor: chartColors.teal,
-                    backgroundColor: chartColors.teal + '20',
+                    label: 'CO2 Farm 1',
+                    data: aligned.values1,
+                    borderColor: chartColors.success,
+                    backgroundColor: chartColors.success + '20',
                     borderWidth: 2,
                     tension: 0.1,
                     pointRadius: 3,
                     pointHoverRadius: 5,
-                    pointBackgroundColor: co2R1Values.map(value => 
-                        value < 400 ? (currentFarm === 1 ? chartColors.warning : chartColors.danger) : chartColors.teal
-                    )
+                    spanGaps: false // Don't connect lines across null values
                 },
                 {
-                    label: currentFarm === 1 ? 'CO2 Farm 2' : 'CO2 Farm2',
-                    data: co2R2Values,
-                    borderColor: chartColors.pink,
-                    backgroundColor: chartColors.pink + '20',
+                    label: 'CO2 Farm 2',
+                    data: aligned.values2,
+                    borderColor: chartColors.info,
+                    backgroundColor: chartColors.info + '20',
                     borderWidth: 2,
                     tension: 0.1,
                     pointRadius: 3,
                     pointHoverRadius: 5,
-                    pointBackgroundColor: co2R2Values.map(value => 
-                        value < 400 ? (currentFarm === 1 ? chartColors.warning : chartColors.danger) : chartColors.pink
-                    )
+                    spanGaps: false // Don't connect lines across null values
                 }
             ]
         },
@@ -274,24 +319,26 @@ function initializeCO2Chart() {
             ...commonOptions,
             plugins: {
                 ...commonOptions.plugins,
+                tooltip: {
+                    ...commonOptions.plugins.tooltip,
+                    filter: function(tooltipItem) {
+                        // Hide tooltip for null values
+                        return tooltipItem.raw !== null;
+                    }
+                },
                 annotation: {
                     annotations: {
                         line1: {
                             type: 'line',
-                            yMin: 400,
-                            yMax: 400,
-                            borderColor: currentFarm === 1 ? chartColors.warning : chartColors.danger,
+                            yMin: 1000,
+                            yMax: 1000,
+                            borderColor: chartColors.warning,
                             borderWidth: 2,
                             borderDash: [5, 5],
                             label: {
-                                content: currentFarm === 1 ? 'Low CO2 (<400)' : 'Minimum Level (<400)',
+                                content: 'High CO2 Level',
                                 enabled: true,
-                                position: 'start',
-                                backgroundColor: currentFarm === 1 ? chartColors.warning : chartColors.danger,
-                                color: 'white',
-                                font: {
-                                    size: 11
-                                }
+                                position: 'end'
                             }
                         }
                     }
@@ -305,53 +352,70 @@ function initializeCO2Chart() {
 function initializeLightCharts() {
     const ctx = document.getElementById('SunChart').getContext('2d');
     
-    let xValues, luxValues, uvValues, uvLabel, luxLabel;
+    let luxTimes, luxValues, uvTimes, uvValues, uvLabel, luxLabel;
     
     if (currentFarm === 1) {
-        xValues = getChartData('uv-r8-times');
+        uvTimes = getChartData('uv-r8-times');
+        luxTimes = getChartData('lux-r8-times') || uvTimes; // Fallback to UV times if LUX times not available
         luxValues = getChartData('lux-r8');
         uvValues = getChartData('uv-r8');
         uvLabel = 'UV R8';
         luxLabel = 'LUX R8';
     } else {
-        xValues = getChartData('uv-r24-times');
+        uvTimes = getChartData('uv-r24-times');
+        luxTimes = getChartData('lux-r24-times') || uvTimes; // Fallback to UV times if LUX times not available
         luxValues = getChartData('lux-r24');
         uvValues = getChartData('uv-r24');
         uvLabel = 'UV R24';
         luxLabel = 'LUX R24';
     }
 
+    // Align datasets to handle missing data
+    const aligned = alignDatasets(luxTimes, luxValues, uvTimes, uvValues);
+
     new Chart(ctx, {
         type: 'line',
         data: {
-            labels: xValues,
+            labels: aligned.timestamps,
             datasets: [
                 {
                     label: uvLabel,
-                    data: uvValues,
+                    data: aligned.values2,
                     borderColor: chartColors.purple,
                     backgroundColor: chartColors.purple + '20',
                     borderWidth: 2,
                     tension: 0.1,
                     yAxisID: 'y-uv',
                     pointRadius: 3,
-                    pointHoverRadius: 5
+                    pointHoverRadius: 5,
+                    spanGaps: false
                 },
                 {
                     label: luxLabel,
-                    data: luxValues,
+                    data: aligned.values1,
                     borderColor: currentFarm === 1 ? chartColors.orange : chartColors.warning,
                     backgroundColor: currentFarm === 1 ? chartColors.orange + '20' : chartColors.warning + '20',
                     borderWidth: 2,
                     tension: 0.1,
                     yAxisID: 'y-lux',
                     pointRadius: 3,
-                    pointHoverRadius: 5
+                    pointHoverRadius: 5,
+                    spanGaps: false
                 }
             ]
         },
         options: {
             ...commonOptions,
+            plugins: {
+                ...commonOptions.plugins,
+                tooltip: {
+                    ...commonOptions.plugins.tooltip,
+                    filter: function(tooltipItem) {
+                        // Hide tooltip for null values
+                        return tooltipItem.raw !== null;
+                    }
+                }
+            },
             scales: {
                 ...commonOptions.scales,
                 'y-uv': {
@@ -392,69 +456,73 @@ function initializeLightCharts() {
 function initializePPFDChart() {
     const ctx = document.getElementById('ppfd_Chart').getContext('2d');
     
-    let xValues, ppfd1Values, ppfd2Values, label1, label2;
+    let ppfd1Times, ppfd1Values, ppfd2Times, ppfd2Values, label1, label2;
     
     if (currentFarm === 1) {
-        xValues = getChartData('ppfd3-times');
+        ppfd1Times = getChartData('ppfd3-times');
+        ppfd2Times = getChartData('ppfd4-times') || ppfd1Times; // Fallback to ppfd3 times if ppfd4 times not available
         ppfd1Values = getChartData('ppfd3');
         ppfd2Values = getChartData('ppfd4');
         label1 = 'PPFD R8';
         label2 = 'PPFD R24';
     } else {
-        xValues = getChartData('ppfd-r16-times');
+        ppfd1Times = getChartData('ppfd-r16-times');
+        ppfd2Times = getChartData('ppfd-r24-times') || ppfd1Times; // Fallback to r16 times if r24 times not available
         ppfd1Values = getChartData('ppfd-r16');
         ppfd2Values = getChartData('ppfd-r24');
         label1 = 'PPFD R16';
         label2 = 'PPFD R24';
     }
 
+    // Align datasets to handle missing data
+    const aligned = alignDatasets(ppfd1Times, ppfd1Values, ppfd2Times, ppfd2Values);
+
     new Chart(ctx, {
         type: 'line',
         data: {
-            labels: xValues,
+            labels: aligned.timestamps,
             datasets: [
                 {
                     label: label1,
-                    data: ppfd1Values,
+                    data: aligned.values1,
                     borderColor: currentFarm === 1 ? chartColors.success : chartColors.teal,
                     backgroundColor: currentFarm === 1 ? chartColors.success + '20' : chartColors.teal + '20',
                     borderWidth: 2,
                     tension: 0.1,
                     pointRadius: 3,
                     pointHoverRadius: 5,
-                    pointBackgroundColor: currentFarm === 2 ? ppfd1Values.map(value => 
-                        value < 400 ? chartColors.danger : chartColors.teal
+                    spanGaps: false,
+                    pointBackgroundColor: currentFarm === 2 ? aligned.values1.map(value => 
+                        value !== null && value < 400 ? chartColors.danger : chartColors.teal
                     ) : undefined
                 },
                 {
                     label: label2,
-                    data: ppfd2Values,
+                    data: aligned.values2,
                     borderColor: currentFarm === 1 ? chartColors.info : chartColors.pink,
                     backgroundColor: currentFarm === 1 ? chartColors.info + '20' : chartColors.pink + '20',
                     borderWidth: 2,
                     tension: 0.1,
                     pointRadius: 3,
                     pointHoverRadius: 5,
-                    pointBackgroundColor: currentFarm === 2 ? ppfd2Values.map(value => 
-                        value < 400 ? chartColors.danger : chartColors.pink
+                    spanGaps: false,
+                    pointBackgroundColor: currentFarm === 2 ? aligned.values2.map(value => 
+                        value !== null && value < 400 ? chartColors.danger : chartColors.pink
                     ) : undefined
                 }
             ]
         },
         options: {
             ...commonOptions,
-            scales: {
-                ...commonOptions.scales,
-                y: {
-                    ...commonOptions.scales.y,
-                    title: {
-                        display: currentFarm === 1,
-                        text: 'PPFD (μmol/m²/s)'
-                    }
-                }
-            },
             plugins: {
                 ...commonOptions.plugins,
+                tooltip: {
+                    ...commonOptions.plugins.tooltip,
+                    filter: function(tooltipItem) {
+                        // Hide tooltip for null values
+                        return tooltipItem.raw !== null;
+                    }
+                },
                 annotation: currentFarm === 2 ? {
                     annotations: {
                         line1: {
@@ -477,6 +545,16 @@ function initializePPFDChart() {
                         }
                     }
                 } : undefined
+            },
+            scales: {
+                ...commonOptions.scales,
+                y: {
+                    ...commonOptions.scales.y,
+                    title: {
+                        display: currentFarm === 1,
+                        text: 'PPFD (μmol/m²/s)'
+                    }
+                }
             }
         }
     });
@@ -515,6 +593,7 @@ function initializeNPKChart() {
                 tension: 0.1,
                 pointRadius: 2,
                 pointHoverRadius: 4,
+                spanGaps: false,
                 pointBackgroundColor: dataset.data.map(value => 
                     value > 300 ? chartColors.danger : dataset.color
                 )
@@ -524,6 +603,13 @@ function initializeNPKChart() {
             ...commonOptions,
             plugins: {
                 ...commonOptions.plugins,
+                tooltip: {
+                    ...commonOptions.plugins.tooltip,
+                    filter: function(tooltipItem) {
+                        // Hide tooltip for null values
+                        return tooltipItem.raw !== null;
+                    }
+                },
                 legend: {
                     ...commonOptions.plugins.legend,
                     labels: {
@@ -580,6 +666,7 @@ function initializeTemperatureChart() {
     } else {
         datasets = [
             { label: 'Air Temp R8', data: getChartData('air-temp-r8'), color: chartColors.teal },
+            { label: 'Air Temp R16', data: getChartData('air-temp-r16'), color: chartColors.primary },
             { label: 'Air Temp R24', data: getChartData('air-temp-r24'), color: chartColors.pink },
             { label: 'Soil Temp R8', data: getChartData('temp-npk-r8'), color: chartColors.orange },
             { label: 'Soil Temp R16', data: getChartData('temp-npk-r16'), color: chartColors.purple },
@@ -601,6 +688,7 @@ function initializeTemperatureChart() {
                 tension: 0.1,
                 pointRadius: 2,
                 pointHoverRadius: 4,
+                spanGaps: false,
                 pointBackgroundColor: dataset.data.map((value, index) => {
                     const hour = new Date(xValues[index]).getHours();
                     if (hour >= 6 && hour < 18) {
@@ -615,6 +703,13 @@ function initializeTemperatureChart() {
             ...commonOptions,
             plugins: {
                 ...commonOptions.plugins,
+                tooltip: {
+                    ...commonOptions.plugins.tooltip,
+                    filter: function(tooltipItem) {
+                        // Hide tooltip for null values
+                        return tooltipItem.raw !== null;
+                    }
+                },
                 annotation: {
                     annotations: {
                         dayLine: {
@@ -680,6 +775,7 @@ function initializeHumidityChart() {
         datasets = [
             // Air Humidity
             { label: 'Air Hum R8', data: getChartData('air-hum-r8'), color: chartColors.teal, type: 'air' },
+            { label: 'Air Hum R16', data: getChartData('air-hum-r16'), color: chartColors.primary, type: 'air' },
             { label: 'Air Hum R24', data: getChartData('air-hum-r24'), color: chartColors.pink, type: 'air' },
             // Soil Moisture
             { label: 'Soil R8 ท้าย', data: getChartData('soil1'), color: chartColors.purple, type: 'soil' },
@@ -705,6 +801,7 @@ function initializeHumidityChart() {
                 tension: 0.1,
                 pointRadius: 2,
                 pointHoverRadius: 4,
+                spanGaps: false,
                 pointBackgroundColor: dataset.data.map((value, index) => {
                     const hour = new Date(xValues[index]).getHours();
                     if (dataset.type === 'air') {
@@ -723,6 +820,13 @@ function initializeHumidityChart() {
             ...commonOptions,
             plugins: {
                 ...commonOptions.plugins,
+                tooltip: {
+                    ...commonOptions.plugins.tooltip,
+                    filter: function(tooltipItem) {
+                        // Hide tooltip for null values
+                        return tooltipItem.raw !== null;
+                    }
+                },
                 legend: {
                     ...commonOptions.plugins.legend,
                     labels: {
@@ -793,27 +897,51 @@ function initializeHumidityChart() {
 // EC Chart
 function initializeECChart() {
     const ctx = document.getElementById('EC_Chart').getContext('2d');
-    const xValues = getChartData('ecwm-times');
-    const ecValues = getChartData('ecwm');
+    
+    // Get data for all EC sensors
+    const ecwmTimes = getChartData('ecwm-times');
+    const ecwmValues = getChartData('ecwm');
+    const ecwpTimes = getChartData('ecwp-times');
+    const ecwpValues = getChartData('ecwp');
+    
+    // Align datasets to handle missing data
+    const aligned = alignDatasets(ecwmTimes, ecwmValues, ecwpTimes, ecwpValues);
 
     new Chart(ctx, {
         type: 'line',
         data: {
-            labels: xValues,
+            labels: aligned.timestamps,
             datasets: [
                 {
-                    label: currentFarm === 1 ? 'EC - Mixed Water' : 'Mix Water EC',
-                    data: ecValues,
+                    label: 'EC - Mixed Water',
+                    data: aligned.values1,
                     borderColor: chartColors.primary,
                     backgroundColor: chartColors.primary + '20',
                     borderWidth: 3,
                     tension: 0.1,
                     pointRadius: 3,
                     pointHoverRadius: 5,
-                    pointBackgroundColor: ecValues.map(value => 
+                    spanGaps: false,
+                    pointBackgroundColor: aligned.values1.map(value => 
                         value > 1000 ? chartColors.danger : 
                         value < 700 ? chartColors.info : 
                         chartColors.primary
+                    )
+                },
+                {
+                    label: 'EC - Pure Water',
+                    data: aligned.values2,
+                    borderColor: chartColors.teal,
+                    backgroundColor: chartColors.teal + '20',
+                    borderWidth: 3,
+                    tension: 0.1,
+                    pointRadius: 3,
+                    pointHoverRadius: 5,
+                    spanGaps: false,
+                    pointBackgroundColor: aligned.values2.map(value => 
+                        value > 1000 ? chartColors.danger : 
+                        value < 700 ? chartColors.info : 
+                        chartColors.teal
                     )
                 }
             ]
@@ -822,6 +950,13 @@ function initializeECChart() {
             ...commonOptions,
             plugins: {
                 ...commonOptions.plugins,
+                tooltip: {
+                    ...commonOptions.plugins.tooltip,
+                    filter: function(tooltipItem) {
+                        // Hide tooltip for null values
+                        return tooltipItem.raw !== null;
+                    }
+                },
                 annotation: {
                     annotations: {
                         upperLimit: {

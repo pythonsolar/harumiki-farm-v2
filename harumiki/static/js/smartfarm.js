@@ -309,56 +309,196 @@ function showNotification(message, type = 'info') {
     }, 5000);
 }
 
-function refreshSensorData() {
-    if (!state.isAutoRefresh) return;
+// ===========================
+// AJAX Refresh Functions
+// ===========================
+function updateSensorValues(data) {
+    if (!data || typeof data !== 'object') return;
     
-    // Update last refresh time before showing overlay
+    // Update each sensor value
+    Object.entries(data).forEach(([key, value]) => {
+        // Try multiple selectors
+        let updated = false;
+        
+        // Method 1: Direct ID mapping
+        const idMappings = {
+            // Farm 1 mappings
+            'soil7': '#sensor-1 .value:first',
+            'soil8': '#sensor-1 .value:last',
+            'nitrogenR8_Q': '#sensor-2 .npk-values p:nth-child(1) .value',
+            'phosphorusR8_Q': '#sensor-2 .npk-values p:nth-child(2) .value',
+            'potassiumR8_Q': '#sensor-2 .npk-values p:nth-child(3) .value',
+            'CO2_R1': '#sensor-3 .value',
+            'ppfd3': '#sensor-4 .value',
+            'pm_outside': '#sensor-5 .value',
+            'soil11': '#sensor-6 .value:first',
+            'soil12': '#sensor-6 .value:last',
+            'nitrogenR24_Q': '#sensor-7 .npk-values p:nth-child(1) .value',
+            'phosphorusR24_Q': '#sensor-7 .npk-values p:nth-child(2) .value',
+            'potassiumR24_Q': '#sensor-7 .npk-values p:nth-child(3) .value',
+            'airhumR24_Q': '#sensor-8 p:nth-child(2) .value',
+            'airtempR24_Q': '#sensor-8 p:nth-child(3) .value',
+            'airhumR8_Q': '#sensor-9 p:nth-child(2) .value',
+            'airtempR8_Q': '#sensor-9 p:nth-child(3) .value',
+            'nitrogenR16_Q': '#sensor-10 .npk-values p:nth-child(1) .value',
+            'phosphorusR16_Q': '#sensor-10 .npk-values p:nth-child(2) .value',
+            'potassiumR16_Q': '#sensor-10 .npk-values p:nth-child(3) .value',
+            'ppfd4': '#sensor-11 .value',
+            'soil9': '#sensor-12 .value:first',
+            'soil10': '#sensor-12 .value:last',
+            
+            // Farm 2 mappings
+            'soil3': '#sensor-1 p:nth-child(2) .value',
+            'soil2': '#sensor-1 p:nth-child(3) .value',
+            'soil1': '#sensor-1 p:nth-child(4) .value',
+            'nitrogenR8_P': '#sensor-2 .npk-values p:nth-child(1) .value',
+            'phosphorusR8_P': '#sensor-2 .npk-values p:nth-child(2) .value',
+            'potassiumR8_P': '#sensor-2 .npk-values p:nth-child(3) .value',
+            'CO2_R2': '#sensor-3 .value',
+            'ppfd_R24_P': '#sensor-4 .value',
+            'pm_R2': '#sensor-5 .value',
+            'soil6': '#sensor-6 p:nth-child(2) .value',
+            'soil5': '#sensor-6 p:nth-child(3) .value',
+            'soil4': '#sensor-6 p:nth-child(4) .value',
+            'nitrogenR24_P': '#sensor-7 .npk-values p:nth-child(1) .value',
+            'phosphorusR24_P': '#sensor-7 .npk-values p:nth-child(2) .value',
+            'potassiumR24_P': '#sensor-7 .npk-values p:nth-child(3) .value',
+            'airHumR24_P': '#sensor-8 p:nth-child(2) .value',
+            'airTempR24_P': '#sensor-8 p:nth-child(3) .value',
+            'airHumR8_P': '#sensor-9 p:nth-child(2) .value',
+            'airTempR8_P': '#sensor-9 p:nth-child(3) .value',
+            'nitrogenR16_P': '#sensor-10 .npk-values p:nth-child(1) .value',
+            'phosphorusR16_P': '#sensor-10 .npk-values p:nth-child(2) .value',
+            'potassiumR16_P': '#sensor-10 .npk-values p:nth-child(3) .value',
+            'ppfd_R16_P': '#sensor-11 .value'
+        };
+        
+        const selector = idMappings[key];
+        if (selector) {
+            const element = document.querySelector(selector);
+            if (element) {
+                updateSingleValue(element, value);
+                updated = true;
+            }
+        }
+        
+        // Method 2: Data attribute selector (for future use)
+        if (!updated) {
+            const elements = document.querySelectorAll(`[data-sensor="${key}"]`);
+            elements.forEach(el => updateSingleValue(el, value));
+        }
+    });
+    
+    // Format values after update
+    formatSensorValues();
+    
+    // Check for missing data
+    checkMissingData();
+}
+
+function updateSingleValue(element, newValue) {
+    if (!element) return;
+    
+    const oldValue = element.textContent;
+    const formattedValue = formatValue(newValue);
+    
+    // Only update if value changed
+    if (oldValue !== formattedValue) {
+        // Add animation class
+        element.classList.add('updating');
+        
+        // Update value
+        element.textContent = formattedValue;
+        
+        // Flash effect
+        const parent = element.closest('.sensor-value');
+        if (parent) {
+            parent.classList.add('value-updated');
+        }
+        
+        // Remove animation classes
+        setTimeout(() => {
+            element.classList.remove('updating');
+            if (parent) {
+                parent.classList.remove('value-updated');
+            }
+        }, 1000);
+    }
+}
+
+function formatValue(value) {
+    if (value === null || value === undefined || value === '') {
+        return '--';
+    }
+    if (typeof value === 'number') {
+        return value.toFixed(1);
+    }
+    return String(value);
+}
+
+async function refreshSensorData() {
+    // if (!state.isAutoRefresh) return;
+    
+    // Update last refresh time immediately
     updateLastUpdateTime();
     
+    // Show subtle loading indicator
     const overlay = document.createElement('div');
-    overlay.className = 'refresh-overlay';
+    overlay.className = 'refresh-indicator';
+    overlay.innerHTML = '<i class="fas fa-sync fa-spin"></i>';
     overlay.style.cssText = `
         position: fixed;
-        top: 0;
-        left: 0;
-        right: 0;
-        bottom: 0;
-        background: rgba(0, 0, 0, 0.3);
-        backdrop-filter: blur(5px);
-        z-index: 999;
-        display: flex;
-        align-items: center;
-        justify-content: center;
+        top: 20px;
+        right: 80px;
+        background: rgba(16, 185, 129, 0.9);
+        color: white;
+        padding: 8px 12px;
+        border-radius: 20px;
+        font-size: 0.9rem;
+        z-index: 1000;
         animation: fadeIn 0.3s ease-out;
     `;
-    
-    overlay.innerHTML = `
-        <div style="
-            background: white;
-            padding: 20px 40px;
-            border-radius: 15px;
-            box-shadow: 0 10px 40px rgba(0,0,0,0.2);
-            display: flex;
-            align-items: center;
-            gap: 15px;
-        ">
-            <div class="spinner" style="
-                width: 30px;
-                height: 30px;
-                border: 3px solid #f0f0f0;
-                border-top-color: #10b981;
-                border-radius: 50%;
-                animation: spin 1s linear infinite;
-            "></div>
-            <span style="font-size: 1.1rem; color: #333;">กำลังอัพเดทข้อมูล...</span>
-        </div>
-    `;
-    
     document.body.appendChild(overlay);
     
-    setTimeout(() => {
-        location.reload();
-    }, 1000);
+    try {
+        // Detect current farm from URL or page
+        let farm = 'farm1';
+        if (window.location.pathname.includes('farm-2') || 
+            window.location.pathname.includes('smartfarm-2')) {
+            farm = 'farm2';
+        }
+        
+        const response = await fetch(`/api/smartfarm/latest/?farm=${farm}`);
+        
+        if (!response.ok) {
+            throw new Error(`HTTP error! status: ${response.status}`);
+        }
+        
+        const result = await response.json();
+        
+        if (result.status === 'success' && result.data) {
+            updateSensorValues(result.data);
+            
+            // Success feedback
+            overlay.innerHTML = '<i class="fas fa-check"></i>';
+            setTimeout(() => overlay.remove(), 1000);
+        } else {
+            throw new Error('Invalid response format');
+        }
+        
+    } catch (error) {
+        console.error('Refresh failed:', error);
+        
+        // Error feedback
+        overlay.innerHTML = '<i class="fas fa-exclamation-triangle"></i>';
+        overlay.style.background = 'rgba(239, 68, 68, 0.9)';
+        setTimeout(() => overlay.remove(), 2000);
+        
+        // Only show notification for network errors
+        if (error.message.includes('fetch')) {
+            showNotification('❌ ไม่สามารถเชื่อมต่อเซิร์ฟเวอร์ได้', 'error');
+        }
+    }
 }
 
 // ===========================
@@ -753,12 +893,11 @@ function checkSensorPositions() {
 // ===========================
 document.addEventListener('DOMContentLoaded', function() {
     // Auto-inject Font Awesome if not present
-    if (!document.querySelector('link[href*="font-awesome"]')) {
-        const fontAwesome = document.createElement('link');
-        fontAwesome.rel = 'stylesheet';
-        fontAwesome.href = 'https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css';
-        document.head.appendChild(fontAwesome);
-    }
+    // if (!document.querySelector('link[href*="font-awesome"]')) {
+    //     const fontAwesome = document.createElement('link');
+    //     fontAwesome.rel = 'stylesheet';
+    //     document.head.appendChild(fontAwesome);
+    // }
     
     // Add animation styles
     addAnimationStyles();
@@ -856,7 +995,7 @@ document.addEventListener('DOMContentLoaded', function() {
             <i class="bi bi-geo-alt-fill"></i> 
             <span>${currentFarm.toUpperCase()}</span>
             <span style="font-size: 0.7rem; opacity: 0.7; margin-left: 5px;">
-                (${currentFarm === 'farm1' ? '16 เซ็นเซอร์' : '11 เซ็นเซอร์'})
+                (${currentFarm === 'farm1' ? '12 เซ็นเซอร์' : '11 เซ็นเซอร์'})
             </span>
         `;
         farmIndicator.style.cssText = `

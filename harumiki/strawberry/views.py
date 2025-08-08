@@ -30,6 +30,9 @@ from django.views.decorators.gzip import gzip_page
 import calendar
 import time
 
+from django.views.decorators.http import require_http_methods
+from django.views.decorators.csrf import csrf_exempt
+
 from .models import *
 
 # Configure secure logging
@@ -908,6 +911,7 @@ def update_graph1(start_datetime, end_datetime):
     pm_R1 = get_history_val("PM25_R1", "atmos", start_datetime, end_datetime)
     pm_outside = get_history_val("PM25_OUTSIDE", "atmos", start_datetime, end_datetime)
     ECWM = get_history_val("EC", "conduct", start_datetime, end_datetime)
+    ECWP = get_history_val("EC2", "val", start_datetime, end_datetime)
     TempWM = get_history_val("EC", "temp", start_datetime, end_datetime)
     CO2_R1 = get_history_val("CO2_R1", "val", start_datetime, end_datetime)
     CO2_R2 = get_history_val("CO2_R2", "val", start_datetime, end_datetime)
@@ -917,21 +921,31 @@ def update_graph1(start_datetime, end_datetime):
         values = CO2_R1.get('values', [])
         datetimes = CO2_R1.get('datetimes', [])
         if values and datetimes:
+            logger.info(f"CO2_R1 raw data: {len(values)} values, first 5: {values[:5]}")
             filtered_values, filtered_datetimes = filter_sensor_data(
                 values, datetimes, sensor_type='co2'
             )
             CO2_R1 = {'values': filtered_values, 'datetimes': filtered_datetimes}
-            logger.info(f"CO2_R1 filtered: {len(values)} -> {len(filtered_values)} values")
+            logger.info(f"CO2_R1 filtered: {len(values)} -> {len(filtered_values)} values, first 5: {filtered_values[:5]}")
+        else:
+            logger.warning(f"CO2_R1 data issue: values={len(values) if values else 0}, datetimes={len(datetimes) if datetimes else 0}")
+    else:
+        logger.warning(f"CO2_R1 not available or not dict: {type(CO2_R1)}")
     
     if CO2_R2 and isinstance(CO2_R2, dict):
         values = CO2_R2.get('values', [])
         datetimes = CO2_R2.get('datetimes', [])
         if values and datetimes:
+            logger.info(f"CO2_R2 raw data: {len(values)} values, first 5: {values[:5]}")
             filtered_values, filtered_datetimes = filter_sensor_data(
                 values, datetimes, sensor_type='co2'
             )
             CO2_R2 = {'values': filtered_values, 'datetimes': filtered_datetimes}
-            logger.info(f"CO2_R2 filtered: {len(values)} -> {len(filtered_values)} values")
+            logger.info(f"CO2_R2 filtered: {len(values)} -> {len(filtered_values)} values, first 5: {filtered_values[:5]}")
+        else:
+            logger.warning(f"CO2_R2 data issue: values={len(values) if values else 0}, datetimes={len(datetimes) if datetimes else 0}")
+    else:
+        logger.warning(f"CO2_R2 not available or not dict: {type(CO2_R2)}")
     nitrogen4 = get_history_val("NPK4", "nitrogen", start_datetime, end_datetime)
     nitrogen5 = get_history_val("NPK5", "nitrogen", start_datetime, end_datetime)
     nitrogen6 = get_history_val("NPK6", "nitrogen", start_datetime, end_datetime)
@@ -966,6 +980,7 @@ def update_graph1(start_datetime, end_datetime):
         'pm_R1': pm_R1,
         'pm_outside': pm_outside,
         'ECWM': ECWM,
+        'ECWP': ECWP,
         'TempWM': TempWM,
         'CO2_R1': CO2_R1,
         'CO2_R2': CO2_R2,
@@ -1008,6 +1023,7 @@ def update_graph2(start_datetime, end_datetime):
         ('pm_R2', 'PM25_R2', 'atmos'),
         ('pm_outside', 'PM25_OUTSIDE', 'atmos'),
         ('ECWM', 'EC', 'conduct'),
+        ('ECWP', 'EC2', 'val'),
         ('TempWM', 'EC', 'temp'),
         ('CO2_R1', 'CO2_R1', 'val'),
         ('CO2_R2', 'CO2_R2', 'val'),
@@ -1033,8 +1049,10 @@ def update_graph2(start_datetime, end_datetime):
         ('ppfdR16', 'ppfd1', 'ppfd'),
         ('ppfdR24', 'ppfd2', 'ppfd'),
         ('airTempR8', 'SHT45T1', 'Temp'),
+        ('airTempR16', 'SHT45T6', 'Temp'),
         ('airTempR24', 'SHT45T2', 'Temp'),
         ('airHumR8', 'SHT45T1', 'Hum'),
+        ('airHumR16', 'SHT45T6', 'Hum'),
         ('airHumR24', 'SHT45T2', 'Hum'),
         ('UV_R24', 'UV2', 'uv_value'),
         ('LUX_R24', 'Lux2', 'lux')
@@ -1060,6 +1078,37 @@ def update_graph2(start_datetime, end_datetime):
             except Exception as e:
                 logger.error(f"Error fetching {key}: {e}")
                 context_history[key] = {'datetimes': [], 'values': []}
+    
+    # Filter CO2 data to remove invalid values (same as update_graph1)
+    if context_history.get('CO2_R1') and isinstance(context_history['CO2_R1'], dict):
+        values = context_history['CO2_R1'].get('values', [])
+        datetimes = context_history['CO2_R1'].get('datetimes', [])
+        if values and datetimes:
+            logger.info(f"CO2_R1 raw data: {len(values)} values, first 5: {values[:5]}")
+            filtered_values, filtered_datetimes = filter_sensor_data(
+                values, datetimes, sensor_type='co2'
+            )
+            context_history['CO2_R1'] = {'values': filtered_values, 'datetimes': filtered_datetimes}
+            logger.info(f"CO2_R1 filtered: {len(values)} -> {len(filtered_values)} values, first 5: {filtered_values[:5]}")
+        else:
+            logger.warning(f"CO2_R1 data issue: values={len(values) if values else 0}, datetimes={len(datetimes) if datetimes else 0}")
+    else:
+        logger.warning(f"CO2_R1 not available or not dict: {type(context_history.get('CO2_R1'))}")
+    
+    if context_history.get('CO2_R2') and isinstance(context_history['CO2_R2'], dict):
+        values = context_history['CO2_R2'].get('values', [])
+        datetimes = context_history['CO2_R2'].get('datetimes', [])
+        if values and datetimes:
+            logger.info(f"CO2_R2 raw data: {len(values)} values, first 5: {values[:5]}")
+            filtered_values, filtered_datetimes = filter_sensor_data(
+                values, datetimes, sensor_type='co2'
+            )
+            context_history['CO2_R2'] = {'values': filtered_values, 'datetimes': filtered_datetimes}
+            logger.info(f"CO2_R2 filtered: {len(values)} -> {len(filtered_values)} values, first 5: {filtered_values[:5]}")
+        else:
+            logger.warning(f"CO2_R2 data issue: values={len(values) if values else 0}, datetimes={len(datetimes) if datetimes else 0}")
+    else:
+        logger.warning(f"CO2_R2 not available or not dict: {type(context_history.get('CO2_R2'))}")
     
     return context_history
 
@@ -1144,6 +1193,8 @@ SENSOR_NORMALIZE_MAX = {
     
     # Water Quality
     'ECWM': 1500,
+    'ECWP': 1500,
+    'ECWM_Q': 1500,
 }
 
 def normalize_data(context_dict):
@@ -2348,3 +2399,175 @@ def debug_sensors(request):
 
 # Add this URL pattern to urls.py:
 # path('debug-sensors/', debug_sensors, name='debug-sensors'),
+
+# เพิ่มที่ท้ายไฟล์ views.py
+
+@require_http_methods(["GET"])
+@csrf_exempt  # For API endpoint
+def get_latest_sensors_api(request):
+    """
+    API endpoint for AJAX sensor updates
+    Returns JSON with latest sensor values
+    """
+    try:
+        # Get farm parameter
+        farm = request.GET.get('farm', 'farm1')
+        
+        # Validate farm parameter
+        if farm not in ['farm1', 'farm2']:
+            return JsonResponse({
+                'status': 'error',
+                'message': 'Invalid farm parameter'
+            }, status=400)
+        
+        # Get latest sensor data
+        context = get_farm_context(farm)
+        
+        # Filter only numeric and string values (exclude complex objects)
+        sensor_data = {}
+        for key, value in context.items():
+            if isinstance(value, (int, float, str, type(None))):
+                # Handle None values
+                if value is None:
+                    sensor_data[key] = 0
+                else:
+                    sensor_data[key] = value
+        
+        # Add metadata
+        response_data = {
+            'status': 'success',
+            'data': sensor_data,
+            'timestamp': datetime.now().isoformat(),
+            'farm': farm,
+            'sensor_count': len(sensor_data)
+        }
+        
+        # Log successful API call
+        logger.info(f"API sensor update for {farm}: {len(sensor_data)} values")
+        
+        return JsonResponse(response_data)
+        
+    except Exception as e:
+        logger.error(f"Error in get_latest_sensors_api: {str(e)}")
+        return JsonResponse({
+            'status': 'error',
+            'message': 'Internal server error',
+            'timestamp': datetime.now().isoformat()
+        }, status=500)
+
+def get_co2_data_api(request):
+    """
+    Retrieve CO2 data for specific date range via API
+    Example: /api/co2-data/?start_date=2025-08-01&end_date=2025-08-02
+    """
+    try:
+        # Get date parameters
+        start_date = request.GET.get('start_date', '2025-08-01')
+        end_date = request.GET.get('end_date', '2025-08-02')
+        
+        # Format datetime strings
+        start = f"{start_date}T00:00:00"
+        end = f"{end_date}T23:59:59"
+        
+        logger.info(f"Fetching CO2 data from {start} to {end}")
+        
+        # Get CO2 data for both farms
+        co2_r1_data = get_history_val("CO2_R1", "val", start, end, timeout=120)
+        co2_r2_data = get_history_val("CO2_R2", "val", start, end, timeout=120)
+        
+        # Process and filter data
+        result = {
+            'farm1': {
+                'sensor': 'CO2_R1',
+                'data': []
+            },
+            'farm2': {
+                'sensor': 'CO2_R2', 
+                'data': []
+            },
+            'date_range': {
+                'start': start_date,
+                'end': end_date
+            }
+        }
+        
+        # Process Farm 1 CO2 data
+        if co2_r1_data and isinstance(co2_r1_data, dict):
+            values = co2_r1_data.get('values', [])
+            datetimes = co2_r1_data.get('datetimes', [])
+            
+            if values and datetimes:
+                # Filter valid CO2 values (typical range: 300-2000 ppm)
+                filtered_data = []
+                for i, (val, dt) in enumerate(zip(values, datetimes)):
+                    try:
+                        co2_val = float(val) if val else 0
+                        if 300 <= co2_val <= 2000:  # Valid CO2 range
+                            filtered_data.append({
+                                'datetime': dt,
+                                'value': co2_val
+                            })
+                    except (ValueError, TypeError):
+                        continue
+                
+                result['farm1']['data'] = filtered_data
+                result['farm1']['count'] = len(filtered_data)
+                result['farm1']['raw_count'] = len(values)
+                
+                logger.info(f"CO2_R1: {len(values)} raw -> {len(filtered_data)} filtered values")
+        
+        # Process Farm 2 CO2 data
+        if co2_r2_data and isinstance(co2_r2_data, dict):
+            values = co2_r2_data.get('values', [])
+            datetimes = co2_r2_data.get('datetimes', [])
+            
+            if values and datetimes:
+                # Filter valid CO2 values
+                filtered_data = []
+                for i, (val, dt) in enumerate(zip(values, datetimes)):
+                    try:
+                        co2_val = float(val) if val else 0
+                        if 300 <= co2_val <= 2000:  # Valid CO2 range
+                            filtered_data.append({
+                                'datetime': dt,
+                                'value': co2_val
+                            })
+                    except (ValueError, TypeError):
+                        continue
+                
+                result['farm2']['data'] = filtered_data
+                result['farm2']['count'] = len(filtered_data)
+                result['farm2']['raw_count'] = len(values)
+                
+                logger.info(f"CO2_R2: {len(values)} raw -> {len(filtered_data)} filtered values")
+        
+        # Add summary statistics
+        if result['farm1']['data']:
+            farm1_values = [d['value'] for d in result['farm1']['data']]
+            result['farm1']['stats'] = {
+                'min': min(farm1_values),
+                'max': max(farm1_values),
+                'avg': sum(farm1_values) / len(farm1_values)
+            }
+        
+        if result['farm2']['data']:
+            farm2_values = [d['value'] for d in result['farm2']['data']]
+            result['farm2']['stats'] = {
+                'min': min(farm2_values),
+                'max': max(farm2_values),
+                'avg': sum(farm2_values) / len(farm2_values)
+            }
+        
+        return JsonResponse({
+            'status': 'success',
+            'result': result,
+            'timestamp': datetime.now().isoformat()
+        })
+        
+    except Exception as e:
+        logger.error(f"Error fetching CO2 data: {str(e)}")
+        return JsonResponse({
+            'status': 'error',
+            'message': str(e),
+            'timestamp': datetime.now().isoformat()
+        }, status=500)

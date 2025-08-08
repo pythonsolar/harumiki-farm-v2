@@ -42,4 +42,8 @@ urlpatterns = [
     path('debug-sensors/', views.debug_sensors, name='debug-sensors'),
 
     path('get-compare-chart-data/', views.get_compare_chart_data, name='get-compare-chart-data'),
+
+    # API endpoints
+    path('api/smartfarm/latest/', views.get_latest_sensors_api, name='api-latest-sensors'),
+    path('api/co2-data/', views.get_co2_data_api, name='api-co2-data'),
 ]

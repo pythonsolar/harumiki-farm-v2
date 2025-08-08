@@ -274,3 +274,20 @@
         border: 2px solid #000;
     }
 }
+
+/* เพิ่มใน graph.css */
+.co2-data-warning {
+    position: absolute;
+    top: 10px;
+    right: 10px;
+    background: rgba(255, 193, 7, 0.1);
+    border: 1px solid #ffc107;
+    border-radius: 4px;
+    padding: 4px 8px;
+    font-size: 0.75rem;
+    color: #856404;
+}
+
+.co2-data-warning::before {
+    content: '⚠️ ';
+}

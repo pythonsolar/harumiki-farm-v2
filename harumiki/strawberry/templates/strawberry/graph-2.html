@@ -192,15 +192,21 @@
          data-pm-r2="{{ pm_R2.values }}"
          data-pm-r2-times="{{ pm_R2.datetimes|safe }}"
          data-pm-outside="{{ pm_outside.values }}"
+         data-pm-outside-times="{{ pm_outside.datetimes|safe }}"
          data-co2-r1="{{ CO2_R1.values }}"
+         data-co2-r1-times="{{ CO2_R1.datetimes|safe }}"
          data-co2-r2="{{ CO2_R2.values }}"
-         data-co2-times="{{ CO2_R2.datetimes|safe }}"
+         data-co2-r2-times="{{ CO2_R2.datetimes|safe }}"
+         data-debug-co2-r1-count="{{ CO2_R1.values|length }}"
+         data-debug-co2-r2-count="{{ CO2_R2.values|length }}"
          data-uv-r24="{{ UV_R24.values }}"
          data-uv-r24-times="{{ UV_R24.datetimes|safe }}"
          data-lux-r24="{{ LUX_R24.values }}"
+         data-lux-r24-times="{{ LUX_R24.datetimes|safe }}"
          data-ppfd-r16="{{ ppfdR16.values }}"
          data-ppfd-r16-times="{{ ppfdR16.datetimes|safe }}"
          data-ppfd-r24="{{ ppfdR24.values }}"
+         data-ppfd-r24-times="{{ ppfdR24.datetimes|safe }}"
          data-nitrogen-r8="{{ nitrogenR8.values }}"
          data-nitrogen-r8-times="{{ nitrogenR8.datetimes|safe }}"
          data-nitrogen-r16="{{ nitrogenR16.values }}"
@@ -229,15 +235,17 @@
          data-soil6="{{ soil6.values }}"
          data-soil13="{{ soil13.values }}"
          data-ecwm="{{ ECWM.values }}"
-         data-ecwm-times="{{ ECWM.datetimes|safe }}">
+         data-ecwm-times="{{ ECWM.datetimes|safe }}"
+         data-ecwp="{{ ECWP.values }}"
+         data-ecwp-times="{{ ECWP.datetimes|safe }}">
     </div>
 </div>
 {% endblock %}
 
 {% block extra_js %}
-<script src="{% static 'js/utils.js' %}"></script>
+<script src="https://cdn.jsdelivr.net/npm/moment@2.29.1/moment.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/chart.js@3.9.1/dist/chart.min.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/chartjs-adapter-date-fns@2.0.0/dist/chartjs-adapter-date-fns.bundle.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/chartjs-adapter-moment@1.0.0/dist/chartjs-adapter-moment.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-annotation@1.4.0/dist/chartjs-plugin-annotation.min.js"></script>
 <script src="{% static 'js/graph-combined.js' %}"></script>
 {% endblock %}

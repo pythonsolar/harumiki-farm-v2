@@ -329,6 +329,49 @@ function showValidationError(message) {
     }
 }
 
+// Align data for multiple datasets with potentially different timestamps
+function alignDatasets(timestamps1, values1, timestamps2, values2) {
+    // Create maps for quick lookup
+    const data1Map = new Map();
+    const data2Map = new Map();
+    
+    // Populate maps (treating -999 as missing data)
+    timestamps1.forEach((ts, idx) => {
+        if (ts && values1[idx] !== undefined && values1[idx] !== -999) {
+            data1Map.set(ts, values1[idx]);
+        }
+    });
+    
+    timestamps2.forEach((ts, idx) => {
+        if (ts && values2[idx] !== undefined && values2[idx] !== -999) {
+            data2Map.set(ts, values2[idx]);
+        }
+    });
+    
+    // Get all unique timestamps and sort them
+    const allTimestamps = [...new Set([...timestamps1, ...timestamps2])].filter(ts => ts).sort();
+    
+    // Create aligned datasets
+    const alignedValues1 = [];
+    const alignedValues2 = [];
+    
+    allTimestamps.forEach(ts => {
+        // Use null for missing data points to create gaps in the line
+        const val1 = data1Map.has(ts) ? data1Map.get(ts) : null;
+        const val2 = data2Map.has(ts) ? data2Map.get(ts) : null;
+        
+        // Convert -999 to null for proper gap handling
+        alignedValues1.push(val1 === -999 ? null : val1);
+        alignedValues2.push(val2 === -999 ? null : val2);
+    });
+    
+    return {
+        timestamps: allTimestamps,
+        values1: alignedValues1,
+        values2: alignedValues2
+    };
+}
+
 // ========== Performance Optimization ==========
 
 // Chart loading queue with priority levels
@@ -685,28 +728,38 @@ function initializePMChart() {
 // 2. CO2 Chart
 function initializeCO2Chart() {
     const ctx = document.getElementById('co2Chart').getContext('2d');
-    const timeLabels = getChartData('co2-farm1-times');
+    
+    // Get timestamps and values for both farms
+    const co2Farm1Times = getChartData('co2-farm1-times');
+    const co2Farm1Values = getChartData('co2-farm1');
+    const co2Farm2Times = getChartData('co2-farm2-times');
+    const co2Farm2Values = getChartData('co2-farm2');
+    
+    // Align datasets to handle missing data
+    const aligned = alignDatasets(co2Farm1Times, co2Farm1Values, co2Farm2Times, co2Farm2Values);
     
     new Chart(ctx, {
         type: 'line',
         data: {
-            labels: timeLabels,
+            labels: aligned.timestamps,
             datasets: [
                 {
                     label: 'CO2_Farm1',
-                    data: getChartData('co2-farm1'),
+                    data: aligned.values1,
                     borderColor: colors.farm1,
                     backgroundColor: colors.farm1 + '20',
                     borderWidth: 2,
-                    tension: 0.1
+                    tension: 0.1,
+                    spanGaps: false // Don't connect lines across null values
                 },
                 {
                     label: 'CO2_Farm2',
-                    data: getChartData('co2-farm2'),
+                    data: aligned.values2,
                     borderColor: colors.farm2,
                     backgroundColor: colors.farm2 + '20',
                     borderWidth: 2,
-                    tension: 0.1
+                    tension: 0.1,
+                    spanGaps: false // Don't connect lines across null values
                 }
             ]
         },
@@ -717,6 +770,30 @@ function initializeCO2Chart() {
                 legend: {
                     display: true,
                     position: 'top'
+                },
+                tooltip: {
+                    ...commonOptions.plugins.tooltip,
+                    filter: function(tooltipItem) {
+                        // Hide tooltip for null values
+                        return tooltipItem.raw !== null;
+                    }
+                },
+                annotation: {
+                    annotations: {
+                        line1: {
+                            type: 'line',
+                            yMin: 1000,
+                            yMax: 1000,
+                            borderColor: colors.warning || '#FFC107',
+                            borderWidth: 2,
+                            borderDash: [5, 5],
+                            label: {
+                                content: 'High CO2 Level',
+                                enabled: true,
+                                position: 'end'
+                            }
+                        }
+                    }
                 }
             },
             scales: {
@@ -1531,16 +1608,6 @@ function initializeECChart() {
                     data: getChartData('ecwm'),
                     borderColor: '#2196F3',
                     backgroundColor: '#2196F3' + '20',
-                    borderWidth: 3,
-                    tension: 0.1,
-                    pointRadius: 2,
-                    pointHoverRadius: 5
-                },
-                {
-                    label: 'EC Pure Water',
-                    data: getChartData('ecwp'),
-                    borderColor: '#E91E63',
-                    backgroundColor: '#E91E63' + '20',
                     borderWidth: 3,
                     tension: 0.1,
                     pointRadius: 2,
