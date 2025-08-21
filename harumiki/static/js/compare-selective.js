@@ -686,6 +686,15 @@ function createECChart(data) {
                     borderWidth: 3,
                     tension: 0.1,
                     spanGaps: true
+                },
+                {
+                    label: 'EC Pure Water',
+                    data: data['ecwp'] || [],
+                    borderColor: '#E91E63',
+                    backgroundColor: '#E91E63' + '20',
+                    borderWidth: 3,
+                    tension: 0.1,
+                    spanGaps: true
                 }
             ]
         },

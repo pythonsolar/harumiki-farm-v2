@@ -34,10 +34,10 @@ RUN mkdir -p logs staticfiles media && \
 USER django
 
 # Collect static files
-#RUN python manage.py collectstatic --noinput
+RUN python manage.py collectstatic --noinput
 
 # Expose port
 EXPOSE 8000
 
 # Run gunicorn
-CMD ["gunicorn", "--bind", "0.0.0.0:8000", "--workers", "3", "harumiki.wsgi:application"]
+CMD ["gunicorn", "--bind", "0.0.0.0:8000", "--workers", "3", "--timeout", "300", "harumiki.wsgi:application"]

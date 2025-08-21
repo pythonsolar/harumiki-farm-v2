@@ -911,7 +911,7 @@ def update_graph1(start_datetime, end_datetime):
     pm_R1 = get_history_val("PM25_R1", "atmos", start_datetime, end_datetime)
     pm_outside = get_history_val("PM25_OUTSIDE", "atmos", start_datetime, end_datetime)
     ECWM = get_history_val("EC", "conduct", start_datetime, end_datetime)
-    ECWP = get_history_val("EC2", "val", start_datetime, end_datetime)
+    ECWP = get_history_val("EC2", "conduct", start_datetime, end_datetime)
     TempWM = get_history_val("EC", "temp", start_datetime, end_datetime)
     CO2_R1 = get_history_val("CO2_R1", "val", start_datetime, end_datetime)
     CO2_R2 = get_history_val("CO2_R2", "val", start_datetime, end_datetime)
@@ -1023,7 +1023,7 @@ def update_graph2(start_datetime, end_datetime):
         ('pm_R2', 'PM25_R2', 'atmos'),
         ('pm_outside', 'PM25_OUTSIDE', 'atmos'),
         ('ECWM', 'EC', 'conduct'),
-        ('ECWP', 'EC2', 'val'),
+        ('ECWP', 'EC2', 'conduct'),
         ('TempWM', 'EC', 'temp'),
         ('CO2_R1', 'CO2_R1', 'val'),
         ('CO2_R2', 'CO2_R2', 'val'),
@@ -1194,7 +1194,6 @@ SENSOR_NORMALIZE_MAX = {
     # Water Quality
     'ECWM': 1500,
     'ECWP': 1500,
-    'ECWM_Q': 1500,
 }
 
 def normalize_data(context_dict):

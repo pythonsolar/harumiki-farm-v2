@@ -28800,3 +28800,26 @@ ERROR 2025-08-16 11:43:50,151 views API request failed: HTTPSConnectionPool(host
 ERROR 2025-08-16 11:43:50,156 views API request failed: HTTPSConnectionPool(host='ichigo.ini.farm', port=443): Max retries exceeded with url: /v1/get-latest-data?sensor_id=NPK6 (Caused by NameResolutionError("<urllib3.connection.HTTPSConnection object at 0x000002A617ECBDA0>: Failed to resolve 'ichigo.ini.farm' ([Errno 11001] getaddrinfo failed)"))
 ERROR 2025-08-16 11:43:50,161 views API request failed: HTTPSConnectionPool(host='ichigo.ini.farm', port=443): Max retries exceeded with url: /v1/get-latest-data?sensor_id=NPK6 (Caused by NameResolutionError("<urllib3.connection.HTTPSConnection object at 0x000002A617F971D0>: Failed to resolve 'ichigo.ini.farm' ([Errno 11001] getaddrinfo failed)"))
 ERROR 2025-08-16 11:43:50,165 views API request failed: HTTPSConnectionPool(host='ichigo.ini.farm', port=443): Max retries exceeded with url: /v1/get-latest-data?sensor_id=NPK6 (Caused by NameResolutionError("<urllib3.connection.HTTPSConnection object at 0x000002A617E803E0>: Failed to resolve 'ichigo.ini.farm' ([Errno 11001] getaddrinfo failed)"))
+ERROR 2025-08-20 09:51:32,337 views Error getting pm data: 
+ERROR 2025-08-20 09:51:42,357 views Error getting water data: 
+ERROR 2025-08-20 10:12:40,376 views Error getting pm data: 
+ERROR 2025-08-20 10:12:50,388 views Error getting water data: 
+ERROR 2025-08-20 10:13:00,388 views Error getting npk data: 
+ERROR 2025-08-20 10:13:10,404 views Error getting soil data: 
+ERROR 2025-08-20 10:13:20,414 views Error getting light data: 
+ERROR 2025-08-20 10:13:30,424 views Error getting air data: 
+WARNING 2025-08-20 16:11:46,384 log Not Found: /.well-known/appspecific/com.chrome.devtools.json
+WARNING 2025-08-20 16:11:46,385 basehttp "GET /.well-known/appspecific/com.chrome.devtools.json HTTP/1.1" 404 7379
+ERROR 2025-08-20 16:50:01,934 views Error getting npk data: 
+ERROR 2025-08-20 16:52:20,606 views Error during farm sensor export: HTTPSConnectionPool(host='ichigo.ini.farm', port=443): Read timed out. (read timeout=60)
+ERROR 2025-08-20 16:53:20,830 views Error during farm sensor export: HTTPSConnectionPool(host='ichigo.ini.farm', port=443): Read timed out. (read timeout=60)
+ERROR 2025-08-20 16:54:21,054 views Error during farm sensor export: HTTPSConnectionPool(host='ichigo.ini.farm', port=443): Read timed out. (read timeout=60)
+ERROR 2025-08-20 16:55:21,244 views Error during farm sensor export: HTTPSConnectionPool(host='ichigo.ini.farm', port=443): Read timed out. (read timeout=60)
+ERROR 2025-08-20 16:56:21,418 views Error during farm sensor export: HTTPSConnectionPool(host='ichigo.ini.farm', port=443): Read timed out. (read timeout=60)
+ERROR 2025-08-20 16:57:21,583 views Error during farm sensor export: HTTPSConnectionPool(host='ichigo.ini.farm', port=443): Read timed out. (read timeout=60)
+ERROR 2025-08-20 16:58:21,759 views Error during farm sensor export: HTTPSConnectionPool(host='ichigo.ini.farm', port=443): Read timed out. (read timeout=60)
+ERROR 2025-08-20 16:59:21,920 views Error during farm sensor export: HTTPSConnectionPool(host='ichigo.ini.farm', port=443): Read timed out. (read timeout=60)
+ERROR 2025-08-20 17:00:22,092 views Error during farm sensor export: HTTPSConnectionPool(host='ichigo.ini.farm', port=443): Read timed out. (read timeout=60)
+ERROR 2025-08-20 17:01:22,384 views Error during farm sensor export: HTTPSConnectionPool(host='ichigo.ini.farm', port=443): Read timed out. (read timeout=60)
+ERROR 2025-08-20 17:02:22,622 views Error during farm sensor export: HTTPSConnectionPool(host='ichigo.ini.farm', port=443): Read timed out. (read timeout=60)
+ERROR 2025-08-20 17:03:22,798 views Error during farm sensor export: HTTPSConnectionPool(host='ichigo.ini.farm', port=443): Read timed out. (read timeout=60)
