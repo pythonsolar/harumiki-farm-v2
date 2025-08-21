@@ -55,6 +55,9 @@ document.addEventListener('DOMContentLoaded', function() {
     // Initialize sensor data
     collectSensorData();
     
+    // Format all numbers on initial load
+    formatAllNumbers();
+    
     // Update sensor statuses
     updateAllSensorStatuses();
     
@@ -197,9 +200,6 @@ function updateAllSensorStatuses() {
 function updateSensorStatus(elementId, value, thresholds, inverse = false) {
     const element = document.getElementById(elementId);
     if (!element) {
-        if (window.harumikiUtils && window.harumikiUtils.logger) {
-            window.harumikiUtils.logger.warn(`Element with ID '${elementId}' not found`);
-        }
         return;
     }
     
@@ -208,10 +208,21 @@ function updateSensorStatus(elementId, value, thresholds, inverse = false) {
     const valueElement = card?.querySelector('.value');
     
     if (!statusIndicator || !valueElement) {
-        if (window.harumikiUtils && window.harumikiUtils.logger) {
-            window.harumikiUtils.logger.warn(`Required elements not found for sensor ${elementId}`);
-        }
         return;
+    }
+
+    if (valueElement && value !== null && value !== undefined) {
+        let decimals = 1;
+        
+        // กำหนด decimals ตาม sensor type
+        if (card.classList.contains('ppfd') || card.classList.contains('co2')) {
+            decimals = 0;
+        } else if (card.classList.contains('dli') || card.classList.contains('ec')) {
+            decimals = 2;
+        }
+        
+        // ใช้ formatNumber ที่แก้ไขแล้ว
+        valueElement.textContent = formatNumber(value, decimals);
     }
     
     let status = 'good';
@@ -293,7 +304,10 @@ function formatNumber(num, decimals = 1) {
     if (num === null || num === undefined || isNaN(num)) {
         return '0';
     }
-    return Number(num).toFixed(decimals);
+    return Number(num).toLocaleString('en-US', {
+        minimumFractionDigits: decimals,
+        maximumFractionDigits: decimals
+    });
 }
 
 function getTimeBasedThresholds() {
@@ -321,6 +335,40 @@ function debugSensorData() {
         window.harumikiUtils.logger.log('Sensor Data:', sensorData);
         window.harumikiUtils.logger.log('Farm Config:', FARM_CONFIGS[currentFarm]);
     }
+}
+
+// ========== Format All Numbers on Page Load ==========
+function formatAllNumbers() {
+    // Format all sensor values on page
+    document.querySelectorAll('.sensor-value .value').forEach(element => {
+        const value = parseFloat(element.textContent.replace(/,/g, ''));
+        if (!isNaN(value)) {
+            const card = element.closest('.sensor-card');
+            let decimals = 1;
+            
+            // Determine decimals based on sensor type
+            if (card) {
+                if (card.classList.contains('ppfd') || card.classList.contains('co2') || card.classList.contains('uv')) {
+                    decimals = 0;
+                } else if (card.classList.contains('dli') || card.classList.contains('ec')) {
+                    decimals = 2;
+                } else if (card.classList.contains('lux') || card.classList.contains('temperature') || 
+                          card.classList.contains('humidity') || card.classList.contains('pm25')) {
+                    decimals = 1;
+                }
+            }
+            
+            element.textContent = formatNumber(value, decimals);
+        }
+    });
+    
+    // Format NPK values
+    document.querySelectorAll('.npk-value').forEach(element => {
+        const value = parseFloat(element.textContent.replace(/,/g, ''));
+        if (!isNaN(value)) {
+            element.textContent = formatNumber(value, 0); // NPK ไม่ต้องทศนิยม
+        }
+    });
 }
 
 // ========== Export functions for external use ==========

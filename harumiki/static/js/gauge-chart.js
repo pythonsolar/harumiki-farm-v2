@@ -93,7 +93,12 @@ class GaugeChart {
         ctx.fillStyle = '#333';
         ctx.textAlign = 'center';
         ctx.textBaseline = 'middle';
-        ctx.fillText(this.options.value + this.options.unit, centerX, centerY - 10);
+        // Format number with comma
+        const formattedValue = this.options.value.toLocaleString('en-US', {
+            minimumFractionDigits: this.options.unit === '%' ? 1 : 2,
+            maximumFractionDigits: this.options.unit === '%' ? 1 : 2
+        });
+        ctx.fillText(formattedValue + this.options.unit, centerX, centerY - 10);
         
         // Draw title
         ctx.font = '14px Arial';
@@ -188,6 +193,28 @@ document.addEventListener('DOMContentLoaded', function() {
     if (window.harumikiUtils && window.harumikiUtils.logger) {
         window.harumikiUtils.logger.log('Gauge initialization completed');
     }
+    // Format gauge info values - ย้ายมาไว้ตรงนี้
+    setTimeout(() => {
+        document.querySelectorAll('.gauge-info .gauge-value').forEach(element => {
+            const text = element.textContent;
+            const match = text.match(/^([\d.]+)(.*)$/);
+            if (match) {
+                const value = parseFloat(match[1]);
+                const unit = match[2];
+                
+                let decimals = 2;
+                if (unit.includes('°C')) decimals = 1;
+                else if (unit.includes('%')) decimals = 1;
+                
+                const formatted = value.toLocaleString('en-US', {
+                    minimumFractionDigits: decimals,
+                    maximumFractionDigits: decimals
+                });
+                
+                element.textContent = formatted + unit;
+            }
+        });
+    }, 100); // delay เล็กน้อยให้ gauge render เสร็จก่อน
 });
 
 // ========== Alternative Gauge Using Chart.js (if available) ==========
